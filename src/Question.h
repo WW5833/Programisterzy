@@ -1,7 +1,7 @@
-#include <stdio.h>
-
 #ifndef _INC_QUESTION_H
 #define _INC_QUESTION_H 
+
+#include <stdio.h>
 
 typedef struct
 {
@@ -17,7 +17,8 @@ typedef struct
     int HelpLength;
 } Question;
 
-Question DeserializeQuestion(char* serializedQuestion);
-int AppendQuestion(FILE file, Question question);
+Question* DeserializeQuestion(char* serializedQuestion);
+int AppendQuestion(FILE* file, Question* question);
+int DestroyQuestion(Question* question);
 
 #endif // !_INC_QUESTION_H
