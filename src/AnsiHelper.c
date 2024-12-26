@@ -16,7 +16,7 @@ void GetCursorPosition(int* x, int* y)
     printf(ESC_SEQ "6n");
 
     if(getch() != '\x1B') {
-        perror("Failed to get cursor position");
+        fprintf(stderr, "Failed to get cursor position, ANSI not supported?\n");
         exit(EXIT_FAILURE);
     }
 
