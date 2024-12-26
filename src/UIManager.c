@@ -78,24 +78,43 @@ void UILoop_Quiz()
 
 bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
     int offset = rand() % 4;
-
-    printf("[DEBUG] Offset: %d\n", offset);
-
-    PrintQuestion(question, number, offset);
-
-    if(!abilities[0]) printf("X: Help1\n");
-    if(!abilities[1]) printf("Y: Help2\n");
-    if(!abilities[2]) printf("Z: Help3\n");
-
-    
+    bool xNow = false;
+    bool yNow = false;
+    bool zNow = false;
     while (true)
     {
+        system("clear");
+
+        PrintQuestion(question, number, offset);
+
+        if(!abilities[0])
+            printf("X: Help1\n");
+        else if(!xNow)
+            printf("X: Already used\n");
+        else
+            printf("X: HINT HERE\n");
+
+        if(!abilities[1])
+            printf("Y: Help2\n");
+        else if(!yNow)
+            printf("Y: Already used\n");
+        else
+            printf("Y: HINT HERE\n");
+
+        if(!abilities[2])
+            printf("Z: Help3\n");
+        else if(!zNow)
+            printf("Z: Already used\n");
+        else
+            printf("Z: HINT HERE\n");
+
         char answer;
         scanf(" %c", &answer);
 
         if(answer == 'X' && !abilities[0]) {
             printf("Help1: %s\n", question->Help);
             abilities[0] = true;
+            xNow = true;
             getchar();
             continue;
         }
@@ -103,6 +122,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         if(answer == 'Y' && !abilities[1]) {
             printf("Help2: %s\n", question->Help);
             abilities[1] = true;
+            yNow = true;
             getchar();
             continue;
         }
@@ -110,6 +130,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         if(answer == 'Z' && !abilities[2]) {
             printf("Help3: %s\n", question->Help);
             abilities[2] = true;
+            zNow = true;
             getchar();
             continue;
         }
