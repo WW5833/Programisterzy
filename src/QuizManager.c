@@ -145,7 +145,6 @@ Question* GetRandomQuestion() {
     return ListGetAt(QuestionList, index);
 }
 
-
 QuizData* GenerateQuiz(const char username[30]) {
     if(QuestionList == NULL) {
         LoadQuestions();

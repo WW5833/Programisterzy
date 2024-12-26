@@ -38,4 +38,4 @@ QuizData* GenerateQuiz(const char username[30]);
 Question* GetCurrentQuestion(QuizData* quiz);
 void DestroyQuiz(QuizData* quiz);
 
-#endif // !_INC_QUIZ_MANAGER_H
+#endif // !_INC_QUIZMANAGER_H
