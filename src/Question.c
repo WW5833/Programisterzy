@@ -1,6 +1,7 @@
 #include "Question.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #define TO_ULL(i) ((unsigned long long)(i))
 #define TO_INT(i) ((int)(i))
