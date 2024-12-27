@@ -106,7 +106,7 @@ void UILoop_MainMenu()
     while (choice != 'q')
     {
         PrintMainMenu();
-        choice = getch();
+        choice = _getch();
         switch (choice)
         {
             case '1':
@@ -136,7 +136,7 @@ void UILoop_Quiz()
     char c;
     for (int i = 0; i < 30; i++)
     {
-        c = getch();
+        c = _getch();
         if(c == '\0') break;
         if(c == '\03') {
             printf("Exiting... (CTRL+C)\n");
@@ -255,7 +255,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         HideCursor();
         SetCursorPosition(2, questionEndLine + 7);
 
-        unsigned char answer = getch();
+        unsigned char answer = _getch();
 
         if(answer == '\03') { // CTRL+C
             printf("Exiting... (CTRL+C)\n");
@@ -265,7 +265,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         if(answer == 224) {
             SetCursorPosition(3, questionEndLine + selected);
             printf("%c: %s", 'A' + selected, question->Answer[(selected + offset) % 4]);
-            switch (getch())
+            switch (_getch())
             {
                 case 72: // Arrow Up
                     selected = (selected + 3) % 4;
@@ -304,7 +304,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                 printf(UNDERLINE_ON "%c: %s" UNDERLINE_OFF, 'A' + selected, question->Answer[(selected + offset) % 4]);
                 ResetColor();
 
-                while(getch() != '\015');
+                while(_getch() != '\015');
 
                 SetCursorPosition(0, questionEndLine + 10);
                 return *outCorrect;
@@ -361,7 +361,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         printf("%c: %s", answer, question->Answer[answerIndex]);
         ResetColor();
 
-        while(getch() != '\015');
+        while(_getch() != '\015');
 
         SetCursorPosition(0, questionEndLine + 10);
         return *outCorrect;

@@ -15,15 +15,15 @@ void GetCursorPosition(int* x, int* y)
 {
     printf(ESC_SEQ "6n");
 
-    if(getch() != '\x1B') {
+    if(_getch() != '\x1B') {
         fprintf(stderr, "Failed to get cursor position, ANSI not supported?\n");
         exit(EXIT_FAILURE);
     }
 
-    int c = getch(); // Shold be '['
+    int c = _getch(); // Shold be '['
     int i = 0;
     while(c != ';' && c != '\0') {
-        c = getch();
+        c = _getch();
         _tmp_buffer[i++] = (char)c;
     }
     _tmp_buffer[i] = '\0';
@@ -31,7 +31,7 @@ void GetCursorPosition(int* x, int* y)
 
     i = 0;
     while(c != 'R' && c != '\0') {
-        c = getch();
+        c = _getch();
         _tmp_buffer[i++] = (char)c;
     }
     _tmp_buffer[i] = '\0';

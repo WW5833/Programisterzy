@@ -11,8 +11,8 @@
 void EnsureAnsiSupport()
 {
     printf(ESC_SEQ "6n");
-    if(_kbhit() && getch() == '\x1B') {
-        while (getch() != 'R'); // Clear the buffer
+    if(_kbhit() && _getch() == '\x1B') {
+        while (_getch() != 'R'); // Clear the buffer
         printf(CLR_SCRN);
         return; // ANSI supported
     }
@@ -23,8 +23,8 @@ void EnsureAnsiSupport()
     SetConsoleMode(hOutput, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
     printf(ESC_SEQ "6n");
-    if(_kbhit() && getch() == '\x1B') {
-        while (getch() != 'R'); // Clear the buffer
+    if(_kbhit() && _getch() == '\x1B') {
+        while (_getch() != 'R'); // Clear the buffer
         printf(CLR_SCRN);
         return; // ANSI now supported
     }
