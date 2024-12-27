@@ -118,6 +118,7 @@ void UILoop_MainMenu()
                 break;
             case 'Q':
             case 'q':
+            case '\03':
                 exit(EXIT_SUCCESS);
             default:
                 break;
