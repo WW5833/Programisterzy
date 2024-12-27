@@ -165,8 +165,9 @@ QuizData* GenerateQuiz(const char username[30]) {
         perror("Failed to allocate memory for quiz data");
         exit(EXIT_FAILURE);
     }
-
+#pragma GCC diagnostic ignored "-Wconversion"
     quiz->seed = time(NULL);
+#pragma GCC diagnostic warning "-Wconversion"
     quiz->abulitiesUsed[0] = false;
     quiz->abulitiesUsed[1] = false;
     quiz->abulitiesUsed[2] = false;

@@ -69,7 +69,7 @@ void PrintQuestion(Question* question, int number, int offset)
 
 void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset)
 {
-    int lineLength = strlen(line) + offset;
+    int lineLength = (int)strlen(line) + offset;
     if(lineLength <= width) {
         printf("%s", line);
         return;
@@ -81,7 +81,7 @@ void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffs
 
     while (*current != '\0') {
         if (*current == ' ' || *(current + 1) == '\0') {
-            int wordLength = current - wordStart + (*(current + 1) == '\0' ? 1 : 0);
+            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
             if (currentWidth + wordLength > width) {
                 printf("\n%*s", secondaryOffset, "");
                 currentWidth = secondaryOffset;
@@ -106,7 +106,7 @@ void UILoop_MainMenu()
     while (choice != 'q')
     {
         PrintMainMenu();
-        choice = _getch();
+        choice = (char)_getch();
         switch (choice)
         {
             case '1':
@@ -136,7 +136,7 @@ void UILoop_Quiz()
     char c;
     for (int i = 0; i < 30; i++)
     {
-        c = _getch();
+        c = (char)_getch();
         if(c == '\0') break;
         if(c == '\03') {
             printf("Exiting... (CTRL+C)\n");
@@ -255,7 +255,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         HideCursor();
         SetCursorPosition(2, questionEndLine + 7);
 
-        unsigned char answer = _getch();
+        unsigned char answer = (unsigned char)_getch();
 
         if(answer == '\03') { // CTRL+C
             printf("Exiting... (CTRL+C)\n");
