@@ -4,6 +4,7 @@
 #include "AnsiHelper.Windows.h"
 
 int main() {
+    system("chcp 65001");
     EnsureAnsiSupport();
 
     UILoop_MainMenu();

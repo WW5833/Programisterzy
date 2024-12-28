@@ -7,42 +7,41 @@
 #include "QuizManager.h"
 #include "AnsiHelper.h"
 
-#define VERTICAL_LINE 186
-#define HORIZONTAL_LINE 205
-#define TOP_LEFT_CORNER 201
-#define TOP_RIGHT_CORNER 187
-#define BOTTOM_LEFT_CORNER 200
-#define BOTTOM_RIGHT_CORNER 188
-#define CROSS 206
-#define TJUNCTION_LEFT 204
-#define TJUNCTION_RIGHT 185
-#define TJUNCTION_UP 203
-#define TJUNCTION_DOWN 202
+#define VERTICAL_LINE "%c%c%c", 0xE2, 0x95, 0x91 /*'║'*/
+#define HORIZONTAL_LINE "%c%c%c", 0xE2, 0x95, 0x90 /*'═'*/
+#define TOP_LEFT_CORNER "%c%c%c", 0xE2, 0x95, 0x94 /*'╔'*/
+#define TOP_RIGHT_CORNER "%c%c%c", 0xE2, 0x95, 0x97 /*'╗'*/
+#define BOTTOM_LEFT_CORNER "%c%c%c", 0xE2, 0x95, 0x9A /*'╚'*/
+#define BOTTOM_RIGHT_CORNER "%c%c%c", 0xE2, 0x95, 0x9D /*'╝'*/
+#define CROSS "%c%c%c", 0xE2, 0x95, 0xAC /*'╬'*/
+#define TJUNCTION_LEFT "%c%c%c", 0xE2, 0x95, 0xA0 /*'╠'*/
+#define TJUNCTION_RIGHT "%c%c%c", 0xE2, 0x95, 0xA3 /*'╣'*/
+#define TJUNCTION_UP "%c%c%c", 0xE2, 0x95, 0xA6 /*'╦'*/
+#define TJUNCTION_DOWN "%c%c%c", 0xE2, 0x95, 0xA9 /*'╩'*/
 
-#define PRINT_TOP_BORDER(width) \
-    printf("%c", TOP_LEFT_CORNER); {\
+#define PRINT_TOP_BORDER(width) {\
+    printf(TOP_LEFT_CORNER); \
     for (int _i = 0; _i < width - 2; _i++) \
-        printf("%c", HORIZONTAL_LINE); \
-    printf("%c\n", TOP_RIGHT_CORNER); }
+        printf(HORIZONTAL_LINE); \
+    printf(TOP_RIGHT_CORNER); printf("\n"); }
 
 #define PRINT_BOTTOM_BORDER(width) {\
-    printf("%c", BOTTOM_LEFT_CORNER); \
+    printf(BOTTOM_LEFT_CORNER); \
     for (int _i = 0; _i < width - 2; _i++) \
-        printf("%c", HORIZONTAL_LINE); \
-    printf("%c\n", BOTTOM_RIGHT_CORNER); }
+        printf(HORIZONTAL_LINE); \
+    printf(BOTTOM_RIGHT_CORNER); printf("\n"); }
 
 #define PRINT_MIDDLE_BORDER(width) {\
-    printf("%c", TJUNCTION_LEFT); \
+    printf(TJUNCTION_LEFT); \
     for (int _i = 0; _i < width - 2; _i++) \
-        printf("%c", HORIZONTAL_LINE); \
-    printf("%c\n", TJUNCTION_RIGHT); }
+        printf(HORIZONTAL_LINE); \
+    printf(TJUNCTION_RIGHT); printf("\n"); }
 
 #define PRINT_VERTICAL_LINES(width, i) {\
     SetCursorPosition(0, i); \
-    printf("%c", VERTICAL_LINE); \
+    printf(VERTICAL_LINE); \
     SetCursorPosition(width, i); \
-    printf("%c", VERTICAL_LINE); }
-
+    printf(VERTICAL_LINE); }
 
 void PrintMainMenu()
 {
@@ -54,8 +53,8 @@ void PrintMainMenu()
     printf("Witaj w Programisterach!\n");
     printf("1. Rozpocznij quiz\n");
     printf("2. Dodaj pytanie\n");
-    printf("3. Tablica wynikow\n");
-    printf("Q. Wyjdz\n");
+    printf("3. Tablica wyników\n");
+    printf("Q. Wyjdź\n");
 }
 
 void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset)
@@ -83,9 +82,7 @@ void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffs
         }
         current++;
     }
-    
 }
-
 
 void UILoop_MainMenu();
 void UILoop_Quiz();
@@ -164,13 +161,12 @@ void UILoop_Quiz()
     QuizData* quiz = GenerateQuiz(username);
     if(quiz == NULL) return;
 
+    bool correct = false;
     for(int i = 0; i < 10; i++) {
         Question* q = ListGetAt(quiz->questions, i);
-        // PrintQuestion(q, i + 1, 0);
-        // getchar();
-        if(!UILoop_QuizQuestion(q, i + 1, &quiz->abulitiesUsed[0], &quiz->asnwersCorrect[i], &quiz->answers[i])) {
-            printf("Przegrales :/\n");
-            getchar();
+        if(!UILoop_QuizQuestion(q, i + 1, &quiz->abulitiesUsed[0], &correct, &quiz->answers[i])) {
+            printf("Przegrałeś :/\n");
+            while(_getch() != '\015');
             break;
         }
     }
@@ -331,32 +327,5 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
             abilities[2] = true;
             continue;
         }
-
-        if(answer != 'A' && answer != 'B' && answer != 'C' && answer != 'D') {
-            continue;
-        }
-
-        int answerIndex = answer - 'A';
-        answerIndex += offset;
-        answerIndex = (answerIndex + 4) % 4;
-
-        *outAnswer = (char)answerIndex;
-
-        *outCorrect = answerIndex == 0;
-
-        SetCursorPosition(2, questionEndLine + (answer - 'A'));
-
-        if(*outCorrect)
-            SetColor(COLOR_FG_GREEN);
-        else
-            SetColor(COLOR_FG_RED);
-
-        printf("%c: %s", answer, question->Answer[answerIndex]);
-        ResetColor();
-
-        while(_getch() != '\015');
-
-        SetCursorPosition(0, questionEndLine + 10);
-        return *outCorrect;
     }
 }

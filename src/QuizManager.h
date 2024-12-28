@@ -24,7 +24,6 @@ typedef struct {
     int questionIds[10];
     char answers[10];
     char username[30];
-    bool asnwersCorrect[10];
     bool abulitiesUsed[3];
 } QuizData;
 

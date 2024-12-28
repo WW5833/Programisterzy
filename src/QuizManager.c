@@ -191,7 +191,6 @@ QuizData* GenerateQuiz(const char username[30]) {
         ListAdd(quiz->questions, q);
         quiz->questionIds[i] = q->Id;
         quiz->answers[i] = 0;
-        quiz->asnwersCorrect[i] = false;
     }
 
     return quiz;
