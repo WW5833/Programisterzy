@@ -58,15 +58,6 @@ void PrintMainMenu()
     printf("Q. Wyjdz\n");
 }
 
-void PrintQuestion(Question* question, int number, int offset)
-{
-    printf("Pytanie %d: %s\n", number, question->Content);
-    printf("A: %s\n", question->Answer[(0 + offset) % 4]);
-    printf("B: %s\n", question->Answer[(1 + offset) % 4]);
-    printf("C: %s\n", question->Answer[(2 + offset) % 4]);
-    printf("D: %s\n", question->Answer[(3 + offset) % 4]);
-}
-
 void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset)
 {
     int lineLength = (int)strlen(line) + offset;
@@ -126,13 +117,7 @@ void UILoop_MainMenu()
     }
 }
 
-void UILoop_Quiz()
-{
-    char username[30];
-
-    printf("Podaj swoje imie: ");
-    // scanf("%30s", username);
-
+void ReadUsername(char username[30]) {
     char c;
     for (int i = 0; i < 30; i++)
     {
@@ -166,7 +151,14 @@ void UILoop_Quiz()
         username[i] = c;
         printf("%c", c);
     }
-    
+}
+
+void UILoop_Quiz()
+{
+    char username[30];
+
+    printf("Podaj swoje imie: ");
+    ReadUsername(username);
 
     QuizData* quiz = GenerateQuiz(username);
     if(quiz == NULL) return;
@@ -319,21 +311,21 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         }
 
         if(answer == 'X' && !abilities[0]) {
-            SetCursorPosition(2, questionEndLine + 4);
+            SetCursorPosition(3, questionEndLine + 5);
             printf("X: %s\n", question->Help);
             abilities[0] = true;
             continue;
         }
 
         if(answer == 'Y' && !abilities[1]) {
-            SetCursorPosition(2, questionEndLine + 5);
+            SetCursorPosition(3, questionEndLine + 6);
             printf("Y: %s\n", question->Help);
             abilities[1] = true;
             continue;
         }
 
         if(answer == 'Z' && !abilities[2]) {
-            SetCursorPosition(2, questionEndLine + 6);
+            SetCursorPosition(3, questionEndLine + 7);
             printf("Z: %s\n", question->Help);
             abilities[2] = true;
             continue;
