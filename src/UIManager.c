@@ -136,6 +136,7 @@ void ReadUsername(char username[30]) {
         if(c == ' ') {
             username[i] = '_';
             printf("_");
+            continue;
         }
 
         if(c == '\b') {
