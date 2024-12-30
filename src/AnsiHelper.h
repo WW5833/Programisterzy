@@ -10,10 +10,13 @@
 #define CSR_MOVE_RIGHT(x) ESC_SEQ "%dC", x
 #define CSR_MOVE_LEFT(x) ESC_SEQ "%dD", x
 
+#define CSR_MOVE_LEFT_0_DOWN(x) ESC_SEQ "%dE", x
+
 #define CSR_MOVE_UP_1 ESC_SEQ "1A"
 #define CSR_MOVE_DOWN_1 ESC_SEQ "1B"
 #define CSR_MOVE_RIGHT_1 ESC_SEQ "1C"
 #define CSR_MOVE_LEFT_1 ESC_SEQ "1D"
+#define CSR_MOVE_LEFT_0_DOWN1 ESC_SEQ "1E"
 
 #define UNDERLINE_ON ESC_SEQ "4m"
 #define UNDERLINE_OFF ESC_SEQ "24m"
