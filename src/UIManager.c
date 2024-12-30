@@ -79,9 +79,6 @@ void PrintMainMenu()
 {
     ResetColor();
     ClearScreen();
-    // int x, y;
-    // GetTerminalSize(&x, &y);
-    // printf("[DEBUG] TerminalSize (%d, %d)\n", x, y);
     printf("Witaj w Programisterach!\n");
     printf("1. Rozpocznij quiz\n");
     printf("2. Dodaj pytanie\n");
@@ -91,12 +88,12 @@ void PrintMainMenu()
 
 int GetWrappedLineCount(const char* line, int width, int offset, int secondaryOffset)
 {
-    int lineCount = 1;
-    int lineLength = (int)strlen(line) + offset;
-    if(lineLength <= width) {
-        return lineCount;
+    int lineLength = (int)strlen(line);
+    if(lineLength <= width - offset) {
+        return 1;
     }
 
+    int lineCount = 1;
     int currentWidth = offset;
     const char* wordStart = line;
     const char* current = line;
@@ -120,8 +117,8 @@ int GetWrappedLineCount(const char* line, int width, int offset, int secondaryOf
 
 void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset, int realSecondaryOffset)
 {
-    int lineLength = (int)strlen(line) + offset;
-    if(lineLength <= width) {
+    int lineLength = (int)strlen(line);
+    if(lineLength <= width - offset) {
         printf("%s", line);
         return;
     }
@@ -134,8 +131,7 @@ void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffs
         if (*current == ' ' || *(current + 1) == '\0') {
             int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
             if (currentWidth + wordLength > width) {
-                printf(CSR_MOVE_LEFT_0_DOWN1);
-                printf(CSR_MOVE_RIGHT(realSecondaryOffset));
+                printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(realSecondaryOffset));
                 currentWidth = secondaryOffset;
             }
             printf("%.*s ", wordLength, wordStart);
@@ -280,8 +276,8 @@ void UILoop_Quiz()
     UILoop_MainMenu();
 }
 
-void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg, int colorBg, int beginX) {
-    if(color) SetColors(colorFg, colorBg);
+void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg, int beginX) {
+    if(color) SetColor(colorFg);
     SetCursorPosition(beginX, beginY);
 
     int startText = ansWidth/2 - 7 - 1;
@@ -311,15 +307,15 @@ void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, b
     ResetColor();
 }
 
-void PrintDoubleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int colorBg) {
-    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, colorBg, 3);
-    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, colorBg, 3 + ansWidth + 3);
+void PrintDoubleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg) {
+    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, 3);
+    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, 3 + ansWidth + 3);
 }
 
-void PrintDoubleAnsBlockDelta(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int colorBg, int oldColor) {
+void PrintDoubleAnsBlockDelta(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int oldColor) {
     if(color == oldColor) return;
-    if(color == 1 || oldColor == 1) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, colorBg, 3);
-    if(color == 2 || oldColor == 2) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, colorBg, 3 + ansWidth + 3);
+    if(color == 1 || oldColor == 1) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, 3);
+    if(color == 2 || oldColor == 2) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, 3 + ansWidth + 3);
 }
 
 bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
@@ -355,8 +351,8 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
 
     int ansWidth = ansWidthLimit + 6;
 
-    PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', 1, COLOR_FG_YELLOW, COLOR_BG_BLACK);
-    PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', 0, COLOR_FG_YELLOW, COLOR_BG_BLACK);
+    PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', 1, COLOR_FG_YELLOW);
+    PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', 0, COLOR_FG_YELLOW);
 
     // Print Answer 1
     SetCursorPosition(5, questionEndLine + 2);
@@ -446,8 +442,8 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                 default:
                     break;
             }
-            PrintDoubleAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_YELLOW, COLOR_BG_BLACK, oldSel + 1);
-            PrintDoubleAnsBlockDelta(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_YELLOW, COLOR_BG_BLACK, oldSel - 1);
+            PrintDoubleAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_YELLOW, oldSel + 1);
+            PrintDoubleAnsBlockDelta(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_YELLOW, oldSel - 1);
             continue;
         }
 
@@ -463,8 +459,8 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
 
                 int fgColor = *outCorrect ? COLOR_FG_GREEN : COLOR_FG_RED;
 
-                PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, fgColor, COLOR_BG_DEFAULT);
-                PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, fgColor, COLOR_BG_DEFAULT);
+                PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, fgColor);
+                PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, fgColor);
 
                 ResetColor();
 
@@ -474,8 +470,8 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                 return *outCorrect;
             }
 
-            PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_CYAN, COLOR_BG_DEFAULT);
-            PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_CYAN, COLOR_BG_DEFAULT);
+            PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_CYAN);
+            PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_CYAN);
             confirmed = true;
             continue;
         }
