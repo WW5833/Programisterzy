@@ -19,6 +19,16 @@
 #define TJUNCTION_UP "%c%c%c", 0xE2, 0x95, 0xA6 /*'╦'*/
 #define TJUNCTION_DOWN "%c%c%c", 0xE2, 0x95, 0xA9 /*'╩'*/
 
+#define SINGLE_VERTICAL_LINE "%c%c%c", 0xE2, 0x94, 0x83 /*'┃'*/
+#define SINGLE_HORIZONTAL_LINE "%c%c%c", 0xE2, 0x94, 0x81 /*'━'*/
+#define SINGLE_TOP_LEFT_CORNER "%c%c%c", 0xE2, 0x94, 0x8F /*'┏'*/
+#define SINGLE_TOP_RIGHT_CORNER "%c%c%c", 0xE2, 0x94, 0x93 /*'┓'*/
+#define SINGLE_BOTTOM_LEFT_CORNER "%c%c%c", 0xE2, 0x94, 0x97 /*'┗'*/
+#define SINGLE_BOTTOM_RIGHT_CORNER "%c%c%c", 0xE2, 0x94, 0x9B /*'┛'*/
+
+#define SINGLE_BREAK_LEFT "%c%c%c", 0xE2, 0x94, 0xAB /*'┫'*/
+#define SINGLE_BREAK_RIGHT "%c%c%c", 0xE2, 0x94, 0xA3 /*'┣'*/
+
 #define PRINT_TOP_BORDER(width) {\
     printf(TOP_LEFT_CORNER); \
     for (int _i = 0; _i < width - 2; _i++) \
@@ -43,6 +53,28 @@
     SetCursorPosition(width, i); \
     printf(VERTICAL_LINE); }
 
+
+#define PRINT_SINGLE_TOP_BORDER(width) {\
+    printf(SINGLE_TOP_LEFT_CORNER); \
+    for (int _i = 0; _i < width - 1; _i++) \
+        printf(SINGLE_HORIZONTAL_LINE); \
+    printf(SINGLE_TOP_RIGHT_CORNER); printf("\n"); }
+
+#define PRINT_SINGLE_BOTTOM_BORDER(width) {\
+    printf(SINGLE_BOTTOM_LEFT_CORNER); \
+    for (int _i = 0; _i < width - 1; _i++) \
+        printf(SINGLE_HORIZONTAL_LINE); \
+    printf(SINGLE_BOTTOM_RIGHT_CORNER); printf("\n"); }
+
+#define PRINT_SINGLE_VERTICAL_LINES(width, startX, targetY) {\
+    SetCursorPosition(startX, targetY); \
+    printf(SINGLE_VERTICAL_LINE); \
+    SetCursorPosition(startX + width, targetY); \
+    printf(SINGLE_VERTICAL_LINE); }
+
+
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 void PrintMainMenu()
 {
     ResetColor();
@@ -57,7 +89,36 @@ void PrintMainMenu()
     printf("Q. Wyjdź\n");
 }
 
-void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset)
+int GetWrappedLineCount(const char* line, int width, int offset, int secondaryOffset)
+{
+    int lineCount = 1;
+    int lineLength = (int)strlen(line) + offset;
+    if(lineLength <= width) {
+        return lineCount;
+    }
+
+    int currentWidth = offset;
+    const char* wordStart = line;
+    const char* current = line;
+
+    while (*current != '\0') {
+        if (*current == ' ' || *(current + 1) == '\0') {
+            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
+            if (currentWidth + wordLength > width) {
+                lineCount++;
+                currentWidth = secondaryOffset;
+            }
+            currentWidth += wordLength + 1;
+            wordStart = current + 1;
+        }
+        current++;
+    }
+
+    return lineCount;
+}
+
+
+void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffset, int realSecondaryOffset)
 {
     int lineLength = (int)strlen(line) + offset;
     if(lineLength <= width) {
@@ -73,7 +134,8 @@ void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffs
         if (*current == ' ' || *(current + 1) == '\0') {
             int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
             if (currentWidth + wordLength > width) {
-                printf("\n%*s", secondaryOffset, "");
+                printf(CSR_MOVE_LEFT_0_DOWN1);
+                printf(CSR_MOVE_RIGHT(realSecondaryOffset));
                 currentWidth = secondaryOffset;
             }
             printf("%.*s ", wordLength, wordStart);
@@ -82,6 +144,48 @@ void PrintWrappedLine(const char* line, int width, int offset, int secondaryOffs
         }
         current++;
     }
+}
+
+void PrintWrappedLineJust(const char* line, int width, int offset, int secondaryOffset, int realSecondaryOffset)
+{
+    int lineLength = (int)strlen(line);
+    if(lineLength <= width - offset) {
+        printf(CSR_MOVE_RIGHT((width - lineLength) / 2));
+        printf("%s", line);
+        return;
+    }
+
+    int currentWidth = offset;
+    const char* wordStart = line;
+    const char* current = line;
+    const char* lineStart = line;
+    int rightSpaces;
+
+    while (*current != '\0') {
+        if (*current == ' ' || *(current + 1) == '\0') {
+            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
+            if (currentWidth + wordLength > width) {
+                lineLength = (int)(wordStart - lineStart);
+                rightSpaces = (width - lineLength) / 2;
+                printf(CSR_MOVE_RIGHT(rightSpaces));
+                printf("%.*s", lineLength, lineStart);
+
+                printf(CSR_MOVE_LEFT_0_DOWN1);
+                printf(CSR_MOVE_RIGHT(realSecondaryOffset));
+                currentWidth = secondaryOffset;
+                lineStart = wordStart;
+            }
+            //printf("%.*s ", wordLength, wordStart);
+            currentWidth += wordLength + 1;
+            wordStart = current + 1;
+        }
+        current++;
+    }
+
+    lineLength = (int)(current - lineStart);
+    rightSpaces = (width - lineLength) / 2;
+    printf(CSR_MOVE_RIGHT(rightSpaces));
+    printf("%.*s", lineLength, lineStart);
 }
 
 void UILoop_MainMenu();
@@ -176,10 +280,53 @@ void UILoop_Quiz()
     UILoop_MainMenu();
 }
 
+void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg, int colorBg, int beginX) {
+    if(color) SetColors(colorFg, colorBg);
+    SetCursorPosition(beginX, beginY);
+
+    int startText = ansWidth/2 - 7 - 1;
+    int endText = ansWidth/2 + 6 - 1;
+    printf(SINGLE_TOP_LEFT_CORNER);
+    for (int i = 0; i < ansWidth - 1; i++) {
+        if(i == startText) printf(SINGLE_BREAK_LEFT);
+        else if(i == endText) printf(SINGLE_BREAK_RIGHT);
+        else if(i > startText && i < endText) printf(CSR_MOVE_RIGHT_1);
+        else printf(SINGLE_HORIZONTAL_LINE);
+    }
+    printf(SINGLE_TOP_RIGHT_CORNER);
+
+    for (int i = 0; i < lineCount + 2; i++)
+        PRINT_SINGLE_VERTICAL_LINES(ansWidth, beginX, beginY + i + 1);
+
+    SetCursorPosition(beginX, beginY + lineCount + 3);
+    PRINT_SINGLE_BOTTOM_BORDER(ansWidth);
+    if(color) ResetColor();
+
+    // Print letter
+    SetCursorPosition(beginX + ansWidth/2 - 7 + 1, beginY);
+
+    SetColor(COLOR_FG_CYAN);
+    printf("Odpowiedź: %c", letter);
+
+    ResetColor();
+}
+
+void PrintDoubleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int colorBg) {
+    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, colorBg, 3);
+    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, colorBg, 3 + ansWidth + 3);
+}
+
+void PrintDoubleAnsBlockDelta(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int colorBg, int oldColor) {
+    if(color == oldColor) return;
+    if(color == 1 || oldColor == 1) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, colorBg, 3);
+    if(color == 2 || oldColor == 2) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, colorBg, 3 + ansWidth + 3);
+}
+
 bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
     int offset = rand() % 4;
 
     int questionEndLine;
+    int endAnsLine;
     int tmp;
     int terminalX, terminalY;
     GetTerminalSize(&terminalX, &terminalY);
@@ -188,7 +335,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
 
     PRINT_TOP_BORDER(terminalX);
     printf("  Pytanie %2d: ", number);
-    PrintWrappedLine(question->Content, terminalX - 2, 15, 14);
+    PrintWrappedLine(question->Content, terminalX - 2, 15, 14, 14);
     printf("\n");
     PRINT_MIDDLE_BORDER(terminalX);
     GetCursorPosition(&tmp, &questionEndLine);
@@ -197,41 +344,62 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         PRINT_VERTICAL_LINES(terminalX, i);
 
     SetCursorPosition(0, questionEndLine);
-
-    printf("  " UNDERLINE_ON "A: %s" UNDERLINE_OFF "\n", question->Answer[(0 + offset) % 4]);
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 0);
-
-    printf("  B: %s\n", question->Answer[(1 + offset) % 4]);
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 1);
-
-    printf("  C: %s\n", question->Answer[(2 + offset) % 4]);
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 2);
-
-    printf("  D: %s\n", question->Answer[(3 + offset) % 4]);
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 3);
     
-    PRINT_MIDDLE_BORDER(terminalX);
+    int ansWidthLimit = (terminalX - 19) / 2;
+    int ansLineCountA = GetWrappedLineCount(question->Answer[(0 + offset) % 4], ansWidthLimit, 0, 0);
+    int ansLineCountB = GetWrappedLineCount(question->Answer[(1 + offset) % 4], ansWidthLimit, 0, 0);
+    int ansLineCountMaxAB = MAX(ansLineCountA, ansLineCountB);
+    int ansLineCountC = GetWrappedLineCount(question->Answer[(2 + offset) % 4], ansWidthLimit, 0, 0);
+    int ansLineCountD = GetWrappedLineCount(question->Answer[(3 + offset) % 4], ansWidthLimit, 0, 0);
+    int ansLineCountMaxCD = MAX(ansLineCountC, ansLineCountD);
 
+    int ansWidth = ansWidthLimit + 6;
+
+    PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', 1, COLOR_FG_YELLOW, COLOR_BG_BLACK);
+    PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', 0, COLOR_FG_YELLOW, COLOR_BG_BLACK);
+
+    // Print Answer 1
+    SetCursorPosition(5, questionEndLine + 2);
+    PrintWrappedLineJust(question->Answer[(0 + offset) % 4], ansWidthLimit + 2, 2, 2, 5);
+    // Print Answer 2
+    SetCursorPosition(5 + ansWidthLimit + 9, questionEndLine + 2);
+    PrintWrappedLineJust(question->Answer[(1 + offset) % 4], ansWidthLimit + 2, 2, 2, 5 + ansWidthLimit + 9);
+
+    // Print Answer 3
+    SetCursorPosition(5, questionEndLine + ansLineCountMaxAB + 6);
+    PrintWrappedLineJust(question->Answer[(2 + offset) % 4], ansWidthLimit + 2, 2, 2, 5);
+    // Print Answer 4
+    SetCursorPosition(5 + ansWidthLimit + 9, questionEndLine + ansLineCountMaxAB + 6);
+    PrintWrappedLineJust(question->Answer[(3 + offset) % 4], ansWidthLimit + 2, 2, 2, 5 + ansWidthLimit + 9);
+
+    endAnsLine = questionEndLine + ansLineCountMaxAB + ansLineCountMaxCD + 8;
+
+    for (int i = questionEndLine; i < endAnsLine; i++)
+        PRINT_VERTICAL_LINES(terminalX, i);
+    
+    SetCursorPosition(0, endAnsLine);
+    PRINT_MIDDLE_BORDER(terminalX);
+    
     if(!abilities[0])
         printf("  X: Help1\n");
     else
         printf("  X: Already used\n");
 
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 5);
+    PRINT_VERTICAL_LINES(terminalX, endAnsLine + 1);
 
     if(!abilities[1])
         printf("  Y: Help2\n");
     else
         printf("  Y: Already used\n");
 
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 6);
+    PRINT_VERTICAL_LINES(terminalX, endAnsLine + 2);
 
     if(!abilities[2])
         printf("  Z: Help3\n");
     else
         printf("  Z: Already used\n");
 
-    PRINT_VERTICAL_LINES(terminalX, questionEndLine + 7);
+    PRINT_VERTICAL_LINES(terminalX, endAnsLine + 3);
 
     PRINT_BOTTOM_BORDER(terminalX);
     printf("\n");
@@ -252,24 +420,34 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         }
 
         if(answer == 224) {
-            SetCursorPosition(3, questionEndLine + selected);
-            printf("%c: %s", 'A' + selected, question->Answer[(selected + offset) % 4]);
+            int oldSel = selected;
             switch (_getch())
             {
                 case 72: // Arrow Up
-                    selected = (selected + 3) % 4;
+                    if(selected == 2 || selected == 3) selected -= 2;
+                    else continue;
                     confirmed = false;
                     break;
                 case 80: // Arrow Down
-                    selected = (selected + 1) % 4;
+                    if(selected == 0 || selected == 1) selected += 2;
+                    else continue;
+                    confirmed = false;
+                    break;
+                case 77: // Arrow Right
+                    if(selected == 0 || selected == 2) selected += 1;
+                    else continue;
+                    confirmed = false;
+                    break;
+                case 75: // Arrow Left
+                    if(selected == 1 || selected == 3) selected -= 1;
+                    else continue;
                     confirmed = false;
                     break;
                 default:
                     break;
             }
-
-            SetCursorPosition(3, questionEndLine + selected);
-            printf(UNDERLINE_ON "%c: %s" UNDERLINE_OFF, 'A' + selected, question->Answer[(selected + offset) % 4]);
+            PrintDoubleAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_YELLOW, COLOR_BG_BLACK, oldSel + 1);
+            PrintDoubleAnsBlockDelta(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_YELLOW, COLOR_BG_BLACK, oldSel - 1);
             continue;
         }
 
@@ -283,14 +461,11 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
 
                 *outCorrect = answerIndex == 0;
 
-                SetCursorPosition(3, questionEndLine + selected);
+                int fgColor = *outCorrect ? COLOR_FG_GREEN : COLOR_FG_RED;
 
-                if(*outCorrect)
-                    SetColor(COLOR_FG_GREEN);
-                else
-                    SetColor(COLOR_FG_RED);
+                PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, fgColor, COLOR_BG_DEFAULT);
+                PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, fgColor, COLOR_BG_DEFAULT);
 
-                printf(UNDERLINE_ON "%c: %s" UNDERLINE_OFF, 'A' + selected, question->Answer[(selected + offset) % 4]);
                 ResetColor();
 
                 while(_getch() != '\015');
@@ -299,10 +474,8 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                 return *outCorrect;
             }
 
-            SetCursorPosition(3, questionEndLine + selected);
-            SetColors(COLOR_FG_CYAN, COLOR_BG_DEFAULT);
-            printf(UNDERLINE_ON "%c: %s" UNDERLINE_OFF, 'A' + selected, question->Answer[(selected + offset) % 4]);
-            ResetColor();
+            PrintDoubleAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, 'A', selected + 1, COLOR_FG_CYAN, COLOR_BG_DEFAULT);
+            PrintDoubleAnsBlock(questionEndLine + ansLineCountMaxAB + 4, ansWidth, ansLineCountMaxCD, 'C', selected - 1, COLOR_FG_CYAN, COLOR_BG_DEFAULT);
             confirmed = true;
             continue;
         }
