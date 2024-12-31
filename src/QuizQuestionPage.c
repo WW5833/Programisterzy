@@ -386,7 +386,6 @@ bool EnterQuizQuestionPage(Question* question, int number, bool* abilities, bool
     while (true)
     {
         HideCursor();
-        SetCursorPosition(2, questionEndLine + 7);
 
         int oldSel = selected;
 

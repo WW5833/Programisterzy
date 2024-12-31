@@ -86,6 +86,9 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
 
 KeyInputType HandleInteractions(bool blocking) {
     if(!blocking && !_kbhit()) return KEY_NONE;
+
+    SetCursorPosition(0, 999);
+
     unsigned char answer = (unsigned char)_getch();
 
     switch (answer)
@@ -128,12 +131,15 @@ KeyInputType HandleInteractions(bool blocking) {
 }
 
 void ExitOnCtrlC() {
-    printf("Exiting... (CTRL+C)\n");
+    // printf("Exiting... (CTRL+C)\t");
     exit(EXIT_SUCCESS);
 }
 
 void WaitForEnter() {
     int c;
+
+    SetCursorPosition(0, 999);
+
     while((c = _getch()) != '\015' && c != CTRL_C);
     if(c == CTRL_C) {
         ExitOnCtrlC();
