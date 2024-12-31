@@ -76,7 +76,8 @@ void SetColor(int color)
 
 void ResetColor()
 {
-    printf(SET_COLOR(COLOR_RESET));
+    // printf(SET_COLOR(COLOR_RESET));
+    SetColors(COLOR_FG_DEFAULT, COLOR_BG_BLACK);
 }
 
 void ResetCursor()
