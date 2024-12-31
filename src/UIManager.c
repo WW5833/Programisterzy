@@ -8,8 +8,10 @@
 #include "QuizManager.h"
 #include "AnsiHelper.h"
 #include "PageUtils.h"
+#include "Settings.h"
+#include "SettingsPage.h"
 
-#define CTRL_C '\03'
+extern Settings* LoadedSettings;
 
 #define VERTICAL_LINE "%c%c%c", 0xE2, 0x95, 0x91 /*'║'*/
 #define HORIZONTAL_LINE "%c%c%c", 0xE2, 0x95, 0x90 /*'═'*/
@@ -78,6 +80,7 @@ void PrintMainMenu()
     printf("1. Rozpocznij quiz\n");
     printf("2. Dodaj pytanie\n");
     printf("3. Tablica wyników\n");
+    printf("4. Ustawienia\n");
     printf("Q. Wyjdź\n");
 }
 
@@ -100,6 +103,9 @@ void UILoop_MainMenu()
             case '2':
                 break;
             case '3':
+                break;
+            case '4':
+                EnterSettings();
                 break;
             case 'Q':
             case 'q':
@@ -202,7 +208,7 @@ void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, b
     // Print letter
     SetCursorPosition(beginX + (ansWidth - titleWidth)/2 + 1, beginY);
 
-    SetColor(COLOR_FG_CYAN);
+    SetColor(LoadedSettings->ConfirmedAnswerColor);
     printf("Odpowiedź: %c", letter);
 
     ResetColor();
@@ -278,7 +284,7 @@ double* ShowAudienceHelp(int offset) {
     for (int j = 0; j < 6; j++)
     {
         SetCursorPosition(beginX + 3, beginY + widnowHeight - 2 - (segmentCount / 5)*j);
-        SetColor(COLOR_FG_MAGENTA);
+        SetColor(LoadedSettings->SupportColor);
 
         printf(UNDERLINE_ON "%2d%%", 20*j);
 
@@ -430,10 +436,15 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
         if(i < 10) {
             SetCursorPosition(terminalX - rewardBoxWidth, questionEndLine + i);
             if(number == 10 - i) {
-                SetColor(COLOR_FG_YELLOW);
+                SetColor(LoadedSettings->SelectedAnswerColor);
             }
             printf("%2d ", 10 - i);
-            printf(TRIANGLE);
+
+            if (LoadedSettings->FullUTF8Support)
+                printf(TRIANGLE);
+            else
+                printf(">");
+
             printf(" ");
             switch (9 - i)
             {
@@ -497,7 +508,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
     }
 
     SetCursorPosition(0, questionEndLine);
-    PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_YELLOW);
+    PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor);
 
     // Print Answer 1
     SetCursorPosition(ansTextLeftPadding, questionEndLine + 2);
@@ -543,11 +554,11 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
     SetCursorPosition(0, endAnsLine + 1);
     
     if(!abilities[0]) {
-        SetColor(COLOR_FG_GREEN);
+        SetColor(LoadedSettings->CorrectAnswerColor);
         printf("  X: Głos publiczności\n");
     }
     else {
-        SetColor(COLOR_FG_RED);
+        SetColor(LoadedSettings->WrongAnswerColor);
         printf("  X: Głos publiczności niedostępny\n");
     }
     ResetColor();
@@ -590,28 +601,28 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                 if(selected == 2 || selected == 3) {
                     selected -= 2;
                     confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_YELLOW, oldSel);
+                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
                 }
                 break;
             case KEY_ARROW_DOWN:
                 if(selected == 0 || selected == 1) {
                     selected += 2;
                     confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_YELLOW, oldSel);
+                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
                 }
                 break;
             case KEY_ARROW_RIGHT:
                 if(selected == 0 || selected == 2) {
                     selected += 1;
                     confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_YELLOW, oldSel);
+                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
                 }
                 break;
             case KEY_ARROW_LEFT:
                 if(selected == 1 || selected == 3) {
                     selected -= 1;
                     confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_YELLOW, oldSel);
+                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
                 }
                 break;
             
@@ -624,7 +635,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                     *outAnswer = (char)answerIndex;
                     *outCorrect = answerIndex == 0;
 
-                    int fgColor = *outCorrect ? COLOR_FG_GREEN : COLOR_FG_RED;
+                    int fgColor = *outCorrect ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor;
                     PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, fgColor);
 
                     ResetColor();
@@ -636,7 +647,7 @@ bool UILoop_QuizQuestion(Question* question, int number, bool* abilities, bool* 
                     return *outCorrect;
                 }
 
-                PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, COLOR_FG_CYAN);
+                PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->ConfirmedAnswerColor);
                 confirmed = true;
                 break;
 
