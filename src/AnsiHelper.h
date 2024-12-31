@@ -48,6 +48,8 @@
 #define COLOR_BG_WHITE 47
 #define COLOR_BG_DEFAULT 49
 
+#define COLOR_BRIGHT_MOD 60
+
 void GetCursorPosition(int* x, int* y);
 void SetCursorPosition(int x, int y);
 void GetTerminalSize(int* x, int* y);

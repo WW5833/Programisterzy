@@ -17,6 +17,14 @@ void PrintColors(int color) {
         ResetColor();
         printf("|");
     }
+
+    for (int i = 1; i < 8; i++)
+    {
+        SetColors(COLOR_FG_BLACK, COLOR_BG_BLACK + i + COLOR_BRIGHT_MOD);
+        printf((color == COLOR_FG_BLACK + i + COLOR_BRIGHT_MOD) ? "*" : " ");
+        ResetColor();
+        printf("|");
+    }
 }
 
 void PrintUTF8Support(bool support, int terminalWidth) {
@@ -128,6 +136,10 @@ void EnterSettings()
             *option = *option - 1;
             if (*option <= COLOR_FG_BLACK)
             {
+                *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
+            }
+            else if (*option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD && *option > COLOR_FG_WHITE+1)
+            {
                 *option = COLOR_FG_WHITE;
             }
 
@@ -156,9 +168,13 @@ void EnterSettings()
                     break;
             }
             *option = *option + 1;
-            if (*option > COLOR_FG_WHITE)
+            if (*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD)
             {
                 *option = COLOR_FG_BLACK+1;
+            }
+            else if (*option == COLOR_FG_WHITE+1)
+            {
+                *option = COLOR_FG_BLACK+1+COLOR_BRIGHT_MOD;
             }
 
             SetCursorPosition(colorsX, colorsY + selected);
