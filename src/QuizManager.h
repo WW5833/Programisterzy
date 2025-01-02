@@ -33,6 +33,8 @@ int LoadQuestions();
 QuestionListHeader* GetQuestionList();
 Question* GetRandomQuestion();
 
+int GetMaxQuestionId();
+
 QuizData* GenerateQuiz(const char username[30]);
 Question* GetCurrentQuestion(QuizData* quiz);
 void DestroyQuiz(QuizData* quiz);

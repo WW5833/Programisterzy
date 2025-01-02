@@ -145,6 +145,20 @@ Question* GetRandomQuestion() {
     return ListGetAt(QuestionList, index);
 }
 
+int GetMaxQuestionId()
+{
+    int max = 0;
+    QuestionListItem* current = QuestionList->head;
+    while (current != NULL)
+    {
+        if(current->data->Id > max)
+            max = current->data->Id;
+        current = current->next;
+    }
+
+    return max;
+}
+
 QuizData* GenerateQuiz(const char username[30]) {
     if(QuestionList == NULL) {
         LoadQuestions();

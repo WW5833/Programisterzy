@@ -3,12 +3,23 @@
 #include "MainMenuPage.h"
 #include "AnsiHelper.Windows.h"
 #include "Settings.h"
+#include "QuizManager.h"
+#include "AnsiHelper.h"
 
 Settings* LoadedSettings;
 
 int main() {
     system("chcp 65001");
     EnsureAnsiSupport();
+
+    ClearScreen();
+
+    LoadQuestions();
+
+    if(GetQuestionList() == NULL) {
+        fprintf(stderr, "Failed to load questions\n");
+        exit(EXIT_FAILURE);
+    }
 
     LoadedSettings = LoadSettings();
 
