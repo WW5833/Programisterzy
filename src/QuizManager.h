@@ -4,6 +4,8 @@
 #include "Question.h"
 #include <stdbool.h>
 
+#define QUESTIONS_FILE "./questions.txt"
+
 typedef struct QuestionListItem
 {
     struct QuestionListItem* next;
@@ -28,10 +30,13 @@ typedef struct {
 } QuizData;
 
 Question* ListGetAt(QuestionListHeader* list, int index);
+void ListAdd(QuestionListHeader* list, Question* data);
+void ListRemove(QuestionListHeader* list, Question* question);
 
 int LoadQuestions();
 QuestionListHeader* GetQuestionList();
 Question* GetRandomQuestion();
+void RewriteQuestions(FILE* file, QuestionListHeader* list);
 
 int GetMaxQuestionId();
 

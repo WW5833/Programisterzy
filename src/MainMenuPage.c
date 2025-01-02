@@ -9,7 +9,8 @@
 
 #include "QuizPage.h"
 #include "SettingsPage.h"
-#include "QuestionListPage.h"
+// #include "QuestionListPage.h"
+#include "AddQuestionPage.h"
 
 void PrintMainMenu(int selected)
 {
@@ -17,7 +18,8 @@ void PrintMainMenu(int selected)
     ClearScreen();
     printf("Witaj w Programisterach!\n");
     printf("[ ] Rozpocznij quiz\n");
-    printf("[ ] Zarządzaj pytaniami\n");
+    // printf("[ ] Zarządzaj pytaniami\n");
+    printf("[ ] Dodaj pytanie\n");
     printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
@@ -66,7 +68,8 @@ void PageEnter_MainMenu()
                     PageEnter_Quiz();
                     break;
                 case 1:
-                    PageEnter_QuestionList();
+                    // PageEnter_QuestionList();
+                    PageEnter_AddQuestion();
                     break;
                 case 2:
                     break;

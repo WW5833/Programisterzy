@@ -3,7 +3,6 @@
 #include <string.h>
 #include <time.h>
 
-#define QUESTIONS_FILE "./questions.txt"
 #define BUFFER_SIZE 1024
 
 QuestionListHeader* QuestionList;
@@ -26,7 +25,7 @@ QuestionListHeader* ListCreate() {
     return list;
 }
 
-void ListDestroy(QuestionListHeader* list, bool destoryData) {
+void ListClear(QuestionListHeader* list, bool destoryData) {
     if(list == NULL) return;
 
     QuestionListItem* current = list->head;
@@ -39,6 +38,16 @@ void ListDestroy(QuestionListHeader* list, bool destoryData) {
         free(current);
         current = next;
     }
+
+    list->head = NULL;
+    list->tail = NULL;
+    list->count = 0;
+}
+
+void ListDestroy(QuestionListHeader* list, bool destoryData) {
+    if(list == NULL) return;
+
+    ListClear(list, destoryData);
 
     free(list);
 }
@@ -79,9 +88,43 @@ Question* ListGetAt(QuestionListHeader* list, int index) {
     return current->data;
 }
 
+void ListRemove(QuestionListHeader* list, Question* question) {
+    if(list == NULL) return;
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        if(current->data == question) {
+            if(current->prev != NULL) {
+                current->prev->next = current->next;
+            }
+            else {
+                list->head = current->next;
+            }
+
+            if(current->next != NULL) {
+                current->next->prev = current->prev;
+            }
+            else {
+                list->tail = current->prev;
+            }
+
+            list->count--;
+            free(current);
+            return;
+        }
+
+        current = current->next;
+    }
+}
+
 int LoadQuestions() {
-    ListDestroy(QuestionList, true);
-    QuestionList = ListCreate();
+    if(QuestionList == NULL) {
+        QuestionList = ListCreate();
+    }
+    else {
+        ListClear(QuestionList, true);
+    }
 
     char buffer[BUFFER_SIZE];
     FILE* file = fopen(QUESTIONS_FILE, "r");
@@ -223,4 +266,16 @@ void DestroyQuiz(QuizData* quiz) {
 
     ListDestroy(quiz->questions, false);
     free(quiz);
+}
+
+void RewriteQuestions(FILE* file, QuestionListHeader* list) {
+    if(file == NULL) return;
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        AppendQuestion(file, current->data);
+
+        current = current->next;
+    }
 }

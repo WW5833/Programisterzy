@@ -84,6 +84,53 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
     }
 }
 
+void GetWrappedLineCursorPosition(const char* line, int width, int position, int* cursorX, int* cusrorY)
+{
+    *cursorX = 0;
+    *cusrorY = 0;
+
+    int lineLength = (int)strlen(line);
+    if(lineLength <= width) {
+        *cursorX = position;
+        return;
+    }
+
+    int index = 0;
+    int currentWidth = 0;
+    const char* wordStart = line;
+    const char* current = line;
+
+    while (*current != '\0') {
+        if (*current == ' ' || *(current + 1) == '\0') {
+            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
+            if (currentWidth + wordLength > width) {
+                *cusrorY = *cusrorY + 1;
+                *cursorX = 0;
+
+                currentWidth = 0;
+            }
+
+            *cursorX = *cursorX + wordLength + 1;
+
+            currentWidth += wordLength + 1;
+            wordStart = current + 1;
+
+            if(index >= position) {
+                if(*cursorX > (index - position)) {
+                    *cursorX = *cursorX - (index - position);
+                    return;
+                }
+
+                SetCursorPosition(0, 0);
+                printf("The code has died :/, index: %d, position: %d, cursorX: %d\n", index, position, *cursorX);
+                exit(EXIT_FAILURE);
+            }
+        }
+        current++;
+        index++;
+    }
+}
+
 KeyInputType HandleInteractions(bool blocking) {
     if(!blocking && !_kbhit()) return KEY_NONE;
 

@@ -11,6 +11,24 @@
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
+#define MODIFY_QUESTIONS_FILE(mode, mutator) {\
+    FILE* questionFile = fopen(QUESTIONS_FILE, mode);\
+\
+    if (questionFile == NULL) {\
+        perror("Failed to open questions file");\
+        exit(EXIT_FAILURE);\
+    }\
+\
+    mutator;\
+\
+    if(fclose(questionFile) == EOF) {\
+        fprintf(stderr, "Failed to close file\n");\
+        exit(EXIT_FAILURE);\
+    }\
+\
+    LoadQuestions();\
+}
+
 #define QUESTION_LIST_SEPARATOR_LIST 2
 
 int DrawQuestionListPage(QuestionListHeader* list, int selected) {
@@ -28,9 +46,11 @@ int DrawQuestionListPage(QuestionListHeader* list, int selected) {
     QuestionListItem* current = list->head;
     while (current != NULL)
     {
-        printf("[ ] - [%3d] %.*s\n", current->data->Id, MIN(current->data->ContentLength, terminalWidth - 12), current->data->Content);
+        printf("[ ] - [%3d] [%d] %.*s\n", current->data->Id, current->data->ContentLength, MIN(current->data->ContentLength, terminalWidth - 12), current->data->Content);
         current = current->next;
         optionCount++;
+    
+        if(optionCount > 20) break;
     }
 
     SetCursorPosition(2, 2 + selected + (selected >= QUESTION_LIST_SEPARATOR_LIST ? 1 : 0));
@@ -87,6 +107,13 @@ void PageEnter_QuestionList()
 
                 bool save = PageEnter_QuestionEdit(q);
 
+                if (save)
+                {
+                    MODIFY_QUESTIONS_FILE("a", {
+                        AppendQuestion(questionFile, q);
+                    });
+                }
+
                 optionCount = DrawQuestionListPage(list, selected);
             }
             else if(selected == 1) {
@@ -96,6 +123,17 @@ void PageEnter_QuestionList()
                 // Edit question
                 Question* q = ListGetAt(list, selected - 2);
                 bool save = PageEnter_QuestionEdit(q);
+
+                if (save)
+                {
+                    if(q->Id == INT_MIN) {
+                        ListRemove(list, q);
+                    }
+
+                    MODIFY_QUESTIONS_FILE("w", {
+                        RewriteQuestions(questionFile, list);
+                    });
+                }
 
                 optionCount = DrawQuestionListPage(list, selected);
             }
