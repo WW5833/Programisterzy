@@ -22,11 +22,11 @@ void PrintMainMenu(int selected)
     printf("[ ] Rozpocznij quiz\n");
     // printf("[ ] Zarządzaj pytaniami\n");
     printf("[ ] Dodaj pytanie\n");
-    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
     printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
     printf("[ ] DEBUG\n");
+    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
 
     SetCursorPosition(2, 2 + selected);
     printf("*");
@@ -77,6 +77,16 @@ void PageEnter_MainMenu()
                     PageEnter_AddQuestion();
                     break;
                 case 2:
+                    break;
+                case 3:
+                    PageEnter_Settings();
+                    break;
+                case 4:
+                    exit(EXIT_SUCCESS);
+                case 5:
+                    PageEnter_Debug();
+                    break;
+                case 6:
                     ClearScreen();
                     printf("Podgląd pytań\n");
                     printf("Podaj numer pytania do podglądu: ");
@@ -98,16 +108,6 @@ void PageEnter_MainMenu()
                         current = current->next;
                     }
                     
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    PageEnter_Settings();
-                    break;
-                case 5:
-                    exit(EXIT_SUCCESS);
-                case 6:
-                    PageEnter_Debug();
                     break;
             }
 
