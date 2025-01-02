@@ -10,9 +10,11 @@
 #define REWARD_BOX_WIDTH 18
 #define REWARD_BOX_WIDTH_PLUS_BORDER (REWARD_BOX_WIDTH + 2)
 
-extern Settings* LoadedSettings;
+#define ABILITY_AUDIENCE 0
+#define ABILITY_5050 1
+#define ABILITY_PHONE 2
 
-double* ShowAudienceHelp(int offset);
+extern Settings* LoadedSettings;
 
 typedef struct
 {
@@ -31,7 +33,9 @@ typedef struct
     int ansLineCountMaxAB;
     int ansLineCountMaxCD;
 
-    double* audienceVotes;
+    double audienceVotes[4];
+    bool blockedOptions[4];
+
     bool* abilities;
 
     bool abilitiesNow[3];
@@ -41,6 +45,9 @@ typedef struct
 
     bool previewMode;
 } QuizQuestionPageData;
+
+void ShowAudienceHelp(QuizQuestionPageData* data);
+void Show5050Help(QuizQuestionPageData* data);
 
 void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
     if(color) SetColor(colorFg);
@@ -108,9 +115,17 @@ void PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int color
 void PrintAnsContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
     SetCursorPosition(startX, startY);
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
-    if(data->audienceVotes != NULL) { // Print Audience help
+    if(data->abilitiesNow[ABILITY_5050] && data->blockedOptions[ansIndex]) {
+        SetCursorPosition(startX + data->ansWidthLimit - 11, startY + height);
+        SetColor(LoadedSettings->WrongAnswerColor);
+        printf("NIEPOPRAWNA");
+        ResetColor();
+    }
+    else if(data->abilitiesNow[ABILITY_AUDIENCE]) { // Print Audience help
         SetCursorPosition(startX + data->ansWidthLimit - 4, startY + height);
+        SetColor(LoadedSettings->SupportColor);
         printf("%2.1f%%", data->audienceVotes[ansIndex]);
+        ResetColor();
     }
 }
 
@@ -140,15 +155,50 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     data->question = question;
     data->questionNumer = number;
     data->offset = offset;
-    data->audienceVotes = NULL;
     data->abilities = abilities;
     data->selectedQuestion = 0;
     data->confirmed = false;
     data->previewMode = false;
 
-    data->abilitiesNow[0] = false;
-    data->abilitiesNow[1] = false;
-    data->abilitiesNow[2] = false;
+    data->abilitiesNow[ABILITY_AUDIENCE] = false;
+    data->abilitiesNow[ABILITY_5050] = false;
+    data->abilitiesNow[ABILITY_PHONE] = false;
+
+    // Generate random audience votes
+    int votes[4] = {0, 0, 0, 0};
+    const int ansCount = 10000;
+    const int correctAnsChance = 50;
+    for (int i = 0; i < ansCount; i++)
+    {
+        double value = rand() % 100;
+        if(value < correctAnsChance) votes[0]++;
+        else {
+            double incorrectAnsChance = (100 - correctAnsChance) / 3;
+            
+            value -= correctAnsChance;
+            if(value < incorrectAnsChance) votes[1]++;
+            else if(value < incorrectAnsChance*2) votes[2]++;
+            else votes[3]++;
+        }
+    }
+
+    for (int i = 0; i < 4; i++)
+        data->audienceVotes[i] = ((double)votes[i] / (double)ansCount) * 100.0;
+
+    data->blockedOptions[0] = false;
+    data->blockedOptions[1] = false;
+    data->blockedOptions[2] = false;
+    data->blockedOptions[3] = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        int randomIndex;
+        do {
+            randomIndex = (rand() % 3) + 1;
+        }
+        while (data->blockedOptions[randomIndex]);
+        data->blockedOptions[randomIndex] = true;
+    }
 
     CalculateQuizQuestionPageData(data);
 
@@ -279,7 +329,7 @@ void DrawStaticUI_Other(QuizQuestionPageData* data) {
 
     SetCursorPosition(3, data->answersEndY + 1);
     
-    if(!data->abilities[0]) {
+    if(!data->abilities[ABILITY_AUDIENCE]) {
         SetColor(LoadedSettings->CorrectAnswerColor);
         printf("X: Głos publiczności");
     }
@@ -287,19 +337,31 @@ void DrawStaticUI_Other(QuizQuestionPageData* data) {
         SetColor(LoadedSettings->WrongAnswerColor);
         printf("X: Głos publiczności niedostępny");
     }
+
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    if(!data->abilities[ABILITY_5050]) {
+        SetColor(LoadedSettings->CorrectAnswerColor);
+        printf("Y: 50/50");
+    }
+    else {
+        SetColor(LoadedSettings->WrongAnswerColor);
+        printf("Y: 50/50 niedostępne");
+    }
+
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    if(!data->abilities[ABILITY_PHONE]) {
+        SetColor(LoadedSettings->CorrectAnswerColor);
+        printf("Z: Telefon do przyjaciela");
+    }
+    else if(data->abilitiesNow[ABILITY_PHONE]) {
+        SetColor(LoadedSettings->SelectedAnswerColor);
+        printf("Z: 404 Przyjaciel nie znaleziony");
+    }
+    else {
+        SetColor(LoadedSettings->WrongAnswerColor);
+        printf("Z: Telefon niedostępny");
+    }
     ResetColor();
-
-    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
-    if(!data->abilities[1])
-        printf("Y: Help2");
-    else
-        printf("Y: Already used");
-
-    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
-    if(!data->abilities[2])
-        printf("Z: Help3");
-    else
-        printf("Z: Already used");
 }
 
 void DrawStaticUI_Answers(QuizQuestionPageData* data) {
@@ -340,13 +402,13 @@ void DrawStaticUI(QuizQuestionPageData* data) {
 }
 
 void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data, double timeLimit) {
-    time_t currentTime;
-    time(&currentTime);
-
-    if(difftime(currentTime, *lastCheckTime) < timeLimit)
-        return;
-
     if(timeLimit > 0) {
+        time_t currentTime;
+        time(&currentTime);
+
+        if(difftime(currentTime, *lastCheckTime) < timeLimit)
+            return;
+
         *lastCheckTime = currentTime;
     }
 
@@ -413,7 +475,6 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
                 WaitForEnter();
 
                 SetCursorPosition(0, data->answersEndY + 10);
-                free(data->audienceVotes);
                 free(data);
                 return true;
             }
@@ -426,7 +487,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             if(data->abilities[0]) break;
             data->abilitiesNow[0] = data->abilities[0] = true;
 
-            data->audienceVotes = ShowAudienceHelp(data->offset);
+            ShowAudienceHelp(data);
 
             // Redraw UI
             DrawStaticUI(data);
@@ -436,16 +497,18 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             if(data->abilities[1]) break;
             data->abilitiesNow[1] = data->abilities[1] = true;
 
-            SetCursorPosition(3, data->answersEndY + 6);
-            printf("Y: %s\n", data->question->Help);
+            Show5050Help(data);
+
+            // Redraw UI
+            DrawStaticUI(data);
             break;
 
         case KEY_Z:
             if(data->abilities[2]) break;
             data->abilitiesNow[2] = data->abilities[2] = true;
 
-            SetCursorPosition(3, data->answersEndY + 7);
-            printf("Z: %s\n", data->question->Help);
+            // Redraw UI
+            DrawStaticUI(data);
             break;
 
         case KEY_R:
@@ -521,21 +584,18 @@ void PageEnter_QuizQuestionPreview(Question* question) {
     data = NULL;
 }
 
-double* ShowAudienceHelp(int offset) {
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
-
+void ShowAudienceHelp(QuizQuestionPageData* data) {
     const int windowWidth = 60;
-    const int beginX = (terminalWidth - windowWidth) / 2;
+    const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
     int widnowHeight = 25;
     int segmentCount = 20;
 
-    if(terminalHeight < widnowHeight + beginY) {
-        beginY = terminalHeight - widnowHeight - 1;
+    if(data->terminalHeight < widnowHeight + beginY) {
+        beginY = data->terminalHeight - widnowHeight - 1;
         if(beginY <= 0) {
             beginY += 3;
-            widnowHeight = terminalHeight - 5;
+            widnowHeight = data->terminalHeight - 5;
             segmentCount -= 5;
         }
     }
@@ -566,54 +626,27 @@ double* ShowAudienceHelp(int offset) {
         ResetColor();
     }
 
-    int votes[4] = {0, 0, 0, 0};
-    const int ansCount = 10000;
-    const int correctAnsChance = 50;
-    for (int i = 0; i < ansCount; i++)
-    {
-        double value = rand() % 100;
-        if(value < correctAnsChance) {
-            votes[0]++;
-        }
-        else {
-            double incorrectAnsChance = (100 - correctAnsChance) / 3;
-            value -= correctAnsChance;
-            if(value < incorrectAnsChance) {
-                votes[1]++;
-            }
-            else {
-                value -= incorrectAnsChance;
-                if(value < incorrectAnsChance) {
-                    votes[2]++;
-                }
-                else {
-                    votes[3]++;
-                }
-            }
-        }
-    }
-
     const int barWidth = 9;
     const int ansWidthPlusSep = barWidth + 3;
     const int barsOffset = 8;
     SetCursorPosition(beginX + barsOffset, beginY + widnowHeight - 1);
-    printf("A: %2.1f%%", votes[(0 + offset) % 4] / (ansCount / 100.0));
+    printf("A: %2.1f%%", data->audienceVotes[(0 + data->offset) % 4]);
 
     SetCursorPosition(beginX + barsOffset + ansWidthPlusSep, beginY + widnowHeight - 1);
-    printf("B: %2.1f%%", votes[(1 + offset) % 4] / (ansCount / 100.0));
+    printf("B: %2.1f%%", data->audienceVotes[(1 + data->offset) % 4]);
 
     SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*2, beginY + widnowHeight - 1);
-    printf("C: %2.1f%%", votes[(2 + offset) % 4] / (ansCount / 100.0));
+    printf("C: %2.1f%%", data->audienceVotes[(2 + data->offset) % 4]);
 
     SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*3, beginY + widnowHeight - 1);
-    printf("D: %2.1f%%", votes[(3 + offset) % 4] / (ansCount / 100.0));
+    printf("D: %2.1f%%", data->audienceVotes[(3 + data->offset) % 4]);
 
     double oneSegment = 1.0 / segmentCount;
     double oneSegmentSmall = oneSegment / 8.0;
     double drawnVotes[4] = {0, 0, 0, 0};
     for (int i = 0; i < 4; i++)
     {
-        drawnVotes[i] = (double)votes[i] / (double)ansCount;
+        drawnVotes[i] = data->audienceVotes[i] / 100.0;
     }
     
     for (int i = 0; i < segmentCount; i++)
@@ -621,29 +654,42 @@ double* ShowAudienceHelp(int offset) {
         for (int id = 0; id < 4; id++)
         {
             SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*id, beginY + widnowHeight - 1 - i - 1);
-            if(drawnVotes[(id + offset) % 4] >= oneSegment) {
+            if(drawnVotes[(id + data->offset) % 4] >= oneSegment) {
                 for(int j = 0; j < barWidth; j++) printf(BLOCK_8_8);
-                drawnVotes[(id + offset) % 4] -= oneSegment;
+                drawnVotes[(id + data->offset) % 4] -= oneSegment;
             }
-            else if(LoadedSettings->FullUTF8Support && drawnVotes[(id + offset) % 4] > 0) {
+            else if(LoadedSettings->FullUTF8Support && drawnVotes[(id + data->offset) % 4] > 0) {
                 int counter = 0;
-                while ((drawnVotes[(id + offset) % 4] -= oneSegmentSmall) > 0) counter++;
+                while ((drawnVotes[(id + data->offset) % 4] -= oneSegmentSmall) > 0) counter++;
 
                 if(counter > 0) {
                     for(int j = 0; j < barWidth; j++) printf(BLOCK_x_8(counter));
                 }
-                drawnVotes[(id + offset) % 4] = 0;
+                drawnVotes[(id + data->offset) % 4] = 0;
             }
         }
     }
 
     WaitForEnter();
+}
 
-    double* tor = malloc(4 * sizeof(double));
-    for (int i = 0; i < 4; i++)
-    {
-        tor[i] = ((double)votes[i] / (double)ansCount) * 100.0;
-    }
+void Show5050Help(QuizQuestionPageData* data) {
+    const int windowWidth = 47 + 4;
+    const int beginX = (data->terminalWidth - windowWidth) / 2;
+    int beginY = 3;
+    int widnowHeight = 3;
 
-    return tor;
+    SetCursorPosition(beginX, beginY);
+    PRINT_SINGLE_TOP_BORDER(windowWidth);
+
+    for (int i = 1; i < widnowHeight; i++)
+        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
+
+    SetCursorPosition(beginX, beginY + widnowHeight);
+    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
+
+    SetCursorPosition(beginX + 2, beginY + 1);
+    PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi", windowWidth - 4, beginX + 2, true);
+
+    WaitForEnter();
 }
