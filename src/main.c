@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "UIManager.h"
+#include "MainMenuPage.h"
 #include "AnsiHelper.Windows.h"
 #include "Settings.h"
 
@@ -12,7 +12,7 @@ int main() {
 
     LoadedSettings = LoadSettings();
 
-    UILoop_MainMenu();
+    PageEnter_MainMenu();
 
     return 0;
 }
