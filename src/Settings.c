@@ -5,7 +5,6 @@
 #include "AnsiHelper.h"
 
 #define SETTINGS_FILE "./settings.txt"
-#define BUFFER_SIZE 1024
 
 Settings *LoadSettings()
 {
@@ -21,20 +20,22 @@ Settings *LoadSettings()
         settings->SupportColor = COLOR_FG_MAGENTA;
         settings->FullUTF8Support = 1;
         settings->TutorialShown = 0;
+        settings->AutoResizeUI = 1;
 
         SaveSettings(settings);
 
         return settings;
     }
 
-    fscanf(file, "%d;%d;%d;%d;%d;%d;%d",
+    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
         &settings->CorrectAnswerColor, 
         &settings->WrongAnswerColor, 
         &settings->SelectedAnswerColor, 
         &settings->ConfirmedAnswerColor, 
         &settings->SupportColor, 
         &settings->FullUTF8Support, 
-        &settings->TutorialShown);
+        &settings->TutorialShown,
+        &settings->AutoResizeUI);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
@@ -53,14 +54,15 @@ void SaveSettings(Settings *settings)
         exit(EXIT_FAILURE);
     }
 
-    fprintf(file, "%d;%d;%d;%d;%d;%d;%d",
+    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
         settings->CorrectAnswerColor, 
         settings->WrongAnswerColor, 
         settings->SelectedAnswerColor, 
         settings->ConfirmedAnswerColor, 
         settings->SupportColor,
         settings->FullUTF8Support, 
-        settings->TutorialShown);
+        settings->TutorialShown,
+        settings->AutoResizeUI);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");

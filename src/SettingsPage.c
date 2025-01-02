@@ -7,7 +7,12 @@
 
 extern Settings* LoadedSettings;
 
+#define OPTION_COUNT 9
+
+bool slimMode = false;
+
 void PrintColors(int color) {
+    if(slimMode) printf("\n    ");
     ResetColor();
     printf("|");
     for (int i = 1; i < 8; i++)
@@ -33,7 +38,7 @@ void PrintUTF8Support(bool support, int terminalWidth) {
     PrintWrappedLine(&buffer[0], terminalWidth - 4, 4, false);
 }
 
-void EnterSettings()
+void PageEnter_Settings()
 {
     HideCursor();
 
@@ -43,10 +48,16 @@ void EnterSettings()
     int colorsX, colorsY;
     int utf8SupportX, utf8SupportY;
     int turorialShownX, tutorialShownY;
+    int autoResizeX, autoResizeY;
     ClearScreen();
     printf("Ustawienia");
     printf("\n[*] Kolor poprawnej odpowiedzi     ");
     GetCursorPosition(&colorsX, &colorsY);
+
+    const int colorPaletWidth = 30;
+
+    slimMode = (terminalWidth - colorsX) < colorPaletWidth;
+
     PrintColors(LoadedSettings->CorrectAnswerColor);
     printf("\n[ ] Kolor błędnej odpowiedzi       ");
     PrintColors(LoadedSettings->WrongAnswerColor);
@@ -64,9 +75,23 @@ void EnterSettings()
     printf("\n[ ] Pokaż tutorial: ");
     GetCursorPosition(&turorialShownX, &tutorialShownY);
     printf(!LoadedSettings->TutorialShown ? "TAK" : "NIE");
+    printf("\n[ ] Automatyczne reskalowanie konsoli: ");
+    GetCursorPosition(&autoResizeX, &autoResizeY);
+    printf(!LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
     printf("\n[ ] Zapisz i wróć do menu głównego");
 
-    int lineIndexes[8] = { 2, 3, 4, 5, 6, 7, tutorialShownY, tutorialShownY + 1 };
+    int lineIndexes[OPTION_COUNT] = 
+    { 
+        2, 
+        3 + (slimMode ? 1 : 0), 
+        4 + (slimMode ? 2 : 0), 
+        5 + (slimMode ? 3 : 0), 
+        6 + (slimMode ? 4 : 0), 
+        7 + (slimMode ? 5 : 0), 
+        tutorialShownY, 
+        tutorialShownY + 1, 
+        autoResizeY + 1 
+    };
 
     int selected = 0;
 
@@ -79,7 +104,7 @@ void EnterSettings()
             printf(" ");
 
             selected--;
-            if (selected < 0) selected = 7;
+            if (selected < 0) selected = OPTION_COUNT - 1;
             
             SetCursorPosition(2, lineIndexes[selected]);
             printf("*");
@@ -90,7 +115,7 @@ void EnterSettings()
             printf(" ");
 
             selected++;
-            if (selected > 7) selected = 0;
+            if (selected >= OPTION_COUNT) selected = 0;
             
             SetCursorPosition(2, lineIndexes[selected]);
             printf("*");
@@ -108,6 +133,11 @@ void EnterSettings()
                 printf(!LoadedSettings->TutorialShown ? "TAK" : "NIE");
             }
             else if(selected == 7) {
+                LoadedSettings->AutoResizeUI = !LoadedSettings->AutoResizeUI;
+                SetCursorPosition(autoResizeX, autoResizeY);
+                printf(!LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+            }
+            else if(selected == OPTION_COUNT - 1) {
                 SaveSettings(LoadedSettings);
                 return;
             }
@@ -143,7 +173,7 @@ void EnterSettings()
                 *option = COLOR_FG_WHITE;
             }
 
-            SetCursorPosition(colorsX, colorsY + selected);
+            SetCursorPosition(colorsX, lineIndexes[selected]);
             PrintColors(*option);
         }
         else if (key == KEY_ARROW_RIGHT)
@@ -177,7 +207,7 @@ void EnterSettings()
                 *option = COLOR_FG_BLACK+1+COLOR_BRIGHT_MOD;
             }
 
-            SetCursorPosition(colorsX, colorsY + selected);
+            SetCursorPosition(colorsX, lineIndexes[selected]);
             PrintColors(*option);
         }
     }

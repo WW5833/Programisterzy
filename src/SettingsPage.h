@@ -3,6 +3,6 @@
 
 #include "Settings.h"
 
-void EnterSettings();
+void PageEnter_Settings();
 
 #endif // _INC_SETTINGSPAGE_H
