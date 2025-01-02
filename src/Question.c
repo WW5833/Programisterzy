@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <string.h>
 
 #define TO_ULL(i) ((unsigned long long)(i))
 #define TO_INT(i) ((int)(i))
@@ -56,6 +57,11 @@ int DeserializeString(const char* serializedQuestion, char** content, int* offse
         return -1;
     }
 
+    if(allowEmpty && i == 0) {
+        free(*content);
+        *content = NULL;
+    }
+
     return 0;
 }
 
@@ -83,6 +89,8 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         fprintf(stderr, "Failed to deserialize question content: \"%s\"\n", serializedQuestion);
         return NULL;
     }   
+    question->ContentLength = strlen(question->Content);
+
     serializedQuestion = &serializedQuestion[i];
 
     for (int j = 0; j < 4; j++)
@@ -93,6 +101,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
             return NULL;
         }
         serializedQuestion = &serializedQuestion[i];
+        question->AnswerLength[j] = strlen(question->Answer[j]);
     }
 
     if(DeserializeString(serializedQuestion, &question->Help, &i, true) != 0) 
@@ -100,12 +109,13 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         fprintf(stderr, "Failed to deserialize question help: \"%s\"\n", serializedQuestion);
         return NULL;
     }
+    if(question->Help != NULL) question->HelpLength = strlen(question->Help);
+    else question->HelpLength = 0;
 
     return question;
 }
 
-int AppendQuestion(FILE* file, Question* question) {
-    if(file == NULL) return -1;
+void AppendQuestion(FILE* file, Question* question) {
     // Id;Question;Ans1;Ans2;Ans3;Ans4;Help;\n
     fprintf(file, "%d;%s;%s;%s;%s;%s;%s;\n",
         question->Id,
@@ -114,19 +124,15 @@ int AppendQuestion(FILE* file, Question* question) {
         question->Answer[1], 
         question->Answer[2], 
         question->Answer[3], 
-        question->Help);
-
-    return 0;
+        question->Help == NULL ? "" : question->Help);
 }
 
-int DestroyQuestion(Question* question) {
-    if(question == NULL) return -1;
+void DestroyQuestion(Question* question) {
+    if(question == NULL) return;
 
     free(question->Content);
     for (int i = 0; i < 4; i++)
         free(question->Answer[i]);
     free(question->Help);
     free(question);
-
-    return 0;
 }

@@ -18,7 +18,7 @@ typedef struct
 } Question;
 
 Question* DeserializeQuestion(char* serializedQuestion);
-int AppendQuestion(FILE* file, Question* question);
-int DestroyQuestion(Question* question);
+void AppendQuestion(FILE* file, Question* question);
+void DestroyQuestion(Question* question);
 
 #endif // !_INC_QUESTION_H
