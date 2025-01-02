@@ -89,15 +89,15 @@ KeyInputType HandleInteractions(bool blocking) {
 
     SetCursorPosition(0, 999);
 
-    unsigned char answer = (unsigned char)_getch();
+    int c = _getch();
 
-    switch (answer)
+    switch (c)
     {
         case CTRL_C:
             ExitOnCtrlC();
             break;
 
-        case '\015':
+        case ENTER:
             return KEY_ENTER;
         case 'X':
             return KEY_X;
@@ -140,9 +140,8 @@ void WaitForEnter() {
 
     SetCursorPosition(0, 999);
 
-    while((c = _getch()) != '\015' && c != CTRL_C);
+    while((c = _getch()) != ENTER && c != CTRL_C); // Enter or CTRL+C
     if(c == CTRL_C) {
         ExitOnCtrlC();
     }
 }
-
