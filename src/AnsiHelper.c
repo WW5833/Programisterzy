@@ -45,11 +45,8 @@ void SetCursorPosition(int x, int y)
 
 void GetTerminalSize(int* x, int* y)
 {
-    int oldX, oldY;
-    GetCursorPosition(&oldX, &oldY);
     SetCursorPosition(999, 999);
     GetCursorPosition(x, y);
-    SetCursorPosition(oldX, oldY);
 }
 
 void ClearScreen()
