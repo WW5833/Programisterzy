@@ -12,6 +12,7 @@
 // #include "QuestionListPage.h"
 #include "AddQuestionPage.h"
 #include "QuizQuestionPage.h"
+#include "DebugPage.h"
 
 void PrintMainMenu(int selected)
 {
@@ -25,6 +26,7 @@ void PrintMainMenu(int selected)
     printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
+    printf("[ ] DEBUG\n");
 
     SetCursorPosition(2, 2 + selected);
     printf("*");
@@ -34,7 +36,7 @@ void PageEnter_MainMenu()
 {
     HideCursor();
 
-    const int optionCount = 6;
+    const int optionCount = 7;
     int selected = 0;
     PrintMainMenu(selected);
 
@@ -104,6 +106,9 @@ void PageEnter_MainMenu()
                     break;
                 case 5:
                     exit(EXIT_SUCCESS);
+                case 6:
+                    PageEnter_Debug();
+                    break;
             }
 
             PrintMainMenu(selected);
