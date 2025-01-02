@@ -11,6 +11,7 @@
 #include "SettingsPage.h"
 // #include "QuestionListPage.h"
 #include "AddQuestionPage.h"
+#include "QuizQuestionPage.h"
 
 void PrintMainMenu(int selected)
 {
@@ -20,6 +21,7 @@ void PrintMainMenu(int selected)
     printf("[ ] Rozpocznij quiz\n");
     // printf("[ ] Zarządzaj pytaniami\n");
     printf("[ ] Dodaj pytanie\n");
+    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
     printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
@@ -32,6 +34,7 @@ void PageEnter_MainMenu()
 {
     HideCursor();
 
+    const int optionCount = 6;
     int selected = 0;
     PrintMainMenu(selected);
 
@@ -44,7 +47,7 @@ void PageEnter_MainMenu()
             printf(" ");
 
             selected--;
-            if (selected < 0) selected = 4;
+            if (selected < 0) selected = optionCount - 1;
             
             SetCursorPosition(2, 2 + selected);
             printf("*");
@@ -55,7 +58,7 @@ void PageEnter_MainMenu()
             printf(" ");
 
             selected++;
-            if (selected > 4) selected = 0;
+            if (selected >= optionCount) selected = 0;
             
             SetCursorPosition(2, 2 + selected);
             printf("*");
@@ -72,11 +75,34 @@ void PageEnter_MainMenu()
                     PageEnter_AddQuestion();
                     break;
                 case 2:
+                    ClearScreen();
+                    printf("Podgląd pytań\n");
+                    printf("Podaj numer pytania do podglądu: ");
+                    int id;
+                    if(scanf("%d", &id) != 1) {
+                        id = -1;
+                    }
+
+                    QuestionListHeader *list = GetQuestionList();
+                    QuestionListItem* current = list->head;
+                    while (current != NULL)
+                    {
+                        if(id != -1 && current->data->Id != id) {
+                            current = current->next;
+                            continue;
+                        }
+                        
+                        PageEnter_QuizQuestionPreview(current->data);
+                        current = current->next;
+                    }
+                    
                     break;
                 case 3:
-                    PageEnter_Settings();
                     break;
                 case 4:
+                    PageEnter_Settings();
+                    break;
+                case 5:
                     exit(EXIT_SUCCESS);
             }
 

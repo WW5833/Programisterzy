@@ -21,7 +21,8 @@ typedef enum {
     KEY_ENTER = 5,
     KEY_X = 6,
     KEY_Y = 7,
-    KEY_Z = 8
+    KEY_Z = 8,
+    KEY_R = 9,
 } KeyInputType;
 
 KeyInputType HandleInteractions(bool blocking);

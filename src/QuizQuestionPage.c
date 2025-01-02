@@ -38,6 +38,8 @@ typedef struct
 
     int selectedQuestion;
     bool confirmed;
+
+    bool previewMode;
 } QuizQuestionPageData;
 
 void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
@@ -82,7 +84,7 @@ void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, ch
 
 void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
     bool forceUpdate = oldSelected == INT_MIN;
-    if(!forceUpdate && selected == oldSelected) return;
+    if(!forceUpdate && selected == oldSelected && oldSelected != INT_MAX) return;
 
     int beginY = data->questionContentEndY;
 
@@ -142,6 +144,7 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     data->abilities = abilities;
     data->selectedQuestion = 0;
     data->confirmed = false;
+    data->previewMode = false;
 
     data->abilitiesNow[0] = false;
     data->abilitiesNow[1] = false;
@@ -197,7 +200,7 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
 void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     for (int i = 0; i < 10; i++) {
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
-        if(data->questionNumer == 10 - i) {
+        if(!data->previewMode && data->questionNumer == 10 - i) {
             SetColor(LoadedSettings->SelectedAnswerColor);
         }
         printf("%2d ", 10 - i);
@@ -271,7 +274,7 @@ void DrawStaticUI_Other(QuizQuestionPageData* data) {
 
     SetCursorPosition(3, 2);
     printf("Pytanie %2d: ", data->questionNumer);
-    PrintWrappedLine(data->question->Content, data->terminalWidth - 15, 14, false);
+    PrintWrappedLine(data->question->Content, data->terminalWidth - 16, 14, false);
     printf("\n");
 
     SetCursorPosition(3, data->answersEndY + 1);
@@ -302,8 +305,7 @@ void DrawStaticUI_Other(QuizQuestionPageData* data) {
 void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     ResetCursor();
 
-    SetCursorPosition(0, data->questionContentEndY);
-    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+    if(!data->previewMode) PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
 
     const int ansTextLeftPadding = 5;
     const int ansTextMiddlePadding = 5;
@@ -317,6 +319,13 @@ void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     PrintAnsContent(data, ansTextLeftPadding, data->questionContentEndY + data->ansLineCountMaxAB + 6,  (2 + data->offset) % 4, data->ansLineCountMaxCD);
     // Print Answer 4
     PrintAnsContent(data, ansTextLeftPadding + data->ansWidthLimit + ansTextMiddlePadding, data->questionContentEndY + data->ansLineCountMaxAB + 6, (3 + data->offset) % 4, data->ansLineCountMaxCD);
+
+    if(data->previewMode) {
+        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
+        PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
+        PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
+        PrintAnswersBlocks(data, (3 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
+    }
 }
 
 void DrawStaticUI(QuizQuestionPageData* data) {
@@ -328,6 +337,29 @@ void DrawStaticUI(QuizQuestionPageData* data) {
     DrawStaticUI_Other(data);
 
     DrawStaticUI_Answers(data);
+}
+
+void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data, double timeLimit) {
+    time_t currentTime;
+    time(&currentTime);
+
+    if(difftime(currentTime, *lastCheckTime) < timeLimit)
+        return;
+
+    if(timeLimit > 0) {
+        *lastCheckTime = currentTime;
+    }
+
+    int newTerminalX, newTerminalY;
+    GetTerminalSize(&newTerminalX, &newTerminalY);
+    if(newTerminalX % 2 == 0) newTerminalX--;
+
+    if(newTerminalX == data->terminalWidth && newTerminalY == data->terminalHeight)
+        return;
+
+    // Resize and redraw UI
+    CalculateQuizQuestionPageData(data);
+    DrawStaticUI(data);
 }
 
 bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect, char* outAnswer) {
@@ -416,32 +448,15 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             printf("Z: %s\n", data->question->Help);
             break;
 
+        case KEY_R:
+            CheckToRedrawUI(NULL, data, 0);
+            break;
+
         default:
             break;
     }
 
     return false;
-}
-
-void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
-    time_t currentTime;
-    time(&currentTime);
-
-    if(difftime(currentTime, *lastCheckTime) < 1)
-        return;
-
-    *lastCheckTime = currentTime;
-
-    int newTerminalX, newTerminalY;
-    GetTerminalSize(&newTerminalX, &newTerminalY);
-    if(newTerminalX % 2 == 0) newTerminalX--;
-
-    if(newTerminalX == data->terminalWidth && newTerminalY == data->terminalHeight)
-        return;
-
-    // Resize and redraw UI
-    CalculateQuizQuestionPageData(data);
-    DrawStaticUI(data);
 }
 
 void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
@@ -461,8 +476,51 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
         if(HandleKeyInput(data, key, outCorrect, outAnswer))
             return;
     
-        CheckToRedrawUI(&lastCheckTime, data);
+        if(LoadedSettings->AutoResizeUI) {
+            CheckToRedrawUI(&lastCheckTime, data, 1);
+        }
     }
+}
+
+void PageEnter_QuizQuestionPreview(Question* question) { 
+    int offset = rand() % 4;
+
+    bool abilities[3] = {false, false, false};
+
+    QuizQuestionPageData* data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
+    data->previewMode = true;
+
+    DrawStaticUI(data);
+
+    SetCursorPosition(0, 999);
+
+    time_t tmp;
+    time(&tmp);
+
+    bool continueLoop = true;
+    while(continueLoop) {
+        switch (HandleInteractions(false))
+        {
+            case KEY_ENTER:
+                continueLoop = false;
+                break;
+
+            case KEY_R:
+                CheckToRedrawUI(NULL, data, 0);
+                break;
+
+            case KEY_NONE:
+                if(LoadedSettings->AutoResizeUI)
+                    CheckToRedrawUI(&tmp, data, 1);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    free(data);
+    data = NULL;
 }
 
 double* ShowAudienceHelp(int offset) {

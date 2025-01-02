@@ -152,6 +152,9 @@ KeyInputType HandleInteractions(bool blocking) {
             return KEY_Y;
         case 'Z':
             return KEY_Z;
+        
+        case 'R':
+            return KEY_R;
 
         case 224:
             switch (_getch())

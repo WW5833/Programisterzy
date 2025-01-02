@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include "PageUtils.h"
 
 #define SET_COLOR(x) ESC_SEQ "%dm", x
 #define CSR_MOVE_TO(x, y) ESC_SEQ "%d;%dH", x, y
@@ -13,14 +14,32 @@ char _tmp_buffer[BUFFER_SIZE];
 
 void GetCursorPosition(int* x, int* y)
 {
+    while (_kbhit()) _getch(); // Clear input buffer
+    
     printf(ESC_SEQ "6n");
 
-    if(_getch() != '\x1B') {
+    int c = _getch();
+    if(c == CTRL_C) {
+        ExitOnCtrlC();
+    }
+    
+    if(c != '\x1B') {
+        while(_kbhit()) {
+            c = _getch();
+            if(c == CTRL_C) {
+                ExitOnCtrlC();
+            }
+            if(c == '\x1B'){
+                goto esc_seq_found;
+            }
+        }
+
         fprintf(stderr, "Failed to get cursor position, ANSI not supported?\n");
         exit(EXIT_FAILURE);
     }
+    esc_seq_found:
 
-    int c = _getch(); // Shold be '['
+    c = _getch(); // Shold be '['
     int i = 0;
     while(c != ';' && c != '\0') {
         c = _getch();
