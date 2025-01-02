@@ -3,6 +3,6 @@
 
 #include "QuizManager.h"
 
-bool EnterQuizQuestionPage(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer);
+void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer);
 
 #endif // _INC_QUIZQUESTIONPAGE_H

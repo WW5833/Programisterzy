@@ -3,36 +3,76 @@
 #include "PageUtils.h"
 #include "Settings.h"
 #include "Utf8Symbols.h"
+#include <time.h>
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
+#define REWARD_BOX_WIDTH 18
+#define REWARD_BOX_WIDTH_PLUS_BORDER (REWARD_BOX_WIDTH + 2)
+
 extern Settings* LoadedSettings;
 
-void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg, int beginX) {
+double* ShowAudienceHelp(int offset);
+
+typedef struct
+{
+    Question* question;
+    int questionNumer;
+    int offset;
+
+    int terminalWidth;
+    int terminalHeight;
+
+    int questionContentEndY;
+    int answersEndY;
+
+    int ansWidthLimit;
+    int ansWidth;
+    int ansLineCountMaxAB;
+    int ansLineCountMaxCD;
+
+    double* audienceVotes;
+    bool* abilities;
+
+    bool abilitiesNow[3];
+
+    int selectedQuestion;
+    bool confirmed;
+} QuizQuestionPageData;
+
+void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
     if(color) SetColor(colorFg);
     SetCursorPosition(beginX, beginY);
 
-    int titleWidth = 14;
-    int startText = (ansWidth - titleWidth)/2 - 1;
-    int endText = startText + titleWidth - 1;
+    const int topMargin = 1;
+    const int bottomMargin = 1;
+    const int totalMargin = topMargin + bottomMargin;
+
+    const int titleWidth = 14;
+    const int startText = (ansWidth - titleWidth)/2 - 1;
+    const int endText = startText + titleWidth - 1;
+
     printf(SINGLE_TOP_LEFT_CORNER);
     for (int i = 0; i < ansWidth - 2; i++) {
-        if(i == startText) printf(SINGLE_BREAK_LEFT);
-        else if(i == endText) printf(SINGLE_BREAK_RIGHT);
-        else if(i > startText && i < endText) printf(CSR_MOVE_RIGHT_1);
-        else printf(SINGLE_HORIZONTAL_LINE);
+        if(i == startText)
+            printf(SINGLE_BREAK_LEFT);
+        else if(i == endText)
+            printf(SINGLE_BREAK_RIGHT);
+        else if(i > startText && i < endText)
+            printf(CSR_MOVE_RIGHT_1); // Text goes here
+        else
+            printf(SINGLE_HORIZONTAL_LINE);
     }
     printf(SINGLE_TOP_RIGHT_CORNER);
 
-    for (int i = 0; i < lineCount + 2; i++)
+    for (int i = 0; i < lineCount + totalMargin; i++)
         PrintGenericBorderEdges(beginX, ansWidth - 1, beginY + i + 1, SINGLE_VERTICAL_LINE, false);
 
-    SetCursorPosition(beginX, beginY + lineCount + 3);
-    PrintGenericBorder(ansWidth, SINGLE_BOTTOM_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_BOTTOM_RIGHT_CORNER);
-    if(color) ResetColor();
+    SetCursorPosition(beginX, beginY + lineCount + totalMargin + 1);
+    PRINT_SINGLE_BOTTOM_BORDER(ansWidth);
 
-    // Print letter
-    SetCursorPosition(beginX + (ansWidth - titleWidth)/2 + 1, beginY);
+    // Print text
+    SetCursorPosition(beginX + startText + 2, beginY);
 
     SetColor(LoadedSettings->ConfirmedAnswerColor);
     printf("Odpowiedź: %c", letter);
@@ -40,28 +80,389 @@ void PrintSingleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, b
     ResetColor();
 }
 
-void PrintDoubleAnsBlock(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg) {
-    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, 3);
-    PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, 3 + ansWidth + 1);
+void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
+    bool forceUpdate = oldSelected == INT_MIN;
+    if(!forceUpdate && selected == oldSelected) return;
+
+    int beginY = data->questionContentEndY;
+
+    if(forceUpdate || selected == 0 || oldSelected == 0) 
+        PrintSingleAnsBlock(3, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
+    if(forceUpdate || selected == 1 || oldSelected == 1) 
+        PrintSingleAnsBlock(3 + data->ansWidth + 1, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
+
+    beginY += data->ansLineCountMaxAB + 4;
+
+    if(forceUpdate || selected == 2 || oldSelected == 2) 
+        PrintSingleAnsBlock(3, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
+    if(forceUpdate || selected == 3 || oldSelected == 3) 
+        PrintSingleAnsBlock(3 + data->ansWidth + 1, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
 }
 
-void PrintQuadAnsBlock(int beginY, int ansWidth, int lineCount1, int lineCount2, int color, int colorFg) {
-    PrintDoubleAnsBlock(beginY, ansWidth, lineCount1, 'A', color + 1, colorFg);
-    PrintDoubleAnsBlock(beginY + lineCount1 + 4, ansWidth, lineCount2, 'C', color - 1, colorFg);
+void PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int colorFg) {
+    PrintAnswersBlocks(data, selected, INT_MIN, colorFg);
 }
 
-void PrintDoubleAnsBlockDelta(int beginY, int ansWidth, int lineCount, char letter, int color, int colorFg, int oldColor) {
-    if(color == oldColor) return;
-    if(color == 1 || oldColor == 1) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter, color == 1, colorFg, 3);
-    if(color == 2 || oldColor == 2) PrintSingleAnsBlock(beginY, ansWidth, lineCount, letter + 1, color == 2, colorFg, 3 + ansWidth + 1);
+void PrintAnsContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
+    SetCursorPosition(startX, startY);
+    PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
+    if(data->audienceVotes != NULL) { // Print Audience help
+        SetCursorPosition(startX + data->ansWidthLimit - 4, startY + height);
+        printf("%2.1f%%", data->audienceVotes[ansIndex]);
+    }
 }
 
-void PrintQuadAnsBlockDelta(int beginY, int ansWidth, int lineCount1, int lineCount2, int selected, int colorFg, int oldSelected) {
-    if(selected == oldSelected) return;
-    if(selected == 0 || selected == 1 || oldSelected == 0 || oldSelected == 1)
-        PrintDoubleAnsBlockDelta(beginY, ansWidth, lineCount1, 'A', selected + 1, colorFg, oldSelected + 1);
-    if(selected == 2 || selected == 3 || oldSelected == 2 || oldSelected == 3)
-        PrintDoubleAnsBlockDelta(beginY + lineCount1 + 4, ansWidth, lineCount2, 'C', selected - 1, colorFg, oldSelected - 1);
+void CalculateQuizQuestionPageData(QuizQuestionPageData* data) {
+    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
+
+    if(data->terminalWidth % 2 == 0) data->terminalWidth--;
+
+    const int questionEndLinePredefinedY = 3;
+    data->questionContentEndY = GetWrappedLineCount(data->question->Content, data->terminalWidth - 15) + questionEndLinePredefinedY;
+
+    const int marginsBetweenAnsers = 13;
+    data->ansWidthLimit = (data->terminalWidth - marginsBetweenAnsers - REWARD_BOX_WIDTH_PLUS_BORDER) / 2;
+    data->ansWidth = data->ansWidthLimit + 4;
+    
+    int ansLineCountA = GetWrappedLineCount(data->question->Answer[(0 + data->offset) % 4], data->ansWidthLimit);
+    int ansLineCountB = GetWrappedLineCount(data->question->Answer[(1 + data->offset) % 4], data->ansWidthLimit);
+    data->ansLineCountMaxAB = MAX(ansLineCountA, ansLineCountB);
+    int ansLineCountC = GetWrappedLineCount(data->question->Answer[(2 + data->offset) % 4], data->ansWidthLimit);
+    int ansLineCountD = GetWrappedLineCount(data->question->Answer[(3 + data->offset) % 4], data->ansWidthLimit);
+    data->ansLineCountMaxCD = MAX(ansLineCountC, ansLineCountD);
+    data->answersEndY = data->questionContentEndY + data->ansLineCountMaxAB + data->ansLineCountMaxCD + 8;
+}
+
+QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, int offset, bool* abilities) {
+    QuizQuestionPageData* data = malloc(sizeof(QuizQuestionPageData));
+    data->question = question;
+    data->questionNumer = number;
+    data->offset = offset;
+    data->audienceVotes = NULL;
+    data->abilities = abilities;
+    data->selectedQuestion = 0;
+    data->confirmed = false;
+
+    data->abilitiesNow[0] = false;
+    data->abilitiesNow[1] = false;
+    data->abilitiesNow[2] = false;
+
+    CalculateQuizQuestionPageData(data);
+
+    return data;
+}
+
+void DrawStaticUI_Border_RewardBox(QuizQuestionPageData* data) {
+    // Draw reward box
+    SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH - 2, data->questionContentEndY - 1);
+    printf(TJUNCTION_DOWN_SINGLE);
+    for (int i = 0; i < MAX(data->answersEndY - data->questionContentEndY, 10); i++) {
+        SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH - 2, data->questionContentEndY + i);
+        printf(SINGLE_LIGHT_VERTICAL_LINE);
+    }
+
+    // Add connector for reward box
+    SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH - 2, data->answersEndY);
+    printf(TJUNCTION_UP_SINGLE);
+}
+
+void DrawStaticUI_Border_Main(QuizQuestionPageData* data) {
+    ResetCursor();
+
+    PRINT_TOP_BORDER(data->terminalWidth);
+
+    for (int i = 2; i < (data->answersEndY + 4); i++)
+        PrintGenericBorderEdges(0, data->terminalWidth, i, VERTICAL_LINE, false);
+
+    printf(CSR_MOVE_LEFT_0_DOWN1);
+    PRINT_BOTTOM_BORDER(data->terminalWidth);
+}
+
+void DrawStaticUI_Border(QuizQuestionPageData* data) {
+    ResetCursor();
+
+    DrawStaticUI_Border_Main(data);
+
+    // Question Content | Answers splitter
+    SetCursorPosition(0, data->questionContentEndY - 1);
+    PRINT_TJUNCTION_BORDER(data->terminalWidth);
+    
+    // Answers | Abilities spliter
+    SetCursorPosition(0, data->answersEndY);
+    PRINT_TJUNCTION_BORDER(data->terminalWidth);
+
+    DrawStaticUI_Border_RewardBox(data);
+}
+
+void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
+    for (int i = 0; i < 10; i++) {
+        SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
+        if(data->questionNumer == 10 - i) {
+            SetColor(LoadedSettings->SelectedAnswerColor);
+        }
+        printf("%2d ", 10 - i);
+
+        if (LoadedSettings->FullUTF8Support)
+            printf(TRIANGLE);
+        else
+            printf(">");
+
+        printf(" ");
+        switch (9 - i) {
+            case 0:
+                printf("      500 zł");
+                break;
+
+            case 1:
+                printf("    1 000 zł");
+                break;
+
+            case 2:
+                printf("    2 000 zł");
+                break;
+
+            case 3:
+                printf("    5 000 zł");
+                break;
+
+            case 4:
+                printf("   10 000 zł");
+                break;
+
+            case 5:
+                printf("   20 000 zł");
+                break;
+
+            case 6:
+                //printf("   40 000 zł");
+                printf("   50 000 zł");
+                break;
+
+            case 7:
+                // printf("   75 000 zł");
+                printf("  100 000 zł");
+                break;  
+
+            case 8:
+                // printf("  125 000 zł");
+                printf("  250 000 zł");
+                break;
+
+            case 9:
+                // printf("  250 000 zł");
+                printf("1 000 000 zł");
+                break;
+
+            // case 10:
+            //     printf("  500 000 zł");
+            //     break;
+
+            // case 11:
+            //     printf("1 000 000 zł");
+            //     break;
+        }
+
+        ResetColor();
+    }
+}
+
+void DrawStaticUI_Other(QuizQuestionPageData* data) {
+    ResetCursor();
+
+    SetCursorPosition(3, 2);
+    printf("Pytanie %2d: ", data->questionNumer);
+    PrintWrappedLine(data->question->Content, data->terminalWidth - 15, 14, false);
+    printf("\n");
+
+    SetCursorPosition(3, data->answersEndY + 1);
+    
+    if(!data->abilities[0]) {
+        SetColor(LoadedSettings->CorrectAnswerColor);
+        printf("X: Głos publiczności");
+    }
+    else {
+        SetColor(LoadedSettings->WrongAnswerColor);
+        printf("X: Głos publiczności niedostępny");
+    }
+    ResetColor();
+
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    if(!data->abilities[1])
+        printf("Y: Help2");
+    else
+        printf("Y: Already used");
+
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    if(!data->abilities[2])
+        printf("Z: Help3");
+    else
+        printf("Z: Already used");
+}
+
+void DrawStaticUI_Answers(QuizQuestionPageData* data) {
+    ResetCursor();
+
+    SetCursorPosition(0, data->questionContentEndY);
+    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+
+    const int ansTextLeftPadding = 5;
+    const int ansTextMiddlePadding = 5;
+
+    // Print Answer 1
+    PrintAnsContent(data, ansTextLeftPadding, data->questionContentEndY + 2, (0 + data->offset) % 4, data->ansLineCountMaxAB);
+    // Print Answer 2
+    PrintAnsContent(data, ansTextLeftPadding + data->ansWidthLimit + ansTextMiddlePadding, data->questionContentEndY + 2,  (1 + data->offset) % 4, data->ansLineCountMaxAB);
+
+    // Print Answer 3
+    PrintAnsContent(data, ansTextLeftPadding, data->questionContentEndY + data->ansLineCountMaxAB + 6,  (2 + data->offset) % 4, data->ansLineCountMaxCD);
+    // Print Answer 4
+    PrintAnsContent(data, ansTextLeftPadding + data->ansWidthLimit + ansTextMiddlePadding, data->questionContentEndY + data->ansLineCountMaxAB + 6, (3 + data->offset) % 4, data->ansLineCountMaxCD);
+}
+
+void DrawStaticUI(QuizQuestionPageData* data) {
+    ClearScreen();
+    DrawStaticUI_Border(data);
+
+    DrawStatusUI_RewardBoxContent(data);
+
+    DrawStaticUI_Other(data);
+
+    DrawStaticUI_Answers(data);
+}
+
+bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect, char* outAnswer) {
+    int oldSel = data->selectedQuestion;
+
+    switch (key)
+    {
+        case KEY_ARROW_UP:
+            if(data->selectedQuestion == 2 || data->selectedQuestion == 3) {
+                data->selectedQuestion -= 2;
+                data->confirmed = false;
+                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+            }
+            break;
+        case KEY_ARROW_DOWN:
+            if(data->selectedQuestion == 0 || data->selectedQuestion == 1) {
+                data->selectedQuestion += 2;
+                data->confirmed = false;
+                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+            }
+            break;
+        case KEY_ARROW_RIGHT:
+            if(data->selectedQuestion == 0 || data->selectedQuestion == 2) {
+                data->selectedQuestion += 1;
+                data->confirmed = false;
+                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+            }
+            break;
+        case KEY_ARROW_LEFT:
+            if(data->selectedQuestion == 1 || data->selectedQuestion == 3) {
+                data->selectedQuestion -= 1;
+                data->confirmed = false;
+                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+            }
+            break;
+        
+        case KEY_ENTER:
+            if(data->confirmed) {
+                int answerIndex = data->selectedQuestion;
+                answerIndex += data->offset;
+                answerIndex = (answerIndex + 4) % 4;
+
+                *outAnswer = (char)answerIndex;
+                *outCorrect = answerIndex == 0;
+
+                int fgColor = *outCorrect ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor;
+                PrintAnswersBlocksForce(data, data->selectedQuestion, fgColor);
+
+                ResetColor();
+
+                WaitForEnter();
+
+                SetCursorPosition(0, data->answersEndY + 10);
+                free(data->audienceVotes);
+                free(data);
+                return true;
+            }
+
+            PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
+            data->confirmed = true;
+            break;
+
+        case KEY_X:
+            if(data->abilities[0]) break;
+            data->abilitiesNow[0] = data->abilities[0] = true;
+
+            data->audienceVotes = ShowAudienceHelp(data->offset);
+
+            // Redraw UI
+            DrawStaticUI(data);
+            break;
+
+        case KEY_Y:
+            if(data->abilities[1]) break;
+            data->abilitiesNow[1] = data->abilities[1] = true;
+
+            SetCursorPosition(3, data->answersEndY + 6);
+            printf("Y: %s\n", data->question->Help);
+            break;
+
+        case KEY_Z:
+            if(data->abilities[2]) break;
+            data->abilitiesNow[2] = data->abilities[2] = true;
+
+            SetCursorPosition(3, data->answersEndY + 7);
+            printf("Z: %s\n", data->question->Help);
+            break;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
+    time_t currentTime;
+    time(&currentTime);
+
+    if(difftime(currentTime, *lastCheckTime) < 1)
+        return;
+
+    *lastCheckTime = currentTime;
+
+    int newTerminalX, newTerminalY;
+    GetTerminalSize(&newTerminalX, &newTerminalY);
+    if(newTerminalX % 2 == 0) newTerminalX--;
+
+    if(newTerminalX == data->terminalWidth && newTerminalY == data->terminalHeight)
+        return;
+
+    // Resize and redraw UI
+    CalculateQuizQuestionPageData(data);
+    DrawStaticUI(data);
+}
+
+void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
+    int offset = rand() % 4;
+
+    QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities);
+
+    DrawStaticUI(data);
+    
+    time_t lastCheckTime;
+    time(&lastCheckTime);
+
+    while (true)
+    {
+        KeyInputType key = HandleInteractions(false);
+
+        if(HandleKeyInput(data, key, outCorrect, outAnswer))
+            return;
+    
+        CheckToRedrawUI(&lastCheckTime, data);
+    }
 }
 
 double* ShowAudienceHelp(int offset) {
@@ -74,7 +475,7 @@ double* ShowAudienceHelp(int offset) {
     int widnowHeight = 25;
     int segmentCount = 20;
 
-    if(terminalHeight < 30) {
+    if(terminalHeight < widnowHeight + beginY) {
         beginY = terminalHeight - widnowHeight - 1;
         if(beginY <= 0) {
             beginY += 3;
@@ -85,13 +486,13 @@ double* ShowAudienceHelp(int offset) {
 
     SetCursorPosition(beginX, beginY);
 
-    PrintGenericBorder(windowWidth, SINGLE_TOP_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_TOP_RIGHT_CORNER);
+    PRINT_SINGLE_TOP_BORDER(windowWidth);
 
     for (int i = 1; i < widnowHeight; i++)
         PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
 
     SetCursorPosition(beginX, beginY + widnowHeight);
-    PrintGenericBorder(windowWidth, SINGLE_BOTTOM_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_BOTTOM_RIGHT_CORNER);
+    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
 
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine("Publiczność zagłosowała za odpowiedziami.", windowWidth - 4, beginX + 2, true);
@@ -189,287 +590,4 @@ double* ShowAudienceHelp(int offset) {
     }
 
     return tor;
-}
-
-void PrintAnsContent(int startX, int startY, int width, int ansIndex, int height, Question* question, double* audienceVotes) {
-    SetCursorPosition(startX, startY);
-    PrintWrappedLine(question->Answer[ansIndex], width, startX - 1, true);
-    if(audienceVotes != NULL) { // Print Audience help
-        SetCursorPosition(startX + width - 4, startY + height);
-        printf("%2.1f%%", audienceVotes[ansIndex]);
-    }
-}
-
-bool EnterQuizQuestionPage(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
-    int offset = rand() % 4;
-
-    int questionEndLine;
-    int endAnsLine;
-    int tmp;
-    int terminalX, terminalY;
-    bool abilitiesNow[3] = {false, false, false};
-    double* audienceVotes = NULL;
-
-    ui_reset:
-    GetTerminalSize(&terminalX, &terminalY);
-    if(terminalX % 2 == 0) terminalX--;
-
-    ClearScreen();
-
-    printf(TOP_LEFT_CORNER); 
-    for (int _i = 0; _i < terminalX - 2; _i++) 
-        printf(HORIZONTAL_LINE); 
-    printf(TOP_RIGHT_CORNER);
-
-    printf("\n  Pytanie %2d: ", number);
-    PrintWrappedLine(question->Content, terminalX - 15, 14, false);
-    printf("\n");
-    PrintGenericBorder(terminalX, TJUNCTION_LEFT, HORIZONTAL_LINE, TJUNCTION_RIGHT);
-    GetCursorPosition(&tmp, &questionEndLine);
-
-    for (int i = 2; i < questionEndLine - 1; i++)
-        PrintGenericBorderEdges(0, terminalX, i, VERTICAL_LINE, false);
-
-    int ansWidthLimit = (terminalX - 13 - 20) / 2;
-    int ansLineCountA = GetWrappedLineCount(question->Answer[(0 + offset) % 4], ansWidthLimit);
-    int ansLineCountB = GetWrappedLineCount(question->Answer[(1 + offset) % 4], ansWidthLimit);
-    int ansLineCountMaxAB = MAX(ansLineCountA, ansLineCountB);
-    int ansLineCountC = GetWrappedLineCount(question->Answer[(2 + offset) % 4], ansWidthLimit);
-    int ansLineCountD = GetWrappedLineCount(question->Answer[(3 + offset) % 4], ansWidthLimit);
-    int ansLineCountMaxCD = MAX(ansLineCountC, ansLineCountD);
-    endAnsLine = questionEndLine + ansLineCountMaxAB + ansLineCountMaxCD + 8;
-
-    const int ansTextLeftPadding = 5;
-    const int ansTextMiddlePadding = 5;
-
-    int ansWidth = ansWidthLimit + 4;
-
-    int selected = 0;
-    bool confirmed = false;
-
-    // Draw reward box
-    const int rewardBoxWidth = 18;
-    SetCursorPosition(terminalX - rewardBoxWidth - 2, questionEndLine - 1);
-    printf(TJUNCTION_DOWN_SINGLE);
-    for (int i = 0; i < MAX(endAnsLine - questionEndLine, 10); i++) {
-        SetCursorPosition(terminalX - rewardBoxWidth - 2, questionEndLine + i);
-        printf(SINGLE_LIGHT_VERTICAL_LINE);
-        
-        if(i < 10) {
-            SetCursorPosition(terminalX - rewardBoxWidth, questionEndLine + i);
-            if(number == 10 - i) {
-                SetColor(LoadedSettings->SelectedAnswerColor);
-            }
-            printf("%2d ", 10 - i);
-
-            if (LoadedSettings->FullUTF8Support)
-                printf(TRIANGLE);
-            else
-                printf(">");
-
-            printf(" ");
-            switch (9 - i) {
-                case 0:
-                    printf("      500 zł");
-                    break;
-
-                case 1:
-                    printf("    1 000 zł");
-                    break;
-
-                case 2:
-                    printf("    2 000 zł");
-                    break;
-
-                case 3:
-                    printf("    5 000 zł");
-                    break;
-
-                case 4:
-                    printf("   10 000 zł");
-                    break;
-
-                case 5:
-                    printf("   20 000 zł");
-                    break;
-
-                case 6:
-                    //printf("   40 000 zł");
-                    printf("   50 000 zł");
-                    break;
-
-                case 7:
-                    // printf("   75 000 zł");
-                    printf("  100 000 zł");
-                    break;  
-
-                case 8:
-                    // printf("  125 000 zł");
-                    printf("  250 000 zł");
-                    break;
-
-                case 9:
-                    // printf("  250 000 zł");
-                    printf("1 000 000 zł");
-                    break;
-
-                // case 10:
-                //     printf("  500 000 zł");
-                //     break;
-
-                // case 11:
-                //     printf("1 000 000 zł");
-                //     break;
-            }
-
-            ResetColor();
-        }
-    }
-
-    SetCursorPosition(0, questionEndLine);
-    PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor);
-
-    // Print Answer 1
-    PrintAnsContent(ansTextLeftPadding, questionEndLine + 2, ansWidthLimit, (0 + offset) % 4, ansLineCountMaxAB, question, audienceVotes);
-    // Print Answer 2
-    PrintAnsContent(ansTextLeftPadding + ansWidthLimit + ansTextMiddlePadding, questionEndLine + 2, ansWidthLimit, (1 + offset) % 4, ansLineCountMaxAB, question, audienceVotes);
-
-    // Print Answer 3
-    PrintAnsContent(ansTextLeftPadding, questionEndLine + ansLineCountMaxAB + 6, ansWidthLimit, (2 + offset) % 4, ansLineCountMaxCD, question, audienceVotes);
-    // Print Answer 4
-    PrintAnsContent(ansTextLeftPadding + ansWidthLimit + ansTextMiddlePadding, questionEndLine + ansLineCountMaxAB + 6, ansWidthLimit, (3 + offset) % 4, ansLineCountMaxCD, question, audienceVotes);
-
-    for (int i = questionEndLine; i < endAnsLine; i++)
-        PrintGenericBorderEdges(0, terminalX, i, VERTICAL_LINE, false);
-    
-    SetCursorPosition(0, endAnsLine);
-    PrintGenericBorder(terminalX, TJUNCTION_LEFT, HORIZONTAL_LINE, TJUNCTION_RIGHT);
-
-    // Add connector for reward box
-    SetCursorPosition(terminalX - rewardBoxWidth - 2, endAnsLine);
-    printf(TJUNCTION_UP_SINGLE);
-
-    SetCursorPosition(0, endAnsLine + 1);
-    
-    if(!abilities[0]) {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("  X: Głos publiczności\n");
-    }
-    else {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("  X: Głos publiczności niedostępny\n");
-    }
-    ResetColor();
-
-    PrintGenericBorderEdges(0, terminalX, endAnsLine + 1, VERTICAL_LINE, false);
-
-    if(!abilities[1])
-        printf("\n  Y: Help2\n");
-    else
-        printf("\n  Y: Already used\n");
-
-    PrintGenericBorderEdges(0, terminalX, endAnsLine + 2, VERTICAL_LINE, false);
-
-    if(!abilities[2])
-        printf("\n  Z: Help3\n");
-    else
-        printf("\n  Z: Already used\n");
-
-    PrintGenericBorderEdges(0, terminalX, endAnsLine + 3, VERTICAL_LINE, false);
-
-    printf(CSR_MOVE_LEFT_0_DOWN1);
-
-    PrintGenericBorder(terminalX, BOTTOM_LEFT_CORNER, HORIZONTAL_LINE, BOTTOM_RIGHT_CORNER);
-
-    printf(CSR_MOVE_LEFT_0_DOWN(2));
-    
-    while (true)
-    {
-        HideCursor();
-
-        int oldSel = selected;
-
-        switch (HandleInteractions(false))
-        {
-            case KEY_ARROW_UP:
-                if(selected == 2 || selected == 3) {
-                    selected -= 2;
-                    confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
-                }
-                break;
-            case KEY_ARROW_DOWN:
-                if(selected == 0 || selected == 1) {
-                    selected += 2;
-                    confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
-                }
-                break;
-            case KEY_ARROW_RIGHT:
-                if(selected == 0 || selected == 2) {
-                    selected += 1;
-                    confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
-                }
-                break;
-            case KEY_ARROW_LEFT:
-                if(selected == 1 || selected == 3) {
-                    selected -= 1;
-                    confirmed = false;
-                    PrintQuadAnsBlockDelta(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->SelectedAnswerColor, oldSel);
-                }
-                break;
-            
-            case KEY_ENTER:
-                if(confirmed) {
-                    int answerIndex = selected;
-                    answerIndex += offset;
-                    answerIndex = (answerIndex + 4) % 4;
-
-                    *outAnswer = (char)answerIndex;
-                    *outCorrect = answerIndex == 0;
-
-                    int fgColor = *outCorrect ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor;
-                    PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, fgColor);
-
-                    ResetColor();
-
-                    WaitForEnter();
-
-                    SetCursorPosition(0, questionEndLine + 10);
-                    free(audienceVotes);
-                    return *outCorrect;
-                }
-
-                PrintQuadAnsBlock(questionEndLine, ansWidth, ansLineCountMaxAB, ansLineCountMaxCD, selected, LoadedSettings->ConfirmedAnswerColor);
-                confirmed = true;
-                break;
-
-            case KEY_X:
-                if(abilities[0]) break;
-                abilitiesNow[0] = abilities[0] = true;
-
-                audienceVotes = ShowAudienceHelp(offset);
-                goto ui_reset;
-
-            case KEY_Y:
-                if(abilities[1]) break;
-                abilitiesNow[1] = abilities[1] = true;
-
-                SetCursorPosition(3, questionEndLine + 6);
-                printf("Y: %s\n", question->Help);
-                break;
-
-            case KEY_Z:
-                if(abilities[2]) break;
-                abilitiesNow[2] = abilities[2] = true;
-
-                SetCursorPosition(3, questionEndLine + 7);
-                printf("Z: %s\n", question->Help);
-                break;
-
-            default:
-                break;
-        }
-    }
 }
