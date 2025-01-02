@@ -7,7 +7,7 @@
 7;Question;VeryVeryAns1;VeryVeryAns2;VeryVeryAns3;VeryVeryAns4;Help;
 8;Question;Ans1;Ans2;Ans3;Ans4;Help;
 9;Question;Ans1;Ans2;Ans3;Ans4;Help;
-10;Question;Ans1;Ans2;Ans3;Ans4;Help;
+10;ąąąąąąąąąąąąąąąąąąąąąą;ććććććććććććććććććććć;źźźźźźźźźźźźźźźźźźźźźź;żżżżżżżżżżżżżżżżżżżżżżżżżżż;ółółółółółółłółółółółółółółłółó;;
 11;Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long Question;Ans1;Ans2;Ans3;Ans4;Help;
 12;Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s;Lorem Ipsum;The very big River of Stephan;Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC;No clue *insert shrug here*;;
 13;Tajemniczy Święty Graal jest często przedstawiany jako:;kielich;miecz;pierścień;tarcza;;
@@ -17,7 +17,7 @@
 17;Krzysztof Penderecki był wybitnym polskim:;kompozytorem;malarzem;pisarzem;aktorem;;
 18;Pola Elizejskie były krainą wiecznego szczęścia w mitologii:;greckiej;egipskiej;rzymskiej;nordyckiej;;
 19;Fikcyjna postać, która jest zdolna do lykantropii to:;wilkołak;smok;wampir;zombie;;
-20;Maluchto potoczne określenie:;Fiata 126p;Porsche Carrery;Mercedesa W124;Opla Astry;;
+20;Maluch to potoczne określenie:;Fiata 126p;Porsche Carrery;Mercedesa W124;Opla Astry;;
 21;Sumo jest sportem narodowym:;Japonii;Norwegii;Meksyku;Egiptu;;
 22;Które z poniższych słów to nazwa pojazdu?;omnibus;nimbus;tribus;imbus;;
 23;Piątą literą greckiego alfabetu jest:;epsilon;gamma;lambda;delta;;
@@ -44,7 +44,7 @@
 44;Przeciwnik Piotrusia Pana to Kapitan:;Hak;Planeta;Bomba;Żbik;;
 45;Lęk przed wychodzeniem na otwartą przestrzeń to:;agorafobia;aerofobia;arachnofobia;akrofobia;;
 46;Wilczyca karmiąca dwóch braci to symbol:;Rzymu;Moskwy;Sztokholmu;Madrytu;;
-47;Pałac Kultury i Nauki znajduje sięna warszawksim Placu:;Defilad;Bankowym;Zbawiciela;Trzech Krzyży;;
+47;Pałac Kultury i Nauki znajduje się na warszawksim Placu:;Defilad;Bankowym;Zbawiciela;Trzech Krzyży;;
 48;Jedyną stroną świata oznaczoną na kompasie samogłoską jest:;wschód;południe;zachód;północ;;
 49;Jedyna osoba, która otrzymała nagrodę Nobla z dziedziny chemii dwukrotnie to:;Frederick Sanger;Maria Skłodowska-Curie;Linus Pauling;Ernest Rutherford;;
 50;Monsun to:;wiatr sezonowy;wiatr stały;minerał;prąd morski;;
