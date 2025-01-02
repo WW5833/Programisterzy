@@ -492,8 +492,6 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
     DrawStaticUI(data);
 
-    SetCursorPosition(0, 999);
-
     time_t tmp;
     time(&tmp);
 
