@@ -135,7 +135,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data) {
     if(data->terminalWidth % 2 == 0) data->terminalWidth--;
 
     const int questionEndLinePredefinedY = 3;
-    data->questionContentEndY = GetWrappedLineCount(data->question->Content, data->terminalWidth - 15) + questionEndLinePredefinedY;
+    data->questionContentEndY = GetWrappedLineCount(data->question->Content, data->terminalWidth - 16) + questionEndLinePredefinedY;
 
     const int marginsBetweenAnsers = 13;
     data->ansWidthLimit = (data->terminalWidth - marginsBetweenAnsers - REWARD_BOX_WIDTH_PLUS_BORDER) / 2;
