@@ -467,8 +467,15 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
                 *outAnswer = (char)answerIndex;
                 *outCorrect = answerIndex == 0;
 
-                int fgColor = *outCorrect ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor;
-                PrintAnswersBlocksForce(data, data->selectedQuestion, fgColor);
+                if(*outCorrect) {
+                    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
+                }
+                else {
+                    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
+                    if(LoadedSettings->ShowCorrectWhenWrong) {
+                        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
+                    }
+                }
 
                 ResetColor();
 

@@ -7,7 +7,7 @@
 
 extern Settings* LoadedSettings;
 
-#define OPTION_COUNT 9
+#define OPTION_COUNT 10
 
 bool slimMode = false;
 
@@ -49,6 +49,7 @@ void PageEnter_Settings()
     int utf8SupportX, utf8SupportY;
     int turorialShownX, tutorialShownY;
     int autoResizeX, autoResizeY;
+    int showCorrectWhenWrongX, showCorrectWhenWrongY;
     ClearScreen();
     printf("Ustawienia");
     printf("\n[*] Kolor poprawnej odpowiedzi     ");
@@ -77,7 +78,10 @@ void PageEnter_Settings()
     printf(!LoadedSettings->TutorialShown ? "TAK" : "NIE");
     printf("\n[ ] Automatyczne reskalowanie konsoli: ");
     GetCursorPosition(&autoResizeX, &autoResizeY);
-    printf(!LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+    printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+    printf("\n[ ] Pokaż poprawną odpowiedź po przegranej: ");
+    GetCursorPosition(&showCorrectWhenWrongX, &showCorrectWhenWrongY);
+    printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
     printf("\n[ ] Zapisz i wróć do menu głównego");
 
     int lineIndexes[OPTION_COUNT] = 
@@ -90,7 +94,8 @@ void PageEnter_Settings()
         7 + (slimMode ? 5 : 0), 
         tutorialShownY, 
         tutorialShownY + 1, 
-        autoResizeY + 1 
+        autoResizeY + 1,
+        showCorrectWhenWrongY + 1
     };
 
     int selected = 0;
@@ -135,7 +140,12 @@ void PageEnter_Settings()
             else if(selected == 7) {
                 LoadedSettings->AutoResizeUI = !LoadedSettings->AutoResizeUI;
                 SetCursorPosition(autoResizeX, autoResizeY);
-                printf(!LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+                printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+            }
+            else if(selected == 8) {
+                LoadedSettings->ShowCorrectWhenWrong = !LoadedSettings->ShowCorrectWhenWrong;
+                SetCursorPosition(showCorrectWhenWrongX, showCorrectWhenWrongY);
+                printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
             }
             else if(selected == OPTION_COUNT - 1) {
                 SaveSettings(LoadedSettings);

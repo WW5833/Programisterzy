@@ -10,6 +10,7 @@ typedef struct {
     int FullUTF8Support;
     int TutorialShown;
     int AutoResizeUI;
+    int ShowCorrectWhenWrong;
 } Settings;
 
 Settings* LoadSettings();
