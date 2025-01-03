@@ -8,20 +8,19 @@
 int GetMaxWordLength(const char* line)
 {
     int max = 0;
-    int current = 0;
+    const char* lastSpace = line;
     while (*line != '\0')
     {
         if (*line == ' ')
         {
-            max = MAX(max, current);
-            current = 0;
+            max = MAX(max, GetCharCount(lastSpace, line));
+            lastSpace = line;
         }
-        else
-        {
-            current++;
-        }
+
         line++;
     }
+
+    max = MAX(max, GetCharCount(lastSpace, line));
 
     return max;
 }
@@ -34,15 +33,12 @@ void PageEnter_Debug()
     ClearScreen();
     printf("Debug page\n");
 
-    QuestionListHeader *list = GetQuestionList();
-
-    QuestionListItem *current = list->head;
-
     const int rewardBoxWidth = 19 + 1;
     const int rewardBoxHeight = 10;
     const int staticWidthContent = 14 + 2;
     const int staticWidthAnswer = 4 + 5 + 3 + rewardBoxWidth + 1;
-    const int staticHeight = 2 + 4 + 4 + 2 + 3 + 1;
+    const int staticHeightAnswer = (1 + 1 + 1 + 1)*2;
+    const int staticHeight = 1 + 1 + 1 + 3 + 1;
 
     const int absMinWidth = 57;
 
@@ -59,13 +55,11 @@ void PageEnter_Debug()
     int maxLineCountContentID = 0;
     int maxLineCountContent = 0;
 
+    QuestionListHeader* list = GetQuestionList();
+
+    QuestionListItem* current = list->head;
     while (current != NULL)
     {
-        int lineCountContent = GetWrappedLineCount(current->data->Content, absMinContentWidth);
-        if(lineCountContent > maxLineCountContent) {
-            maxLineCountContent = lineCountContent;
-            maxLineCountContentID = current->data->Id;
-        }
         int lengthWordContent = GetMaxWordLength(current->data->Content);
         if(lengthWordContent > maxLengthWordContent) {
             maxLengthWordContent = lengthWordContent;
@@ -74,11 +68,6 @@ void PageEnter_Debug()
 
         for (int i = 0; i < 4; i++)
         {
-            int lineCountAnswer = GetWrappedLineCount(current->data->Answer[i], absMinAnsWidth);
-            if(lineCountAnswer > maxLineCountAnswer) {
-                maxLineCountAnswer = lineCountAnswer;
-                maxLineCountAnswerID = current->data->Id;
-            }
             int lengthWordAnswer = GetMaxWordLength(current->data->Answer[i]);
             if(lengthWordAnswer > maxLengthWordAnswer) {
                 maxLengthWordAnswer = lengthWordAnswer;
@@ -89,8 +78,33 @@ void PageEnter_Debug()
         current = current->next;
     }
 
-    int width = MAX(absMinWidth, MAX(staticWidthContent + maxLengthWordContent, staticWidthAnswer + maxLengthWordAnswer*2));
-    int height = staticHeight + maxLineCountContent + MAX(maxLineCountAnswer*2, rewardBoxHeight);
+
+    const int width = MAX(absMinWidth, MAX(staticWidthContent + maxLengthWordContent, staticWidthAnswer + maxLengthWordAnswer*2));
+    const int minContentWidth = width - staticWidthContent;
+    const int minAnswerWidth = (width - staticWidthAnswer)/2;
+
+    current = list->head;
+    while (current != NULL)
+    {
+        int lineCountContent = GetWrappedLineCount(current->data->Content, minContentWidth);
+        if(lineCountContent > maxLineCountContent) {
+            maxLineCountContent = lineCountContent;
+            maxLineCountContentID = current->data->Id;
+        }
+
+        for (int i = 0; i < 4; i++)
+        { 
+            int lineCountAnswer = GetWrappedLineCount(current->data->Answer[i], minAnswerWidth);
+            if(lineCountAnswer > maxLineCountAnswer) {
+                maxLineCountAnswer = lineCountAnswer;
+                maxLineCountAnswerID = current->data->Id;
+            }
+        }
+
+        current = current->next;
+    }
+
+    int height = staticHeight + maxLineCountContent + MAX((staticHeightAnswer + maxLineCountAnswer*2), rewardBoxHeight);
 
     printf("Terminal size: %d x %d\n", terminalWidth, terminalHeight);
     printf("Required size: %d x %d\n", width, height);
