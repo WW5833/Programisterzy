@@ -401,16 +401,14 @@ void DrawStaticUI(QuizQuestionPageData* data) {
     DrawStaticUI_Answers(data);
 }
 
-void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data, double timeLimit) {
-    if(timeLimit > 0) {
-        time_t currentTime;
-        time(&currentTime);
+void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
+    time_t currentTime;
+    time(&currentTime);
 
-        if(difftime(currentTime, *lastCheckTime) < timeLimit)
-            return;
+    if(difftime(currentTime, *lastCheckTime) < 1)
+        return;
 
-        *lastCheckTime = currentTime;
-    }
+    *lastCheckTime = currentTime;
 
     int newTerminalX, newTerminalY;
     GetTerminalSize(&newTerminalX, &newTerminalY);
@@ -519,7 +517,9 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_R:
-            CheckToRedrawUI(NULL, data, 0);
+            // Recalculate and redraw UI
+            CalculateQuizQuestionPageData(data);
+            DrawStaticUI(data);
             break;
 
         default:
@@ -547,7 +547,7 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
             return;
     
         if(LoadedSettings->AutoResizeUI) {
-            CheckToRedrawUI(&lastCheckTime, data, 1);
+            CheckToRedrawUI(&lastCheckTime, data);
         }
     }
 }
@@ -574,12 +574,14 @@ void PageEnter_QuizQuestionPreview(Question* question) {
                 break;
 
             case KEY_R:
-                CheckToRedrawUI(NULL, data, 0);
+                // Recalculate and redraw UI
+                CalculateQuizQuestionPageData(data);
+                DrawStaticUI(data);
                 break;
 
             case KEY_NONE:
                 if(LoadedSettings->AutoResizeUI)
-                    CheckToRedrawUI(&tmp, data, 1);
+                    CheckToRedrawUI(&tmp, data);
                 break;
 
             default:
