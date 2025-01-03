@@ -12,9 +12,6 @@ typedef struct
 
     char* Answer[4];
     int AnswerLength[4];
-
-    char* Help;
-    int HelpLength;
 } Question;
 
 Question* DeserializeQuestion(char* serializedQuestion);

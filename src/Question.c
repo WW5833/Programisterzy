@@ -104,27 +104,18 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         question->AnswerLength[j] = GetStringCharCount(question->Answer[j]);
     }
 
-    if(DeserializeString(serializedQuestion, &question->Help, &i, true) != 0) 
-    {
-        fprintf(stderr, "Failed to deserialize question help: \"%s\"\n", serializedQuestion);
-        return NULL;
-    }
-    if(question->Help != NULL) question->HelpLength = GetStringCharCount(question->Help);
-    else question->HelpLength = 0;
-
     return question;
 }
 
 void AppendQuestion(FILE* file, Question* question) {
     // Id;Question;Ans1;Ans2;Ans3;Ans4;Help;\n
-    fprintf(file, "%d;%s;%s;%s;%s;%s;%s;\n",
+    fprintf(file, "%d;%s;%s;%s;%s;%s;\n",
         question->Id,
         question->Content,
         question->Answer[0],
         question->Answer[1], 
         question->Answer[2], 
-        question->Answer[3], 
-        question->Help == NULL ? "" : question->Help);
+        question->Answer[3]);
 }
 
 void DestroyQuestion(Question* question) {
@@ -133,6 +124,5 @@ void DestroyQuestion(Question* question) {
     free(question->Content);
     for (int i = 0; i < 4; i++)
         free(question->Answer[i]);
-    free(question->Help);
     free(question);
 }
