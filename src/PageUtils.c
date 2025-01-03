@@ -3,9 +3,57 @@
 #include <string.h>
 #include <conio.h>
 
+char* GetNextChar(const char* c) {
+    if((*c & 0x80) == 0x00) {
+        return c + 1;
+    }
+
+    if((*c & 0xC0) == 0x80) {
+        fprintf(stderr, "Invalid UTF-8 character (Continuation byte received first)\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int j = 6; j >= 0; j--)
+    {
+        if((*c & (1 << j)) == 0) {
+            return c + (7 - j);
+        }
+    }
+
+    fprintf(stderr, "Invalid UTF-8 character 0xFF\n");
+    exit(EXIT_FAILURE);
+}
+
+int GetCharCount(const char* start, const char* end) {
+   int count = 0;
+    for (int i = 0; i < (end - start); i++)
+    {
+        const char c = start[i];
+
+        if((c & 0xC0) == 0x80) {
+            fprintf(stderr, "Invalid UTF-8 character (Continuation byte received first)\n");
+            continue; // Invalid UTF-8 character
+        }
+
+        if((c & 0x80) == 0x80) {
+            for (int j = 6; j >= 0; j--)
+            {
+                if((c & (1 << j)) == 0) {
+                    i += 6 - j;
+                    break;
+                }
+            }
+        }
+
+       count++;
+    }
+    
+    return count;
+}
+
 int GetWrappedLineCount(const char* line, int width)
 {
-    int lineLength = (int)strlen(line);
+    int lineLength = GetCharCount(line, line + strlen(line));
     if(lineLength <= width) {
         return 1;
     }
@@ -16,16 +64,19 @@ int GetWrappedLineCount(const char* line, int width)
     const char* current = line;
 
     while (*current != '\0') {
-        if (*current == ' ' || *(current + 1) == '\0') {
-            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
+        const char* next = GetNextChar(current);
+
+        if (*current == ' ' || *next == '\0') {
+            int wordLength = GetCharCount(wordStart, current) + (*next == '\0' ? 1 : 0);
             if (currentWidth + wordLength > width) {
                 lineCount++;
                 currentWidth = 0;
             }
             currentWidth += wordLength + 1;
-            wordStart = current + 1;
+            wordStart = next;
         }
-        current++;
+
+        current = next;
     }
 
     return lineCount;
@@ -33,10 +84,11 @@ int GetWrappedLineCount(const char* line, int width)
 
 void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
 {
-    int lineLength = (int)strlen(line);
-    if(lineLength <= width) {
+    int lineLength = strlen(line);
+    int realLineLength = GetCharCount(line, line + lineLength);
+    if(realLineLength <= width) {
         if(centerText) {
-            printf(CSR_MOVE_RIGHT((width - lineLength) / 2));
+            printf(CSR_MOVE_RIGHT((width - realLineLength) / 2));
         }
 
         printf("%s", line);
@@ -50,13 +102,17 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
     int rightSpaces;
 
     while (*current != '\0') {
-        if (*current == ' ' || *(current + 1) == '\0') {
-            int wordLength = (int)(current - wordStart) + (*(current + 1) == '\0' ? 1 : 0);
-            if (currentWidth + wordLength > width) {
+        const char* next = GetNextChar(current);
+
+        if (*current == ' ' || *next == '\0') {
+            int realWordLength = GetCharCount(wordStart, current) + (*next == '\0' ? 1 : 0);
+            int wordLength = (int)(current - wordStart) + (*next == '\0' ? 1 : 0);
+            if (currentWidth + realWordLength > width) {
 
                 if(centerText) {
+                    realLineLength = GetCharCount(lineStart, wordStart) - 1;
                     lineLength = (int)(wordStart - lineStart) - 1;
-                    rightSpaces = (width - lineLength) / 2;
+                    rightSpaces = (width - realLineLength) / 2;
                     printf(CSR_MOVE_RIGHT(rightSpaces));
                     printf("%.*s", lineLength, lineStart);
                 }
@@ -70,20 +126,22 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
                 printf("%.*s ", wordLength, wordStart);
             }
 
-            currentWidth += wordLength + 1;
-            wordStart = current + 1;
+            currentWidth += realWordLength + 1;
+            wordStart = next;
         }
-        current++;
+        current = next;
     }
 
     if(centerText) {
+        realLineLength = GetCharCount(lineStart, wordStart);
         lineLength = (int)(current - lineStart);
-        rightSpaces = (width - lineLength) / 2;
+        rightSpaces = (width - realLineLength) / 2;
         if(rightSpaces > 0) printf(CSR_MOVE_RIGHT(rightSpaces));
         printf("%.*s", lineLength, lineStart);
     }
 }
 
+// Todo: Maybe add support for UTF-8 characters
 void GetWrappedLineCursorPosition(const char* line, int width, int position, int* cursorX, int* cusrorY)
 {
     *cursorX = 0;
