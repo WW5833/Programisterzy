@@ -42,9 +42,6 @@ void PageEnter_Debug()
 
     const int absMinWidth = 57;
 
-    const int absMinContentWidth = 45;
-    const int absMinAnsWidth = 13;
-
     int maxLengthWordAnswerID = 0;
     int maxLengthWordAnswer = 0;
     int maxLengthWordContentID = 0;

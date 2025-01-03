@@ -8,6 +8,7 @@
 #define CTRL_C '\03'
 #define ENTER '\015'
 
+int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
 int GetWrappedLineCount(const char* line, int width);
 void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
-#include <string.h>
+#include "PageUtils.h"
 
 #define TO_ULL(i) ((unsigned long long)(i))
 #define TO_INT(i) ((int)(i))
@@ -89,7 +89,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         fprintf(stderr, "Failed to deserialize question content: \"%s\"\n", serializedQuestion);
         return NULL;
     }   
-    question->ContentLength = strlen(question->Content);
+    question->ContentLength = GetStringCharCount(question->Content);
 
     serializedQuestion = &serializedQuestion[i];
 
@@ -101,7 +101,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
             return NULL;
         }
         serializedQuestion = &serializedQuestion[i];
-        question->AnswerLength[j] = strlen(question->Answer[j]);
+        question->AnswerLength[j] = GetStringCharCount(question->Answer[j]);
     }
 
     if(DeserializeString(serializedQuestion, &question->Help, &i, true) != 0) 
@@ -109,7 +109,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         fprintf(stderr, "Failed to deserialize question help: \"%s\"\n", serializedQuestion);
         return NULL;
     }
-    if(question->Help != NULL) question->HelpLength = strlen(question->Help);
+    if(question->Help != NULL) question->HelpLength = GetStringCharCount(question->Help);
     else question->HelpLength = 0;
 
     return question;

@@ -12,7 +12,7 @@ bool CopyBuffer(char** dest, const char* src, int length) {
         return false;
     }
 
-    *dest = malloc(length + 1);
+    *dest = malloc((size_t)(length + 1));
     for (int i = 0; i < length; i++) {
         if(src[i] == ';') {
             printf("\nZnaleziono niedozwolony znak: ';' - spróbuj ponownie\n");
@@ -43,7 +43,7 @@ Question *PageEnter_AddQuestion()
     load_content:
     printf("Podaj treść pytania: ");
     fgets(buffer, MAX_QUESTION_LENGTH, stdin);
-    question->ContentLength = strlen(buffer) - 1;
+    question->ContentLength = (int)strlen(buffer) - 1;
     if(!CopyBuffer(&question->Content, buffer, question->ContentLength))
         goto load_content;
     
@@ -56,7 +56,7 @@ Question *PageEnter_AddQuestion()
             printf("Podaj odpowiedź %c: ", 'A' + j);
 
         fgets(buffer, MAX_QUESTION_LENGTH, stdin);
-        question->AnswerLength[j] = strlen(buffer) - 1;
+        question->AnswerLength[j] = (int)strlen(buffer) - 1;
         if(!CopyBuffer(&question->Answer[j], buffer, question->AnswerLength[j]))
             goto load_answer;
     }
@@ -64,7 +64,7 @@ Question *PageEnter_AddQuestion()
     load_help:
     printf("Podaj treść podpowiedzi (zostaw puste jeśli brak): ");
     fgets(buffer, MAX_QUESTION_LENGTH, stdin);
-    question->HelpLength = strlen(buffer) - 1;
+    question->HelpLength = (int)strlen(buffer) - 1;
     if(question->HelpLength == 0) {
         question->Help = NULL;
     }

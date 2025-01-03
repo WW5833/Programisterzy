@@ -1,9 +1,8 @@
 #include "PageUtils.h"
 #include "AnsiHelper.h"
-#include <string.h>
 #include <conio.h>
 
-char* GetNextChar(const char* c) {
+const char* GetNextChar(const char* c) {
     if((*c & 0x80) == 0x00) {
         return c + 1;
     }
@@ -24,36 +23,32 @@ char* GetNextChar(const char* c) {
     exit(EXIT_FAILURE);
 }
 
-int GetCharCount(const char* start, const char* end) {
-   int count = 0;
-    for (int i = 0; i < (end - start); i++)
+int GetStringCharCount(const char* start) {
+    int count = 0;
+    while (*start != '\0')
     {
-        const char c = start[i];
-
-        if((c & 0xC0) == 0x80) {
-            fprintf(stderr, "Invalid UTF-8 character (Continuation byte received first)\n");
-            continue; // Invalid UTF-8 character
-        }
-
-        if((c & 0x80) == 0x80) {
-            for (int j = 6; j >= 0; j--)
-            {
-                if((c & (1 << j)) == 0) {
-                    i += 6 - j;
-                    break;
-                }
-            }
-        }
-
-       count++;
+        start = GetNextChar(start);
+        count++;
     }
-    
+
+    return count;
+}
+
+int GetCharCount(const char* start, const char* end) {
+    int count = 0;
+
+    while (start < end)
+    {
+        start = GetNextChar(start);
+        count++;
+    }
+
     return count;
 }
 
 int GetWrappedLineCount(const char* line, int width)
 {
-    int lineLength = GetCharCount(line, line + strlen(line));
+    int lineLength = GetStringCharCount(line);
     if(lineLength <= width) {
         return 1;
     }
@@ -84,8 +79,8 @@ int GetWrappedLineCount(const char* line, int width)
 
 void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
 {
-    int lineLength = strlen(line);
-    int realLineLength = GetCharCount(line, line + lineLength);
+    int lineLength;
+    int realLineLength = GetStringCharCount(line);
     if(realLineLength <= width) {
         if(centerText) {
             printf(CSR_MOVE_RIGHT((width - realLineLength) / 2));
@@ -147,7 +142,7 @@ void GetWrappedLineCursorPosition(const char* line, int width, int position, int
     *cursorX = 0;
     *cusrorY = 0;
 
-    int lineLength = (int)strlen(line);
+    int lineLength = GetStringCharCount(line);
     if(lineLength <= width) {
         *cursorX = position;
         return;
