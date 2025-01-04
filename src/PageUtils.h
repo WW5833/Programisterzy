@@ -31,5 +31,7 @@ KeyInputType HandleInteractions(bool blocking);
 
 void ExitOnCtrlC();
 void WaitForEnter();
+char _internal_WaitForKeys(int count, char* keys);
+#define WaitForKeys(...) _internal_WaitForKeys(sizeof((char[]){__VA_ARGS__}), (char[]){__VA_ARGS__})
 
 #endif // _INC_PAGEUTILS_H

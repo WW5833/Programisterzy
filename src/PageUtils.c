@@ -239,12 +239,26 @@ void ExitOnCtrlC() {
 }
 
 void WaitForEnter() {
-    int c;
+    WaitForKeys(ENTER);
+}
 
+char _internal_WaitForKeys(int count, char* keys)
+{
     SetCursorPosition(0, 999);
 
-    while((c = _getch()) != ENTER && c != CTRL_C); // Enter or CTRL+C
-    if(c == CTRL_C) {
-        ExitOnCtrlC();
+    int c;
+    while(true) {
+        c = _getch();
+
+        if(c == CTRL_C) {
+            ExitOnCtrlC();
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            if(c == keys[i]) {
+                return (char)c;
+            }
+        }
     }
 }
