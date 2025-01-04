@@ -319,67 +319,38 @@ void DrawStaticUI_QuestionContent(QuizQuestionPageData* data) {
     PrintWrappedLine(data->question->Content, data->terminalWidth - 16, 14, false);
 }
 
+void PrintAbilityText(QuizQuestionPageData* data, int answerId, const char* text, char key) {
+    printf("                                                      ");
+    printf(CSR_MOVE_LEFT(54));
+    if(data->abilitiesNow[answerId]) {
+        SetColor(LoadedSettings->SelectedAnswerColor);
+        printf("%c) %s: Wykorzystano", key, text);
+    }
+    else if(data->abilities[answerId]) {
+        SetColor(LoadedSettings->WrongAnswerColor);
+        printf("%c) %s: Wykorzystano", key, text);
+    }
+    else if(data->abilitiesConfirm[answerId]) {
+        SetColor(LoadedSettings->ConfirmedAnswerColor);
+        printf("%c) %s: Potwierdź wykorzystanie (%c)", key, text, key);
+    }
+    else {
+        SetColor(LoadedSettings->CorrectAnswerColor);
+        printf("%c) %s: Dostępny", key, text);
+    }
+}
+
 void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
     SetCursorPosition(3, data->answersEndY + 1);
     
-    printf("                                                      ");
-    printf(CSR_MOVE_LEFT(54));
-    if(data->abilitiesNow[ABILITY_AUDIENCE]) {
-        SetColor(LoadedSettings->SelectedAnswerColor);
-        printf("1) Głos publiczności: Wykorzystano");
-    }
-    else if(data->abilities[ABILITY_AUDIENCE]) {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("1) Głos publiczności: Wykorzystano");
-    }
-    else if(data->abilitiesConfirm[ABILITY_AUDIENCE]) {
-        SetColor(LoadedSettings->ConfirmedAnswerColor);
-        printf("1) Głos publiczności: Potwierdź wykorzystanie (1)");
-    }
-    else {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("1) Głos publiczności: Dostępny");
-    }
+    PrintAbilityText(data, ABILITY_AUDIENCE, "Głos publiczności", '1');
 
-    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(3));
-    printf("                                                      ");
-    printf(CSR_MOVE_LEFT(55));
-    if(data->abilitiesNow[ABILITY_5050]) {
-        SetColor(LoadedSettings->SelectedAnswerColor);
-        printf("2) 50/50: Wykorzystano");
-    }
-    else if(data->abilities[ABILITY_5050]) {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("2) 50/50: Wykorzystano");
-    }
-    else if(data->abilitiesConfirm[ABILITY_5050]) {
-        SetColor(LoadedSettings->ConfirmedAnswerColor);
-        printf("2) 50/50: Potwierdź wykorzystanie (2)");
-    }
-    else {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("2) 50/50: Dostępny");
-    }
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    PrintAbilityText(data, ABILITY_5050, "50/50", '2');
 
-    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(3));
-    printf("                                                      ");
-    printf(CSR_MOVE_LEFT(55));
-    if(data->abilitiesNow[ABILITY_PHONE]) {
-        SetColor(LoadedSettings->SelectedAnswerColor);
-        printf("3) Telefon do przyjaciela: Wykorzystano");
-    }
-    else if(data->abilities[ABILITY_PHONE]) {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("3) Telefon do przyjaciela: Wykorzystano");
-    }
-    else if(data->abilitiesConfirm[ABILITY_PHONE]) {
-        SetColor(LoadedSettings->ConfirmedAnswerColor);
-        printf("3) Telefon do przyjaciela: Potwierdź wykorzystanie (3)");
-    }
-    else {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("3) Telefon do przyjaciela: Dostępny");
-    }
+    printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
+    PrintAbilityText(data, ABILITY_PHONE, "Telefon do przyjaciela", '3');
+    
     ResetColor();
 
     SetCursorToRestingPlace(data);
@@ -459,6 +430,27 @@ void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
     PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings->SelectedAnswerColor);
 }
 
+bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* abilityConfirmId) {
+    // Allow to reopen help window
+    if(data->abilitiesNow[abilityId]) {
+        return false;
+    }
+
+    if(data->abilities[abilityId]) {
+        return true;
+    }
+
+    if(!data->abilitiesConfirm[abilityId]) {
+        *abilityConfirmId = abilityId;
+        data->abilitiesConfirm[abilityId] = true;
+        DrawStaticUI_Abilities(data);
+        return true;
+    }
+
+    data->abilitiesNow[abilityId] = data->abilities[abilityId] = true;
+    return false;
+}
+
 bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect) {
     int oldSel = data->selectedQuestion;
     int abilityConfirmId = -1;
@@ -518,20 +510,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             return true;
 
         case KEY_1:
-            if(!data->abilitiesNow[ABILITY_AUDIENCE]) { // Allow to reopen help window
-                if(data->abilities[ABILITY_AUDIENCE]) break;
-                if(!data->abilitiesConfirm[ABILITY_AUDIENCE]) {
-                    abilityConfirmId = ABILITY_AUDIENCE;
-                    data->abilitiesConfirm[ABILITY_AUDIENCE] = true;
-                    DrawStaticUI_Abilities(data);
-                    break;
-                }
-
-                data->abilitiesNow[ABILITY_AUDIENCE] = data->abilities[ABILITY_AUDIENCE] = true;
-            }
-            else if(data->abilitiesConfirm[ABILITY_5050] || data->abilitiesConfirm[ABILITY_PHONE]) {
+            if(HandleAbilityButton(data, ABILITY_AUDIENCE, &abilityConfirmId))
                 break;
-            }
 
             ShowAudienceHelp(data);
 
@@ -540,20 +520,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_2:
-            if(!data->abilitiesNow[ABILITY_5050]) { // Allow to reopen help window
-                if(data->abilities[ABILITY_5050]) break;
-                if(!data->abilitiesConfirm[ABILITY_5050]) {
-                    abilityConfirmId = ABILITY_5050;
-                    data->abilitiesConfirm[ABILITY_5050] = true;
-                    DrawStaticUI_Abilities(data);
-                    break;
-                }
-
-                data->abilitiesNow[ABILITY_5050] = data->abilities[ABILITY_5050] = true;
-            }
-            else if(data->abilitiesConfirm[ABILITY_AUDIENCE] || data->abilitiesConfirm[ABILITY_PHONE]) {
+            if(HandleAbilityButton(data, ABILITY_5050, &abilityConfirmId))
                 break;
-            }
 
             Show5050Help(data);
 
@@ -562,20 +530,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_3:
-            if(!data->abilitiesNow[ABILITY_PHONE]) { // Allow to reopen help window
-                if(data->abilities[ABILITY_PHONE]) break;
-                if(!data->abilitiesConfirm[ABILITY_PHONE]) {
-                    abilityConfirmId = ABILITY_PHONE;
-                    data->abilitiesConfirm[ABILITY_PHONE] = true;
-                    DrawStaticUI_Abilities(data);
-                    break;
-                }
-
-                data->abilitiesNow[ABILITY_PHONE] = data->abilities[ABILITY_PHONE] = true;
-            }
-            else if(data->abilitiesConfirm[ABILITY_AUDIENCE] || data->abilitiesConfirm[ABILITY_5050]) {
+            if(HandleAbilityButton(data, ABILITY_PHONE, &abilityConfirmId))
                 break;
-            }
 
             ShowPhoneHelp(data);
 
