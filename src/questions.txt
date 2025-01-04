@@ -10,6 +10,7 @@
 10;ąąąąąąąąąąąąąąąąąąąąąą;ććććććććććććććććććććć;źźźźźźźźźźźźźźźźźźźźźź;żżżżżżżżżżżżżżżżżżżżżżżżżżż;ółółółółółółłółółółółółółółłółó;
 11;Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long Question;Ans1;Ans2;Ans3;Ans4;
 12;Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s;Lorem Ipsum;The very big River of Stephan;Section 1.10.32 of "de Finibus Bonorum et Malorum", written by Cicero in 45 BC;No clue *insert shrug here*;
+
 13;Tajemniczy Święty Graal jest często przedstawiany jako:;kielich;miecz;pierścień;tarcza;
 14;Wariometr to:;przyrząd pokł. w samolocie;kamera używana w sys. VAR;wykrywacz kłamstw;narzędzie okr. siłę zab. psychicznych;
 15;Rubel dzieli się na 100:;kopiejek;groszy;fenigów;lip;
@@ -80,7 +81,7 @@
 80;Nimfy strzegące złotych jabłek w mitologii greckiej to:;Hesperydy;Menady;Nereidy;Driady;
 91;Ile to jest 1111 razy 1111, jeśli 1 razy 1 to 1, a 11 razy 11 to 121?;1 234 321;111 111 111;123 454 321;12 321;
 92;Kiedy rozpoczęło się drugie tysiąclecie?;1 stycznia 1001 roku;1 stycznia 1000 roku;1 stycznia 2001 roku;1 stycznia 2000 roku;
-93;Do czworonogów, czyli tetrapodów, nie zaliczamy ... :;Owadów;Gadów;Płazów;Ptaków;
+93;Do czworonogów, czyli tetrapodów, nie zaliczamy:;Owadów;Gadów;Płazów;Ptaków;
 94;W jakiej cieśninie znajdują się dwie wyspy zwane wczorajszą i jutrzejszą, które dzielą niespełna cztery kilometry, ale aż 21 godzin różnicy czasu?;w Cieśninie Beringa;w Ciśnienie Kaletańskiej;w Cieśninie Magellana;w ciśnienie Bosfor;
 95;Budowa układu pokarmowego którego ze zwierząt świadczy o tym, że jest ono drapieżnikiem?;pandy;koali;sarny;lamy;
 96;Skąd pochodzi Conan Barbarzyńca?;z Cimmerii;z Mordoru;z Oz;z Rivii;

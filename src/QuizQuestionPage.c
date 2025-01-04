@@ -62,7 +62,7 @@ void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount,
     const int totalMargin = 1 + 1; // Top + Bottom
 
     const int titleWidth = 12; // "Odpowiedź: X"
-    const int startText = (ansWidth - titleWidth)/2 - 1;
+    const int startText = (ansWidth - titleWidth)/2 - 2;
     const int endText = startText + titleWidth + 1;
 
     printf(SINGLE_TOP_LEFT_CORNER);
@@ -285,7 +285,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
                 break;
 
             case 4:
-                printf("   20 000 zł");
+                printf("   25 000 zł");
                 break;
 
             case 5:
@@ -627,7 +627,7 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 void ShowAudienceHelp(QuizQuestionPageData* data) {
     const int windowWidth = 54;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
-    int beginY = 3;
+    int beginY = 2;
     int windowHeight = 13;
     int segmentCount = 9;
 

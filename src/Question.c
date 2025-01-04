@@ -62,6 +62,11 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         exit(EXIT_FAILURE);
     }
 
+    question->Id = -1;
+    question->Content = NULL;
+    for (int i = 0; i < 4; i++)
+        question->Answer[i] = NULL;
+
     int i;
 
     if(!DeserializeQuestionId(serializedQuestion, question, &i)) 

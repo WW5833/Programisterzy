@@ -53,7 +53,8 @@ int* GetOptionColor(int selected) {
             return &LoadedSettings->SupportColor;
 
         default:
-            return NULL;
+            fprintf(stderr, "Invalid option index: %d\n", selected);
+            exit(EXIT_FAILURE);
     }
 }
 

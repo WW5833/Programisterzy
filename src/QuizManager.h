@@ -20,28 +20,17 @@ typedef struct QuestionListHeader
     int count;
 } QuestionListHeader;
 
-typedef struct {
-    unsigned int seed;
-    QuestionListHeader* questions;
-    int questionIds[10];
-    int currentQuestion;
-    char username[30];
-    bool abulitiesUsed[3];
-} QuizData;
-
 Question* ListGetAt(QuestionListHeader* list, int index);
 void ListAdd(QuestionListHeader* list, Question* data);
 void ListRemove(QuestionListHeader* list, Question* question);
+void ListDestroy(QuestionListHeader* list, bool destoryData);
 
 int LoadQuestions();
 QuestionListHeader* GetQuestionList();
 Question* GetRandomQuestion();
-void RewriteQuestions(FILE* file, QuestionListHeader* list);
 
 int GetMaxQuestionId();
 
-QuizData* GenerateQuiz(const char username[30]);
-Question* GetCurrentQuestion(QuizData* quiz);
-void DestroyQuiz(QuizData* quiz);
+QuestionListHeader* GenerateQuiz();
 
 #endif // !_INC_QUIZMANAGER_H

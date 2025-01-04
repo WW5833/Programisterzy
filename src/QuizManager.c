@@ -198,7 +198,7 @@ int GetMaxQuestionId()
     return max;
 }
 
-QuizData* GenerateQuiz(const char username[30]) {
+QuestionListHeader* GenerateQuiz() {
     if(QuestionList == NULL) {
         LoadQuestions();
 
@@ -213,27 +213,14 @@ QuizData* GenerateQuiz(const char username[30]) {
         exit(EXIT_FAILURE);
     }
 
-    QuizData* quiz = malloc(sizeof(QuizData));
-    if(quiz == NULL) {
-        perror("Failed to allocate memory for quiz data");
-        exit(EXIT_FAILURE);
-    }
-#pragma GCC diagnostic ignored "-Wconversion"
-    quiz->seed = time(NULL);
-#pragma GCC diagnostic warning "-Wconversion"
-    quiz->abulitiesUsed[0] = false;
-    quiz->abulitiesUsed[1] = false;
-    quiz->abulitiesUsed[2] = false;
-    strcpy(quiz->username, username);
-    srand(quiz->seed);
-
-    quiz->questions = ListCreate();
+    int questionIds[10];
+    QuestionListHeader* questions = ListCreate();
     for(int i = 0; i < 10; i++) {
         Question* q = GetRandomQuestion();
 
         for (int j = 0; j < i; j++)
         {
-            if(quiz->questionIds[j] == q->Id) {
+            if(questionIds[j] == q->Id) {
                 i--;
                 q = NULL;
                 break;
@@ -241,34 +228,9 @@ QuizData* GenerateQuiz(const char username[30]) {
         }
         
         if(q == NULL) continue;
-        ListAdd(quiz->questions, q);
-        quiz->questionIds[i] = q->Id;
-        quiz->currentQuestion = 0;
+        ListAdd(questions, q);
+        questionIds[i] = q->Id;
     }
 
-    return quiz;
-}
-
-Question* GetCurrentQuestion(QuizData* quiz) {
-    if(quiz == NULL) return NULL;
-    return ListGetAt(quiz->questions, quiz->currentQuestion);
-}
-
-void DestroyQuiz(QuizData* quiz) {
-    if(quiz == NULL) return;
-
-    ListDestroy(quiz->questions, false);
-    free(quiz);
-}
-
-void RewriteQuestions(FILE* file, QuestionListHeader* list) {
-    if(file == NULL) return;
-
-    QuestionListItem* current = list->head;
-    while (current != NULL)
-    {
-        AppendQuestion(file, current->data);
-
-        current = current->next;
-    }
+    return questions;
 }

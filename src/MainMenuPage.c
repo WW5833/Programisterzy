@@ -13,9 +13,13 @@
 
 #include "DebugCheck.h"
 
+#define OPTION_COUNT 4
+
 #ifdef PROGRAMISTERZY_DEBUG
+#define DEBUG_OPTION_COUNT 2
 #include "DebugPage.h"
 #endif
+
 
 void PrintMainMenu(int selected)
 {
@@ -24,7 +28,6 @@ void PrintMainMenu(int selected)
     printf("Witaj w Programisterach!\n");
     printf("[ ] Rozpocznij quiz\n");
     printf("[ ] Dodaj pytanie\n");
-    printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
 #ifdef PROGRAMISTERZY_DEBUG
@@ -50,6 +53,29 @@ void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
     printf("*");
 }
 
+void PageEnter_QuizPreview() {
+    ClearScreen();
+    printf("Podgląd pytań\n");
+    printf("Podaj numer pytania do podglądu: ");
+    int id;
+    if(scanf("%d", &id) != 1) {
+        id = -1;
+    }
+
+    QuestionListHeader *list = GetQuestionList();
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        if(id != -1 && current->data->Id != id) {
+            current = current->next;
+            continue;
+        }
+        
+        PageEnter_QuizQuestionPreview(current->data);
+        current = current->next;
+    }
+}
+
 void OnEnterPressed(int selected) {
     switch (selected)
     {
@@ -60,38 +86,16 @@ void OnEnterPressed(int selected) {
             PageEnter_AddQuestion();
             break;
         case 2:
-            break;
-        case 3:
             PageEnter_Settings();
             break;
-        case 4:
+        case 3:
             exit(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
-        case 5:
+        case 4:
             PageEnter_Debug();
             break;
-        case 6:
-            ClearScreen();
-            printf("Podgląd pytań\n");
-            printf("Podaj numer pytania do podglądu: ");
-            int id;
-            if(scanf("%d", &id) != 1) {
-                id = -1;
-            }
-
-            QuestionListHeader *list = GetQuestionList();
-            QuestionListItem* current = list->head;
-            while (current != NULL)
-            {
-                if(id != -1 && current->data->Id != id) {
-                    current = current->next;
-                    continue;
-                }
-                
-                PageEnter_QuizQuestionPreview(current->data);
-                current = current->next;
-            }
-            
+        case 5:
+            PageEnter_QuizPreview();  
             break;
 #endif
     }
@@ -103,9 +107,9 @@ void PageEnter_MainMenu()
 {
     HideCursor();
 
-    int optionCount = 5;
+    int optionCount = OPTION_COUNT;
 #ifdef PROGRAMISTERZY_DEBUG
-    optionCount += 2;
+    optionCount += DEBUG_OPTION_COUNT;
 #endif
 
     int selected = 0;

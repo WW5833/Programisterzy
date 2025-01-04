@@ -22,7 +22,7 @@ void PrintGenericBorder(
     for (int _i = 0; _i < width - 2; _i++)
         printf(middleFormat, middleArg1, middleArg2, middleArg3);
     printf(rightFormat, rightArg1, rightArg2, rightArg3);
-    printf("\n");
+    printf(CSR_MOVE_LEFT_0_DOWN1);
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 }
 
