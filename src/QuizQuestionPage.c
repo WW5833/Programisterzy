@@ -166,21 +166,12 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
 
     // Generate random audience votes
     int votes[4] = {0, 0, 0, 0};
-    const int ansCount = 10000;
-    const int correctAnsChance = 50;
-    for (int i = 0; i < ansCount; i++)
-    {
-        double value = rand() % 100;
-        if(value < correctAnsChance) votes[0]++;
-        else {
-            double incorrectAnsChance = (100 - correctAnsChance) / 3;
-            
-            value -= correctAnsChance;
-            if(value < incorrectAnsChance) votes[1]++;
-            else if(value < incorrectAnsChance*2) votes[2]++;
-            else votes[3]++;
-        }
-    }
+    int ansCount = 1000;
+    
+    votes[0] = (rand() % 200) + 400;
+    votes[1] = (rand() % (1000 - votes[0]));
+    votes[2] = (rand() % (1000 - votes[0] - votes[1]));
+    votes[3] = 1000 - votes[0] - votes[1] - votes[2];
 
     for (int i = 0; i < 4; i++)
         data->audienceVotes[i] = ((double)votes[i] / (double)ansCount) * 100.0;
@@ -579,6 +570,27 @@ void PageEnter_QuizQuestionPreview(Question* question) {
                 DrawStaticUI(data);
                 break;
 
+            case KEY_X:
+                ShowAudienceHelp(data);
+                DrawStaticUI(data);
+                break;
+
+            case KEY_Y:
+                free(data);
+                data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
+                data->previewMode = true;
+                break;
+
+            case KEY_Z:
+                free(data);
+                data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
+                data->previewMode = true;
+
+                ShowAudienceHelp(data);
+                DrawStaticUI(data);
+
+                break;
+
             case KEY_NONE:
                 if(LoadedSettings->AutoResizeUI)
                     CheckToRedrawUI(&tmp, data);
@@ -594,17 +606,17 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 }
 
 void ShowAudienceHelp(QuizQuestionPageData* data) {
-    const int windowWidth = 60;
+    const int windowWidth = 54;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
-    int widnowHeight = 25;
-    int segmentCount = 20;
+    int windowHeight = 13;
+    int segmentCount = 9;
 
-    if(data->terminalHeight < widnowHeight + beginY) {
-        beginY = data->terminalHeight - widnowHeight - 1;
+    if(data->terminalHeight < windowHeight + beginY) {
+        beginY = data->terminalHeight - windowHeight - 1;
         if(beginY <= 0) {
             beginY += 3;
-            widnowHeight = data->terminalHeight - 5;
+            windowHeight = data->terminalHeight - 5;
             segmentCount -= 5;
         }
     }
@@ -613,18 +625,18 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
 
     PRINT_SINGLE_TOP_BORDER(windowWidth);
 
-    for (int i = 1; i < widnowHeight; i++)
+    for (int i = 1; i < windowHeight; i++)
         PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
 
-    SetCursorPosition(beginX, beginY + widnowHeight);
+    SetCursorPosition(beginX, beginY + windowHeight);
     PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
 
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine("Publiczność zagłosowała za odpowiedziami.", windowWidth - 4, beginX + 2, true);
 
-    for (int j = 0; j < 6; j++)
+    for (int j = 0; j < 4; j++)
     {
-        SetCursorPosition(beginX + 3, beginY + widnowHeight - 2 - (segmentCount / 5)*j);
+        SetCursorPosition(beginX + 2, beginY + windowHeight - 2 - (segmentCount / 3)*j);
         SetColor(LoadedSettings->SupportColor);
 
         printf(UNDERLINE_ON "%2d%%", 20*j);
@@ -635,34 +647,35 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
         ResetColor();
     }
 
-    const int barWidth = 9;
+    const int barWidth = 8;
     const int ansWidthPlusSep = barWidth + 3;
     const int barsOffset = 8;
-    SetCursorPosition(beginX + barsOffset, beginY + widnowHeight - 1);
+    SetCursorPosition(beginX + barsOffset, beginY + windowHeight - 1);
     printf("A: %2.1f%%", data->audienceVotes[(0 + data->offset) % 4]);
 
-    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep, beginY + widnowHeight - 1);
+    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep, beginY + windowHeight - 1);
     printf("B: %2.1f%%", data->audienceVotes[(1 + data->offset) % 4]);
 
-    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*2, beginY + widnowHeight - 1);
+    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*2, beginY + windowHeight - 1);
     printf("C: %2.1f%%", data->audienceVotes[(2 + data->offset) % 4]);
 
-    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*3, beginY + widnowHeight - 1);
+    SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*3, beginY + windowHeight - 1);
     printf("D: %2.1f%%", data->audienceVotes[(3 + data->offset) % 4]);
 
-    double oneSegment = 1.0 / segmentCount;
+    double oneSegment = 0.6 / segmentCount;
     double oneSegmentSmall = oneSegment / 8.0;
     double drawnVotes[4] = {0, 0, 0, 0};
     for (int i = 0; i < 4; i++)
     {
         drawnVotes[i] = data->audienceVotes[i] / 100.0;
+        if(drawnVotes[i] > 0.6) drawnVotes[i] = 0.6; // Cap graph at 60%
     }
     
     for (int i = 0; i < segmentCount; i++)
     {
         for (int id = 0; id < 4; id++)
         {
-            SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*id, beginY + widnowHeight - 1 - i - 1);
+            SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*id, beginY + windowHeight - 1 - i - 1);
             if(drawnVotes[(id + data->offset) % 4] >= oneSegment) {
                 for(int j = 0; j < barWidth; j++) printf(BLOCK_8_8);
                 drawnVotes[(id + data->offset) % 4] -= oneSegment;
@@ -683,7 +696,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
 }
 
 void Show5050Help(QuizQuestionPageData* data) {
-    const int windowWidth = 47 + 4;
+    const int windowWidth = 49 + 4;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
     int widnowHeight = 3;
@@ -698,7 +711,7 @@ void Show5050Help(QuizQuestionPageData* data) {
     PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
 
     SetCursorPosition(beginX + 2, beginY + 1);
-    PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi", windowWidth - 4, beginX + 2, true);
+    PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", windowWidth - 4, beginX + 2, true);
 
     WaitForEnter();
 }
