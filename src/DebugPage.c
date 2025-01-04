@@ -25,13 +25,9 @@ int GetMaxWordLength(const char* line)
     return max;
 }
 
-void PageEnter_Debug()
-{
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
+void CalculateQuizPageWidthRequirements(const int terminalWidth, const int terminalHeight) {
 
-    ClearScreen();
-    printf("Debug page\n");
+    printf("Calculating quiz page width requirements\n");
 
     const int rewardBoxWidth = 19 + 1;
     const int rewardBoxHeight = 10;
@@ -106,14 +102,23 @@ void PageEnter_Debug()
     printf("Terminal size: %d x %d\n", terminalWidth, terminalHeight);
     printf("Required size: %d x %d\n", width, height);
     printf("\n");
-    printf("\n");
     printf("Max content word length: %d [%d]\n", maxLengthWordContent, maxLengthWordContentID);
     printf("Max answer word length: %d [%d]\n", maxLengthWordAnswer, maxLengthWordAnswerID);
     printf("\n");
     printf("Max content line count: %d [%d]\n", maxLineCountContent, maxLineCountContentID);
     printf("Max answer line count: %d [%d]\n", maxLineCountAnswer, maxLineCountAnswerID);
     printf("\n");
-    printf("\n");
+}
+
+void PageEnter_Debug()
+{
+    int terminalWidth, terminalHeight;
+    GetTerminalSize(&terminalWidth, &terminalHeight);
+
+    ClearScreen();
+    printf("Debug page\n");
+
+    CalculateQuizPageWidthRequirements(terminalWidth, terminalHeight);
 
     WaitForEnter();
 }

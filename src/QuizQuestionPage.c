@@ -489,8 +489,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_X:
-            if(data->abilities[0]) break;
-            data->abilitiesNow[0] = data->abilities[0] = true;
+            if(data->abilities[ABILITY_AUDIENCE]) break;
+            data->abilitiesNow[ABILITY_AUDIENCE] = data->abilities[ABILITY_AUDIENCE] = true;
 
             ShowAudienceHelp(data);
 
@@ -499,8 +499,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_Y:
-            if(data->abilities[1]) break;
-            data->abilitiesNow[1] = data->abilities[1] = true;
+            if(data->abilities[ABILITY_5050]) break;
+            data->abilitiesNow[ABILITY_5050] = data->abilities[ABILITY_5050] = true;
 
             Show5050Help(data);
 
@@ -509,8 +509,8 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_Z:
-            if(data->abilities[2]) break;
-            data->abilitiesNow[2] = data->abilities[2] = true;
+            if(data->abilities[ABILITY_PHONE]) break;
+            data->abilitiesNow[ABILITY_PHONE] = data->abilities[ABILITY_PHONE] = true;
 
             // Redraw UI
             DrawStaticUI(data);
