@@ -271,34 +271,34 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
                 break;
 
             case 2:
-                printf("    2 000 zł");
+                printf("    4 000 zł");
                 break;
 
             case 3:
-                printf("    5 000 zł");
-                break;
-
-            case 4:
                 printf("   10 000 zł");
                 break;
 
-            case 5:
+            case 4:
                 printf("   20 000 zł");
+                break;
+
+            case 5:
+                printf("   50 000 zł");
                 break;
 
             case 6:
                 //printf("   40 000 zł");
-                printf("   50 000 zł");
+                printf("  100 000 zł");
                 break;
 
             case 7:
                 // printf("   75 000 zł");
-                printf("  100 000 zł");
+                printf("  250 000 zł");
                 break;  
 
             case 8:
                 // printf("  125 000 zł");
-                printf("  250 000 zł");
+                printf("  500 000 zł");
                 break;
 
             case 9:
