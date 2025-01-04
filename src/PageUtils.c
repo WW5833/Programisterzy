@@ -244,8 +244,6 @@ void WaitForEnter() {
 
 char _internal_WaitForKeys(int count, char* keys)
 {
-    SetCursorPosition(0, 999);
-
     int c;
     while(true) {
         c = _getch();

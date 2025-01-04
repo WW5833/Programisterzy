@@ -51,6 +51,10 @@ void ShowAudienceHelp(QuizQuestionPageData* data);
 void Show5050Help(QuizQuestionPageData* data);
 void ShowPhoneHelp(QuizQuestionPageData* data);
 
+void SetCursorToRestingPlace(QuizQuestionPageData* data) {
+    SetCursorPosition(0, data->answersEndY + 5);
+}
+
 void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
     if(color) SetColor(colorFg);
     SetCursorPosition(beginX, beginY);
@@ -385,7 +389,7 @@ void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
     }
     ResetColor();
 
-    SetCursorPosition(0, data->answersEndY + 10);
+    SetCursorToRestingPlace(data);
 }
 
 void DrawStaticUI_Answers(QuizQuestionPageData* data) {
@@ -425,6 +429,8 @@ void DrawStaticUI(QuizQuestionPageData* data) {
     DrawStaticUI_Abilities(data);
 
     DrawStaticUI_Answers(data);
+
+    SetCursorToRestingPlace(data);
 }
 
 void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
@@ -504,9 +510,9 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
 
                 ResetColor();
 
+                SetCursorToRestingPlace(data);
                 WaitForEnter();
 
-                SetCursorPosition(0, data->answersEndY + 10);
                 free(data);
                 return true;
             }
@@ -660,27 +666,6 @@ void PageEnter_QuizQuestionPreview(Question* question) {
                 DrawStaticUI(data);
                 break;
 
-            case KEY_1:
-                ShowAudienceHelp(data);
-                DrawStaticUI(data);
-                break;
-
-            case KEY_2:
-                free(data);
-                data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
-                data->previewMode = true;
-                break;
-
-            case KEY_3:
-                free(data);
-                data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
-                data->previewMode = true;
-
-                ShowAudienceHelp(data);
-                DrawStaticUI(data);
-
-                break;
-
             case KEY_NONE:
                 if(LoadedSettings->AutoResizeUI)
                     CheckToRedrawUI(&tmp, data);
@@ -782,6 +767,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
         }
     }
 
+    SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '1');
 }
 
@@ -803,6 +789,7 @@ void Show5050Help(QuizQuestionPageData* data) {
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", windowWidth - 4, beginX + 2, true);
 
+    SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '2');
 }
 
@@ -824,5 +811,6 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine("Niestety twój przyiaciel nie odbiera.", windowWidth - 4, beginX + 2, true);
 
+    SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '3');
 }
