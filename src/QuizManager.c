@@ -130,7 +130,7 @@ int LoadQuestions() {
     FILE* file = fopen(QUESTIONS_FILE, "r");
 
     if(file == NULL) {
-        perror("Failed to open file");
+        perror("Failed to open questions file");
         exit(EXIT_FAILURE);
     }
 
@@ -153,10 +153,6 @@ int LoadQuestions() {
         if(q == NULL) {
             fprintf(stderr, "%s:%d | Failed to deserialize question: \"%s\"\n", QUESTIONS_FILE, lineId, buffer);
             exit(EXIT_FAILURE);
-        }
-
-        if(q->Id == -1) {
-            q->Id = QuestionList->count + 1;
         }
 
         QuestionListItem* current = QuestionList->head;
@@ -247,7 +243,7 @@ QuizData* GenerateQuiz(const char username[30]) {
         if(q == NULL) continue;
         ListAdd(quiz->questions, q);
         quiz->questionIds[i] = q->Id;
-        quiz->answers[i] = 0;
+        quiz->currentQuestion = 0;
     }
 
     return quiz;
@@ -255,10 +251,7 @@ QuizData* GenerateQuiz(const char username[30]) {
 
 Question* GetCurrentQuestion(QuizData* quiz) {
     if(quiz == NULL) return NULL;
-    int i = 0;
-    while(quiz->answers[i] != 0) i++;
-    if(i >= 10) return NULL;
-    return ListGetAt(quiz->questions, i);
+    return ListGetAt(quiz->questions, quiz->currentQuestion);
 }
 
 void DestroyQuiz(QuizData* quiz) {

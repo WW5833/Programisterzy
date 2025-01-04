@@ -8,10 +8,14 @@
 
 #include "QuizPage.h"
 #include "SettingsPage.h"
-// #include "QuestionListPage.h"
 #include "AddQuestionPage.h"
 #include "QuizQuestionPage.h"
+
+#include "DebugCheck.h"
+
+#ifdef PROGRAMISTERZY_DEBUG
 #include "DebugPage.h"
+#endif
 
 void PrintMainMenu(int selected)
 {
@@ -19,98 +23,102 @@ void PrintMainMenu(int selected)
     ClearScreen();
     printf("Witaj w Programisterach!\n");
     printf("[ ] Rozpocznij quiz\n");
-    // printf("[ ] Zarządzaj pytaniami\n");
     printf("[ ] Dodaj pytanie\n");
     printf("[ ] Tablica wyników\n");
     printf("[ ] Ustawienia\n");
     printf("[ ] Wyjdź\n");
+#ifdef PROGRAMISTERZY_DEBUG
     printf("[ ] DEBUG\n");
     printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
+#endif
 
     SetCursorPosition(2, 2 + selected);
     printf("*");
+}
+
+void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
+    SetCursorPosition(2, 2 + *selected);
+    printf(" ");
+
+    if(down) {
+        *selected = (*selected + 1) % optionCount;
+    } else {
+        *selected = (*selected - 1 + optionCount) % optionCount;
+    }
+    
+    SetCursorPosition(2, 2 + *selected);
+    printf("*");
+}
+
+void OnEnterPressed(int selected) {
+    switch (selected)
+    {
+        case 0:
+            PageEnter_Quiz();
+            break;
+        case 1:
+            PageEnter_AddQuestion();
+            break;
+        case 2:
+            break;
+        case 3:
+            PageEnter_Settings();
+            break;
+        case 4:
+            exit(EXIT_SUCCESS);
+#ifdef PROGRAMISTERZY_DEBUG
+        case 5:
+            PageEnter_Debug();
+            break;
+        case 6:
+            ClearScreen();
+            printf("Podgląd pytań\n");
+            printf("Podaj numer pytania do podglądu: ");
+            int id;
+            if(scanf("%d", &id) != 1) {
+                id = -1;
+            }
+
+            QuestionListHeader *list = GetQuestionList();
+            QuestionListItem* current = list->head;
+            while (current != NULL)
+            {
+                if(id != -1 && current->data->Id != id) {
+                    current = current->next;
+                    continue;
+                }
+                
+                PageEnter_QuizQuestionPreview(current->data);
+                current = current->next;
+            }
+            
+            break;
+#endif
+    }
+
+    PrintMainMenu(selected);
 }
 
 void PageEnter_MainMenu()
 {
     HideCursor();
 
-    const int optionCount = 7;
+    int optionCount = 5;
+#ifdef PROGRAMISTERZY_DEBUG
+    optionCount += 2;
+#endif
+
     int selected = 0;
     PrintMainMenu(selected);
 
     while (true)
     {
         KeyInputType key = HandleInteractions(true);
-        if (key == KEY_ARROW_UP)
-        {
-            SetCursorPosition(2, 2 + selected);
-            printf(" ");
-
-            selected--;
-            if (selected < 0) selected = optionCount - 1;
-            
-            SetCursorPosition(2, 2 + selected);
-            printf("*");
+        if(key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
+            OnArrowKeysPressed(&selected, optionCount, key == KEY_ARROW_DOWN);
         }
-        else if (key == KEY_ARROW_DOWN)
-        {
-            SetCursorPosition(2, 2 + selected);
-            printf(" ");
-
-            selected++;
-            if (selected >= optionCount) selected = 0;
-            
-            SetCursorPosition(2, 2 + selected);
-            printf("*");
-        }
-        else if (key == KEY_ENTER)
-        {
-            switch (selected)
-            {
-                case 0:
-                    PageEnter_Quiz();
-                    break;
-                case 1:
-                    // PageEnter_QuestionList();
-                    PageEnter_AddQuestion();
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    PageEnter_Settings();
-                    break;
-                case 4:
-                    exit(EXIT_SUCCESS);
-                case 5:
-                    PageEnter_Debug();
-                    break;
-                case 6:
-                    ClearScreen();
-                    printf("Podgląd pytań\n");
-                    printf("Podaj numer pytania do podglądu: ");
-                    int id;
-                    if(scanf("%d", &id) != 1) {
-                        id = -1;
-                    }
-
-                    QuestionListHeader *list = GetQuestionList();
-                    QuestionListItem* current = list->head;
-                    while (current != NULL)
-                    {
-                        if(id != -1 && current->data->Id != id) {
-                            current = current->next;
-                            continue;
-                        }
-                        
-                        PageEnter_QuizQuestionPreview(current->data);
-                        current = current->next;
-                    }
-                    
-                    break;
-            }
-
-            PrintMainMenu(selected);
+        else if (key == KEY_ENTER) {
+            OnEnterPressed(selected);
         }
     }
 }

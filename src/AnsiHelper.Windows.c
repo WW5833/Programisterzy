@@ -17,6 +17,7 @@ void EnsureAnsiSupport()
         return; // ANSI supported
     }
 
+    // Attempt to enable ANSI support
     HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
     SetConsoleMode(hInput, ENABLE_VIRTUAL_TERMINAL_INPUT);
     HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -29,6 +30,6 @@ void EnsureAnsiSupport()
         return; // ANSI now supported
     }
     
-    fprintf(stderr, "ANSI not supported but is requied!\n");
+    fprintf(stderr, "ANSI not supported but requied!\n");
     exit(EXIT_FAILURE);
 }

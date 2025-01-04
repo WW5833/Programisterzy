@@ -55,17 +55,15 @@ void SetCursorToRestingPlace(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY + 5);
 }
 
-void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
+void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
     if(color) SetColor(colorFg);
     SetCursorPosition(beginX, beginY);
 
-    const int topMargin = 1;
-    const int bottomMargin = 1;
-    const int totalMargin = topMargin + bottomMargin;
+    const int totalMargin = 1 + 1; // Top + Bottom
 
-    const int titleWidth = 14;
+    const int titleWidth = 12; // "Odpowiedź: X"
     const int startText = (ansWidth - titleWidth)/2 - 1;
-    const int endText = startText + titleWidth - 1;
+    const int endText = startText + titleWidth + 1;
 
     printf(SINGLE_TOP_LEFT_CORNER);
     for (int i = 0; i < ansWidth - 2; i++) {
@@ -96,29 +94,32 @@ void PrintSingleAnsBlock(int beginX, int beginY, int ansWidth, int lineCount, ch
 }
 
 void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
+    if(selected == oldSelected) return;
+    
     bool forceUpdate = oldSelected == INT_MIN;
-    if(!forceUpdate && selected == oldSelected && oldSelected != INT_MAX) return;
 
+    int beginX = 3;
     int beginY = data->questionContentEndY;
+    int beginXOffset = data->ansWidth + 1;
 
     if(forceUpdate || selected == 0 || oldSelected == 0) 
-        PrintSingleAnsBlock(3, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
+        PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
     if(forceUpdate || selected == 1 || oldSelected == 1) 
-        PrintSingleAnsBlock(3 + data->ansWidth + 1, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
+        PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
 
     beginY += data->ansLineCountMaxAB + 4;
 
     if(forceUpdate || selected == 2 || oldSelected == 2) 
-        PrintSingleAnsBlock(3, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
+        PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
     if(forceUpdate || selected == 3 || oldSelected == 3) 
-        PrintSingleAnsBlock(3 + data->ansWidth + 1, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
+        PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
 }
 
 void PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int colorFg) {
     PrintAnswersBlocks(data, selected, INT_MIN, colorFg);
 }
 
-void PrintAnsContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
+void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
     SetCursorPosition(startX, startY);
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
     if(data->abilitiesNow[ABILITY_5050] && data->blockedOptions[ansIndex]) {
@@ -135,6 +136,7 @@ void PrintAnsContent(QuizQuestionPageData* data, int startX, int startY, int ans
     }
 }
 
+// Calculate the amount of lines needed to wrap the text
 void CalculateQuizQuestionPageData(QuizQuestionPageData* data) {
     GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
 
@@ -156,6 +158,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data) {
     data->answersEndY = data->questionContentEndY + data->ansLineCountMaxAB + data->ansLineCountMaxCD + 8;
 }
 
+// Create a new QuizQuestionPageData object
 QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, int offset, bool* abilities) {
     QuizQuestionPageData* data = malloc(sizeof(QuizQuestionPageData));
     data->question = question;
@@ -186,6 +189,7 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     for (int i = 0; i < 4; i++)
         data->audienceVotes[i] = ((double)votes[i] / (double)ansCount) * 100.0;
 
+    // Block random answers
     data->blockedOptions[0] = false;
     data->blockedOptions[1] = false;
     data->blockedOptions[2] = false;
@@ -249,12 +253,13 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
 }
 
 void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
-    for (int i = 0; i < 10; i++) {
+    const int questionCount = 10;
+    for (int i = 0; i < questionCount; i++) {
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
-        if(!data->previewMode && data->questionNumer == 10 - i) {
+        if(!data->previewMode && data->questionNumer == questionCount - i) {
             SetColor(LoadedSettings->SelectedAnswerColor);
         }
-        printf("%2d ", 10 - i);
+        printf("%2d ", questionCount - i);
 
         if (LoadedSettings->FullUTF8Support)
             printf(TRIANGLE);
@@ -262,7 +267,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
             printf(">");
 
         printf(" ");
-        switch (9 - i) {
+        switch (questionCount - (i + 1)) {
             case 0:
                 printf("      500 zł");
                 break;
@@ -288,32 +293,20 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
                 break;
 
             case 6:
-                //printf("   40 000 zł");
                 printf("  100 000 zł");
                 break;
 
             case 7:
-                // printf("   75 000 zł");
                 printf("  250 000 zł");
                 break;  
 
             case 8:
-                // printf("  125 000 zł");
                 printf("  500 000 zł");
                 break;
 
             case 9:
-                // printf("  250 000 zł");
                 printf("1 000 000 zł");
                 break;
-
-            // case 10:
-            //     printf("  500 000 zł");
-            //     break;
-
-            // case 11:
-            //     printf("1 000 000 zł");
-            //     break;
         }
 
         ResetColor();
@@ -395,20 +388,27 @@ void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
 void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     ResetCursor();
 
-    if(!data->previewMode) PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+    if(!data->previewMode) {
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+    }
 
     const int ansTextLeftPadding = 5;
     const int ansTextMiddlePadding = 5;
 
+    int startY = data->questionContentEndY + 2;
+    int startXOffset = data->ansWidthLimit + ansTextMiddlePadding;
+
     // Print Answer 1
-    PrintAnsContent(data, ansTextLeftPadding, data->questionContentEndY + 2, (0 + data->offset) % 4, data->ansLineCountMaxAB);
+    PrintAnswerContent(data, ansTextLeftPadding, startY, (0 + data->offset) % 4, data->ansLineCountMaxAB);
     // Print Answer 2
-    PrintAnsContent(data, ansTextLeftPadding + data->ansWidthLimit + ansTextMiddlePadding, data->questionContentEndY + 2,  (1 + data->offset) % 4, data->ansLineCountMaxAB);
+    PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (1 + data->offset) % 4, data->ansLineCountMaxAB);
+
+    startY += data->ansLineCountMaxAB + 4;
 
     // Print Answer 3
-    PrintAnsContent(data, ansTextLeftPadding, data->questionContentEndY + data->ansLineCountMaxAB + 6,  (2 + data->offset) % 4, data->ansLineCountMaxCD);
+    PrintAnswerContent(data, ansTextLeftPadding, startY, (2 + data->offset) % 4, data->ansLineCountMaxCD);
     // Print Answer 4
-    PrintAnsContent(data, ansTextLeftPadding + data->ansWidthLimit + ansTextMiddlePadding, data->questionContentEndY + data->ansLineCountMaxAB + 6, (3 + data->offset) % 4, data->ansLineCountMaxCD);
+    PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (3 + data->offset) % 4, data->ansLineCountMaxCD);
 
     if(data->previewMode) {
         PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
@@ -454,7 +454,12 @@ void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
     DrawStaticUI(data);
 }
 
-bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect, char* outAnswer) {
+void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
+    data->confirmed = false;
+    PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings->SelectedAnswerColor);
+}
+
+bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect) {
     int oldSel = data->selectedQuestion;
     int abilityConfirmId = -1;
 
@@ -463,63 +468,54 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
         case KEY_ARROW_UP:
             if(data->selectedQuestion == 2 || data->selectedQuestion == 3) {
                 data->selectedQuestion -= 2;
-                data->confirmed = false;
-                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+                UpdateAnswersBlocks(data, oldSel);
             }
             break;
         case KEY_ARROW_DOWN:
             if(data->selectedQuestion == 0 || data->selectedQuestion == 1) {
                 data->selectedQuestion += 2;
-                data->confirmed = false;
-                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+                UpdateAnswersBlocks(data, oldSel);
             }
             break;
         case KEY_ARROW_RIGHT:
             if(data->selectedQuestion == 0 || data->selectedQuestion == 2) {
                 data->selectedQuestion += 1;
-                data->confirmed = false;
-                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+                UpdateAnswersBlocks(data, oldSel);
             }
             break;
         case KEY_ARROW_LEFT:
             if(data->selectedQuestion == 1 || data->selectedQuestion == 3) {
                 data->selectedQuestion -= 1;
-                data->confirmed = false;
-                PrintAnswersBlocks(data, data->selectedQuestion, oldSel, LoadedSettings->SelectedAnswerColor);
+                UpdateAnswersBlocks(data, oldSel);
             }
             break;
         
         case KEY_ENTER:
-            if(data->confirmed) {
-                int answerIndex = data->selectedQuestion;
-                answerIndex += data->offset;
-                answerIndex = (answerIndex + 4) % 4;
-
-                *outAnswer = (char)answerIndex;
-                *outCorrect = answerIndex == 0;
-
-                if(*outCorrect) {
-                    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
-                }
-                else {
-                    PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
-                    if(LoadedSettings->ShowCorrectWhenWrong) {
-                        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
-                    }
-                }
-
-                ResetColor();
-
-                SetCursorToRestingPlace(data);
-                WaitForEnter();
-
-                free(data);
-                return true;
+            if(!data->confirmed) {
+                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
+                data->confirmed = true;
+                break;
             }
 
-            PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
-            data->confirmed = true;
-            break;
+            int answerIndex = (data->selectedQuestion + data->offset) % 4;
+
+            *outCorrect = answerIndex == 0;
+
+            if(*outCorrect) {
+                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
+            }
+            else {
+                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
+                if(LoadedSettings->ShowCorrectWhenWrong) {
+                    PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
+                }
+            }
+
+            SetCursorToRestingPlace(data);
+            WaitForEnter();
+
+            free(data);
+            return true;
 
         case KEY_1:
             if(!data->abilitiesNow[ABILITY_AUDIENCE]) { // Allow to reopen help window
@@ -594,21 +590,13 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         default:
-            abilityConfirmId = -2;
-            break;
+            return false;
     }
 
-    if(abilityConfirmId != -2) {
-        if(abilityConfirmId != ABILITY_AUDIENCE && data->abilitiesConfirm[ABILITY_AUDIENCE]) {
-            data->abilitiesConfirm[ABILITY_AUDIENCE] = false;
-            DrawStaticUI_Abilities(data);
-        }
-        if(abilityConfirmId != ABILITY_5050 && data->abilitiesConfirm[ABILITY_5050]) {
-            data->abilitiesConfirm[ABILITY_5050] = false;
-            DrawStaticUI_Abilities(data);
-        }
-        if(abilityConfirmId != ABILITY_PHONE && data->abilitiesConfirm[ABILITY_PHONE]) {
-            data->abilitiesConfirm[ABILITY_PHONE] = false;
+    for (int i = 0; i < 3; i++)
+    {
+        if(abilityConfirmId != i && data->abilitiesConfirm[i]) {
+            data->abilitiesConfirm[i] = false;
             DrawStaticUI_Abilities(data);
         }
     }
@@ -616,7 +604,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
     return false;
 }
 
-void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect, char* outAnswer) { 
+void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect) { 
     int offset = rand() % 4;
 
     QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities);
@@ -630,7 +618,7 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(HandleKeyInput(data, key, outCorrect, outAnswer))
+        if(HandleKeyInput(data, key, outCorrect))
             return;
     
         if(LoadedSettings->AutoResizeUI) {
@@ -642,7 +630,7 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
 void PageEnter_QuizQuestionPreview(Question* question) { 
     int offset = rand() % 4;
 
-    bool abilities[3] = {false, false, false};
+    bool abilities[3] = {true, true, true};
 
     QuizQuestionPageData* data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
     data->previewMode = true;
@@ -686,15 +674,6 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     int beginY = 3;
     int windowHeight = 13;
     int segmentCount = 9;
-
-    if(data->terminalHeight < windowHeight + beginY) {
-        beginY = data->terminalHeight - windowHeight - 1;
-        if(beginY <= 0) {
-            beginY += 3;
-            windowHeight = data->terminalHeight - 5;
-            segmentCount -= 5;
-        }
-    }
 
     SetCursorPosition(beginX, beginY);
 
@@ -752,15 +731,25 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
         {
             SetCursorPosition(beginX + barsOffset + ansWidthPlusSep*id, beginY + windowHeight - 1 - i - 1);
             if(drawnVotes[(id + data->offset) % 4] >= oneSegment) {
-                for(int j = 0; j < barWidth; j++) printf(BLOCK_8_8);
+                for(int j = 0; j < barWidth; j++) {
+                    printf(BLOCK_8_8);
+                }
                 drawnVotes[(id + data->offset) % 4] -= oneSegment;
+                continue;
             }
-            else if(LoadedSettings->FullUTF8Support && drawnVotes[(id + data->offset) % 4] > 0) {
-                int counter = 0;
-                while ((drawnVotes[(id + data->offset) % 4] -= oneSegmentSmall) > 0) counter++;
 
-                if(counter > 0) {
-                    for(int j = 0; j < barWidth; j++) printf(BLOCK_x_8(counter));
+            if(!LoadedSettings->FullUTF8Support) {
+                continue;
+            }
+
+            if(drawnVotes[(id + data->offset) % 4] > oneSegmentSmall) {
+                int counter = 0;
+                while ((drawnVotes[(id + data->offset) % 4] -= oneSegmentSmall) > 0) {
+                    counter++;
+                }
+
+                for(int j = 0; j < barWidth; j++) {
+                    printf(BLOCK_x_8(counter));
                 }
                 drawnVotes[(id + data->offset) % 4] = 0;
             }

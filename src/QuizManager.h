@@ -24,7 +24,7 @@ typedef struct {
     unsigned int seed;
     QuestionListHeader* questions;
     int questionIds[10];
-    char answers[10];
+    int currentQuestion;
     char username[30];
     bool abulitiesUsed[3];
 } QuizData;

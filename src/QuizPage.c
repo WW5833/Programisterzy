@@ -20,13 +20,13 @@ void ReadUsername(char username[30]) {
         if(c == CTRL_C) {
             ExitOnCtrlC();
         }
-        if(c == 13) { // Enter
+        if(c == ENTER) { // Enter
             username[i] = '\0';
             printf("\n");
             break;
         }
 
-        if(c == ' ') {
+        if(c == ' ' || c == '_') {
             username[i] = '_';
             printf("_");
             continue;
@@ -36,7 +36,7 @@ void ReadUsername(char username[30]) {
             if(i == 0) continue;
             i -= 2;
             printf(CSR_MOVE_LEFT(1));
-            printf(" " );
+            printf(" ");
             printf(CSR_MOVE_LEFT(1));
             continue;
         }
@@ -65,8 +65,9 @@ void PageEnter_Quiz()
     bool correct = false;
     for(int i = 0; i < 10; i++) {
         Question* q = ListGetAt(quiz->questions, i);
-        PageEnter_QuizQuestion(q, i + 1, &quiz->abulitiesUsed[0], &correct, &quiz->answers[i]);
+        PageEnter_QuizQuestion(q, i + 1, &quiz->abulitiesUsed[0], &correct);
         if(!correct) break;
+        quiz->currentQuestion = i;
     }
 
     if(correct) {

@@ -7,7 +7,7 @@
 
 extern Settings* LoadedSettings;
 
-#define OPTION_COUNT 10
+#define OPTION_COUNT 9
 
 bool slimMode = false;
 
@@ -38,6 +38,25 @@ void PrintUTF8Support(bool support, int terminalWidth) {
     PrintWrappedLine(&buffer[0], terminalWidth - 4, 4, false);
 }
 
+int* GetOptionColor(int selected) {
+    switch (selected)
+    {
+        case 0:
+            return &(LoadedSettings->CorrectAnswerColor);
+        case 1:
+            return &LoadedSettings->WrongAnswerColor;
+        case 2:
+            return &LoadedSettings->SelectedAnswerColor;
+        case 3:
+            return &LoadedSettings->ConfirmedAnswerColor;
+        case 4:
+            return &LoadedSettings->SupportColor;
+
+        default:
+            return NULL;
+    }
+}
+
 void PageEnter_Settings()
 {
     HideCursor();
@@ -47,7 +66,6 @@ void PageEnter_Settings()
 
     int colorsX, colorsY;
     int utf8SupportX, utf8SupportY;
-    int turorialShownX, tutorialShownY;
     int autoResizeX, autoResizeY;
     int showCorrectWhenWrongX, showCorrectWhenWrongY;
     ClearScreen();
@@ -73,9 +91,6 @@ void PageEnter_Settings()
     GetCursorPosition(&utf8SupportX, &utf8SupportY);
     PrintUTF8Support(LoadedSettings->FullUTF8Support, terminalWidth);
     
-    printf("\n[ ] Pokaż tutorial: ");
-    GetCursorPosition(&turorialShownX, &tutorialShownY);
-    printf(!LoadedSettings->TutorialShown ? "TAK" : "NIE");
     printf("\n[ ] Automatyczne reskalowanie konsoli: ");
     GetCursorPosition(&autoResizeX, &autoResizeY);
     printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
@@ -92,8 +107,7 @@ void PageEnter_Settings()
         5 + (slimMode ? 3 : 0), 
         6 + (slimMode ? 4 : 0), 
         7 + (slimMode ? 5 : 0), 
-        tutorialShownY, 
-        tutorialShownY + 1, 
+        autoResizeY, 
         autoResizeY + 1,
         showCorrectWhenWrongY + 1
     };
@@ -103,122 +117,88 @@ void PageEnter_Settings()
     while (true)
     {
         KeyInputType key = HandleInteractions(true);
-        if (key == KEY_ARROW_UP)
+        switch (key)
         {
-            SetCursorPosition(2, lineIndexes[selected]);
-            printf(" ");
+            case KEY_ARROW_UP:
+                SetCursorPosition(2, lineIndexes[selected]);
+                printf(" ");
 
-            selected--;
-            if (selected < 0) selected = OPTION_COUNT - 1;
+                selected--;
+                if (selected < 0) selected = OPTION_COUNT - 1;
+                
+                SetCursorPosition(2, lineIndexes[selected]);
+                printf("*");
+                break;
+
+            case KEY_ARROW_DOWN:
+                SetCursorPosition(2, lineIndexes[selected]);
+                printf(" ");
+
+                selected++;
+                if (selected >= OPTION_COUNT) selected = 0;
+                
+                SetCursorPosition(2, lineIndexes[selected]);
+                printf("*");
+                break;
+                
+            case KEY_ENTER:
+                if(selected == 5) {
+                    LoadedSettings->FullUTF8Support = !LoadedSettings->FullUTF8Support;
+                    SetCursorPosition(utf8SupportX, utf8SupportY);
+                    PrintUTF8Support(LoadedSettings->FullUTF8Support, terminalWidth);
+                }
+                else if(selected == 6) {
+                    LoadedSettings->AutoResizeUI = !LoadedSettings->AutoResizeUI;
+                    SetCursorPosition(autoResizeX, autoResizeY);
+                    printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
+                }
+                else if(selected == 7) {
+                    LoadedSettings->ShowCorrectWhenWrong = !LoadedSettings->ShowCorrectWhenWrong;
+                    SetCursorPosition(showCorrectWhenWrongX, showCorrectWhenWrongY);
+                    printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
+                }
+                else if(selected == OPTION_COUNT - 1) {
+                    SaveSettings(LoadedSettings);
+                    return;
+                }
+                break;
+                
+            case KEY_ARROW_LEFT: {
+                int* option = GetOptionColor(selected);
+                *option = *option - 1;
+                if (*option <= COLOR_FG_BLACK)
+                {
+                    *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
+                }
+                else if (*option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD && *option > COLOR_FG_WHITE+1)
+                {
+                    *option = COLOR_FG_WHITE;
+                }
+
+                SetCursorPosition(colorsX, lineIndexes[selected]);
+                PrintColors(*option);
+                break;
+            }
+                
+            case KEY_ARROW_RIGHT: {
+                int* option = GetOptionColor(selected);
+                *option = *option + 1;
+                if (*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD)
+                {
+                    *option = COLOR_FG_BLACK+1;
+                }
+                else if (*option == COLOR_FG_WHITE+1)
+                {
+                    *option = COLOR_FG_BLACK+1+COLOR_BRIGHT_MOD;
+                }
+
+                SetCursorPosition(colorsX, lineIndexes[selected]);
+                PrintColors(*option);
+                break;
+            }
             
-            SetCursorPosition(2, lineIndexes[selected]);
-            printf("*");
-        }
-        else if (key == KEY_ARROW_DOWN)
-        {
-            SetCursorPosition(2, lineIndexes[selected]);
-            printf(" ");
-
-            selected++;
-            if (selected >= OPTION_COUNT) selected = 0;
-            
-            SetCursorPosition(2, lineIndexes[selected]);
-            printf("*");
-        }
-        else if (key == KEY_ENTER)
-        {
-            if(selected == 5) {
-                LoadedSettings->FullUTF8Support = !LoadedSettings->FullUTF8Support;
-                SetCursorPosition(utf8SupportX, utf8SupportY);
-                PrintUTF8Support(LoadedSettings->FullUTF8Support, terminalWidth);
-            }
-            else if(selected == 6) {
-                LoadedSettings->TutorialShown = !LoadedSettings->TutorialShown;
-                SetCursorPosition(turorialShownX, tutorialShownY);
-                printf(!LoadedSettings->TutorialShown ? "TAK" : "NIE");
-            }
-            else if(selected == 7) {
-                LoadedSettings->AutoResizeUI = !LoadedSettings->AutoResizeUI;
-                SetCursorPosition(autoResizeX, autoResizeY);
-                printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
-            }
-            else if(selected == 8) {
-                LoadedSettings->ShowCorrectWhenWrong = !LoadedSettings->ShowCorrectWhenWrong;
-                SetCursorPosition(showCorrectWhenWrongX, showCorrectWhenWrongY);
-                printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
-            }
-            else if(selected == OPTION_COUNT - 1) {
-                SaveSettings(LoadedSettings);
-                return;
-            }
-        }
-        else if (key == KEY_ARROW_LEFT)
-        {
-            int* option = NULL;
-            switch (selected)
-            {
-                case 0:
-                    option = &LoadedSettings->CorrectAnswerColor;
-                    break;
-                case 1:
-                    option = &LoadedSettings->WrongAnswerColor;
-                    break;
-                case 2:
-                    option = &LoadedSettings->SelectedAnswerColor;
-                    break;
-                case 3:
-                    option = &LoadedSettings->ConfirmedAnswerColor;
-                    break;
-                case 4:
-                    option = &LoadedSettings->SupportColor;
-                    break;
-            }
-            *option = *option - 1;
-            if (*option <= COLOR_FG_BLACK)
-            {
-                *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
-            }
-            else if (*option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD && *option > COLOR_FG_WHITE+1)
-            {
-                *option = COLOR_FG_WHITE;
-            }
-
-            SetCursorPosition(colorsX, lineIndexes[selected]);
-            PrintColors(*option);
-        }
-        else if (key == KEY_ARROW_RIGHT)
-        {
-            int* option = NULL;
-            switch (selected)
-            {
-                case 0:
-                    option = &(LoadedSettings->CorrectAnswerColor);
-                    break;
-                case 1:
-                    option = &LoadedSettings->WrongAnswerColor;
-                    break;
-                case 2:
-                    option = &LoadedSettings->SelectedAnswerColor;
-                    break;
-                case 3:
-                    option = &LoadedSettings->ConfirmedAnswerColor;
-                    break;
-                case 4:
-                    option = &LoadedSettings->SupportColor;
-                    break;
-            }
-            *option = *option + 1;
-            if (*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD)
-            {
-                *option = COLOR_FG_BLACK+1;
-            }
-            else if (*option == COLOR_FG_WHITE+1)
-            {
-                *option = COLOR_FG_BLACK+1+COLOR_BRIGHT_MOD;
-            }
-
-            SetCursorPosition(colorsX, lineIndexes[selected]);
-            PrintColors(*option);
+            default:
+                break;
         }
     }
 }

@@ -4,43 +4,35 @@
 #include <errno.h>
 #include "PageUtils.h"
 
-#define TO_ULL(i) ((unsigned long long)(i))
-#define TO_INT(i) ((int)(i))
-
-int DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
+bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;
     char* end;
     question->Id = strtol(serializedQuestion, &end, 10);
-    *offset = TO_INT(end - serializedQuestion) + 1;
+    *offset = (int)(end - serializedQuestion) + 1;
 
-    if(serializedQuestion == end && serializedQuestion[0] == ';') {
-        question->Id = -1;
-        printf("Question missing questionId, will generate later\n");
-        return 0;
-    } else if(serializedQuestion == end) {
+    if(serializedQuestion == end) {
         question->Id = -1;
         fprintf(stderr, "[ERR] Invalid questionId in question: \"%s\"\n", serializedQuestion);
-        return -1;
+        return false;
     }
 
     if(errno == ERANGE) {
-        // fprintf(stderr, "[ERR] Invalid questionId in question: %s\n", serializedQuestion);
         perror("Invalid questionId while deserializing question");
-        return -1;
+        return false;
     }
 
-    return 0;
+    return true;
 }
 
 char buffer[255];
-int DeserializeString(const char* serializedQuestion, char** content, int* offset, bool allowEmpty) {
+bool DeserializeString(const char* serializedQuestion, char** content, int* offset) {
     int i = 0;
     while(serializedQuestion[i] != ';' && serializedQuestion[i] != '\0') {
         buffer[i] = serializedQuestion[i];
         i++;
     }
     
-    *content = malloc(TO_ULL(i + 1) * sizeof(char));
+    *content = malloc((size_t)(i + 1) * sizeof(char));
 
     if(*content == NULL) {
         perror("Failed to allocate memory for question text content");
@@ -52,17 +44,12 @@ int DeserializeString(const char* serializedQuestion, char** content, int* offse
     (*content)[i] = '\0';
     *offset = i + 1;
 
-    if(!allowEmpty && i == 0) {
+    if(i == 0) {
         fprintf(stderr, "[ERR] Empty string in question content\n");
-        return -1;
+        return false;
     }
 
-    if(allowEmpty && i == 0) {
-        free(*content);
-        *content = NULL;
-    }
-
-    return 0;
+    return true;
 }
 
 Question* DeserializeQuestion(char* serializedQuestion) {
@@ -77,16 +64,18 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     int i;
 
-    if(DeserializeQuestionId(serializedQuestion, question, &i) != 0) 
+    if(!DeserializeQuestionId(serializedQuestion, question, &i)) 
     {
         fprintf(stderr, "Failed to deserialize question id: \"%s\"\n", serializedQuestion);
+        DestroyQuestion(question);
         return NULL;
     }
     serializedQuestion = &serializedQuestion[i];
 
-    if(DeserializeString(serializedQuestion, &question->Content, &i, false) != 0) 
+    if(!DeserializeString(serializedQuestion, &question->Content, &i)) 
     {
         fprintf(stderr, "Failed to deserialize question content: \"%s\"\n", serializedQuestion);
+        DestroyQuestion(question);
         return NULL;
     }   
     question->ContentLength = GetStringCharCount(question->Content);
@@ -95,9 +84,10 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     for (int j = 0; j < 4; j++)
     {
-        if(DeserializeString(serializedQuestion, &question->Answer[j], &i, false) != 0) 
+        if(!DeserializeString(serializedQuestion, &question->Answer[j], &i)) 
         {
             fprintf(stderr, "Failed to deserialize question answer[%d]: \"%s\"\n", j, serializedQuestion);
+            DestroyQuestion(question);
             return NULL;
         }
         serializedQuestion = &serializedQuestion[i];

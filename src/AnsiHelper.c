@@ -41,7 +41,7 @@ void GetCursorPosition(int* x, int* y)
 
     c = _getch(); // Shold be '['
     int i = 0;
-    while(c != ';' && c != '\0') {
+    while(c != ';' && c != '\0') { // Read y position
         c = _getch();
         _tmp_buffer[i++] = (char)c;
     }
@@ -49,7 +49,7 @@ void GetCursorPosition(int* x, int* y)
     *y = atoi(_tmp_buffer);
 
     i = 0;
-    while(c != 'R' && c != '\0') {
+    while(c != 'R' && c != '\0') { // Read x position
         c = _getch();
         _tmp_buffer[i++] = (char)c;
     }
