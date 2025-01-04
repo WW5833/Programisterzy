@@ -21,9 +21,9 @@ typedef enum {
     KEY_ARROW_RIGHT = 3,
     KEY_ARROW_LEFT = 4,
     KEY_ENTER = 5,
-    KEY_X = 6,
-    KEY_Y = 7,
-    KEY_Z = 8,
+    KEY_1 = 6,
+    KEY_2 = 7,
+    KEY_3 = 8,
     KEY_R = 9,
 } KeyInputType;
 

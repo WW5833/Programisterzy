@@ -199,12 +199,12 @@ KeyInputType HandleInteractions(bool blocking) {
 
         case ENTER:
             return KEY_ENTER;
-        case 'X':
-            return KEY_X;
-        case 'Y':
-            return KEY_Y;
-        case 'Z':
-            return KEY_Z;
+        case '1':
+            return KEY_1;
+        case '2':
+            return KEY_2;
+        case '3':
+            return KEY_3;
         
         case 'R':
             return KEY_R;
