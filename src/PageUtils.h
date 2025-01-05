@@ -10,6 +10,7 @@
 #define ESC '\033'
 #define ESCAPE_CHAR 224
 
+const char* GetNextChar(const char* c);
 int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
 int GetWrappedLineCount(const char* line, int width);

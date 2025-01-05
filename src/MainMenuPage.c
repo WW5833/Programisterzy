@@ -10,6 +10,7 @@
 #include "SettingsPage.h"
 #include "AddQuestionPage.h"
 #include "QuizQuestionPage.h"
+#include "QuestionListPage.h"
 
 #include "DebugCheck.h"
 
@@ -53,29 +54,6 @@ void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
     printf("*");
 }
 
-void PageEnter_QuizPreview() {
-    ClearScreen();
-    printf("Podgląd pytań\n");
-    printf("Podaj numer pytania do podglądu: ");
-    int id;
-    if(scanf("%d", &id) != 1) {
-        id = -1;
-    }
-
-    QuestionListHeader *list = GetQuestionList();
-    QuestionListItem* current = list->head;
-    while (current != NULL)
-    {
-        if(id != -1 && current->data->Id != id) {
-            current = current->next;
-            continue;
-        }
-        
-        PageEnter_QuizQuestionPreview(current->data);
-        current = current->next;
-    }
-}
-
 void OnEnterPressed(int selected) {
     switch (selected)
     {
@@ -95,7 +73,7 @@ void OnEnterPressed(int selected) {
             PageEnter_Debug();
             break;
         case 5:
-            PageEnter_QuizPreview();  
+            PageEnter_QuestionList();  
             break;
 #endif
     }
