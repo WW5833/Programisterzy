@@ -70,6 +70,7 @@ void GetTerminalSize(int* x, int* y)
 
 void ClearScreen()
 {
+    ResetCursor();
     printf(CLR_SCRN);
     ResetCursor();
 }
