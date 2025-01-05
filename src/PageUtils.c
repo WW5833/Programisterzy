@@ -166,7 +166,10 @@ KeyInputType HandleInteractions(bool blocking) {
         case 'R':
             return KEY_R;
 
-        case 224:
+        case ESC:
+            return KEY_ESCAPE;
+
+        case ESCAPE_CHAR:
             switch (_getch())
             {
                 case 72: // Arrow Up

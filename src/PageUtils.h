@@ -7,6 +7,8 @@
 
 #define CTRL_C '\03'
 #define ENTER '\015'
+#define ESC '\033'
+#define ESCAPE_CHAR 224
 
 int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
@@ -21,6 +23,7 @@ typedef enum {
     KEY_ARROW_RIGHT = 3,
     KEY_ARROW_LEFT = 4,
     KEY_ENTER = 5,
+    KEY_ESCAPE,
     KEY_1 = 6,
     KEY_2 = 7,
     KEY_3 = 8,
