@@ -14,7 +14,6 @@ int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
 int GetWrappedLineCount(const char* line, int width);
 void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText);
-void GetWrappedLineCursorPosition(const char* line, int width, int position, int* cursorX, int* cusrorY);
 
 typedef enum {
     KEY_NONE = 0,
