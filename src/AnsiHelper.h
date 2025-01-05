@@ -12,6 +12,8 @@
 
 #define CSR_MOVE_LEFT_0_DOWN(x) ESC_SEQ "%dE", x
 
+#define CSR_MOVE_CURSOR_X(x) ESC_SEQ "%dG", x
+
 #define CSR_MOVE_UP_1 ESC_SEQ "1A"
 #define CSR_MOVE_DOWN_1 ESC_SEQ "1B"
 #define CSR_MOVE_RIGHT_1 ESC_SEQ "1C"
