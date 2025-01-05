@@ -8,7 +8,6 @@
 #define CTRL_C '\03'
 #define ENTER '\015'
 #define ESC '\033'
-#define ESCAPE_CHAR 224
 
 const char* GetNextChar(const char* c);
 int GetStringCharCount(const char* start);
@@ -18,16 +17,16 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
 
 typedef enum {
     KEY_NONE = 0,
-    KEY_ARROW_UP = 1,
-    KEY_ARROW_DOWN = 2,
-    KEY_ARROW_RIGHT = 3,
-    KEY_ARROW_LEFT = 4,
-    KEY_ENTER = 5,
+    KEY_ARROW_UP,
+    KEY_ARROW_DOWN,
+    KEY_ARROW_RIGHT,
+    KEY_ARROW_LEFT,
+    KEY_ENTER,
     KEY_ESCAPE,
-    KEY_1 = 6,
-    KEY_2 = 7,
-    KEY_3 = 8,
-    KEY_R = 9,
+    KEY_1,
+    KEY_2,
+    KEY_3,
+    KEY_R,
 } KeyInputType;
 
 KeyInputType HandleInteractions(bool blocking);

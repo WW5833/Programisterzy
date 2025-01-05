@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "AnsiHelper.h"
+#include "IOHelper.h"
 
 #define SETTINGS_FILE "./settings.txt"
 
@@ -20,7 +21,6 @@ Settings *LoadSettings()
         settings->SupportColor = COLOR_FG_MAGENTA;
         settings->FullUTF8Support = 1;
         settings->TutorialShown = 0;
-        settings->AutoResizeUI = 1;
         settings->ShowCorrectWhenWrong = 1;
 
         SaveSettings(settings);
@@ -28,7 +28,7 @@ Settings *LoadSettings()
         return settings;
     }
 
-    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
+    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
         &settings->CorrectAnswerColor, 
         &settings->WrongAnswerColor, 
         &settings->SelectedAnswerColor, 
@@ -36,12 +36,11 @@ Settings *LoadSettings()
         &settings->SupportColor, 
         &settings->FullUTF8Support, 
         &settings->TutorialShown,
-        &settings->AutoResizeUI,
         &settings->ShowCorrectWhenWrong);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     return settings;
@@ -53,10 +52,10 @@ void SaveSettings(Settings *settings)
 
     if(file == NULL) {
         perror("Failed to open file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
-    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
+    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
         settings->CorrectAnswerColor, 
         settings->WrongAnswerColor, 
         settings->SelectedAnswerColor, 
@@ -64,12 +63,11 @@ void SaveSettings(Settings *settings)
         settings->SupportColor,
         settings->FullUTF8Support, 
         settings->TutorialShown,
-        settings->AutoResizeUI,
         settings->ShowCorrectWhenWrong);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 }
 

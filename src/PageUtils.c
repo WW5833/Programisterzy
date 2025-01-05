@@ -1,6 +1,6 @@
 #include "PageUtils.h"
 #include "AnsiHelper.h"
-#include <conio.h>
+#include "IOHelper.h"
 
 const char* GetNextChar(const char* c) {
     if((*c & 0x80) == 0x00) {
@@ -9,7 +9,7 @@ const char* GetNextChar(const char* c) {
 
     if((*c & 0xC0) == 0x80) {
         fprintf(stderr, "Invalid UTF-8 character (Continuation byte received first)\n");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     // Determine the number of bytes in the UTF-8 character
@@ -21,7 +21,7 @@ const char* GetNextChar(const char* c) {
     }
 
     fprintf(stderr, "Invalid UTF-8 character 0xFF\n");
-    exit(EXIT_FAILURE);
+    ExitApp(EXIT_FAILURE);
 }
 
 int GetStringCharCount(const char* start) {
@@ -142,11 +142,9 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
 }
 
 KeyInputType HandleInteractions(bool blocking) {
-    if(!blocking && !_kbhit()) return KEY_NONE;
+    if(!blocking && !kbhit()) return KEY_NONE;
 
-    SetCursorPosition(0, 999);
-
-    int c = _getch();
+    int c = getch();
 
     switch (c)
     {
@@ -170,7 +168,7 @@ KeyInputType HandleInteractions(bool blocking) {
             return KEY_ESCAPE;
 
         case ESCAPE_CHAR:
-            switch (_getch())
+            switch (getch())
             {
                 case 72: // Arrow Up
                     return KEY_ARROW_UP;
@@ -195,7 +193,7 @@ KeyInputType HandleInteractions(bool blocking) {
 
 void ExitOnCtrlC() {
     // printf("Exiting... (CTRL+C)\t");
-    exit(EXIT_SUCCESS);
+    ExitApp(EXIT_SUCCESS);
 }
 
 void WaitForEnter() {
@@ -206,7 +204,7 @@ char _internal_WaitForKeys(int count, char* keys)
 {
     int c;
     while(true) {
-        c = _getch();
+        c = getch();
 
         if(c == CTRL_C) {
             ExitOnCtrlC();

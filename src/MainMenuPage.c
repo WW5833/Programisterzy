@@ -5,6 +5,7 @@
 
 #include "AnsiHelper.h"
 #include "PageUtils.h"
+#include "IOHelper.h"
 
 #include "QuizPage.h"
 #include "SettingsPage.h"
@@ -67,7 +68,7 @@ void OnEnterPressed(int selected) {
             PageEnter_Settings();
             break;
         case 3:
-            exit(EXIT_SUCCESS);
+            ExitApp(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
         case 4:
             PageEnter_Debug();

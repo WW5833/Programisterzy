@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "PageUtils.h"
+#include "IOHelper.h"
 
 extern Settings* LoadedSettings;
 
-#define OPTION_COUNT 9
+#define OPTION_COUNT 8
 
 bool slimMode = false;
 
@@ -54,7 +55,7 @@ int* GetOptionColor(int selected) {
 
         default:
             fprintf(stderr, "Invalid option index: %d\n", selected);
-            exit(EXIT_FAILURE);
+            ExitApp(EXIT_FAILURE);
     }
 }
 
@@ -67,7 +68,6 @@ void PageEnter_Settings()
 
     int colorsX, colorsY;
     int utf8SupportX, utf8SupportY;
-    int autoResizeX, autoResizeY;
     int showCorrectWhenWrongX, showCorrectWhenWrongY;
     ClearScreen();
     printf("Ustawienia");
@@ -92,9 +92,6 @@ void PageEnter_Settings()
     GetCursorPosition(&utf8SupportX, &utf8SupportY);
     PrintUTF8Support(LoadedSettings->FullUTF8Support, terminalWidth);
     
-    printf("\n[ ] Automatyczne reskalowanie konsoli: ");
-    GetCursorPosition(&autoResizeX, &autoResizeY);
-    printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
     printf("\n[ ] Pokaż poprawną odpowiedź po przegranej: ");
     GetCursorPosition(&showCorrectWhenWrongX, &showCorrectWhenWrongY);
     printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
@@ -108,8 +105,7 @@ void PageEnter_Settings()
         5 + (slimMode ? 3 : 0), 
         6 + (slimMode ? 4 : 0), 
         7 + (slimMode ? 5 : 0), 
-        autoResizeY, 
-        autoResizeY + 1,
+        showCorrectWhenWrongY, 
         showCorrectWhenWrongY + 1
     };
 
@@ -149,11 +145,6 @@ void PageEnter_Settings()
                     PrintUTF8Support(LoadedSettings->FullUTF8Support, terminalWidth);
                 }
                 else if(selected == 6) {
-                    LoadedSettings->AutoResizeUI = !LoadedSettings->AutoResizeUI;
-                    SetCursorPosition(autoResizeX, autoResizeY);
-                    printf(LoadedSettings->AutoResizeUI ? "TAK" : "NIE");
-                }
-                else if(selected == 7) {
                     LoadedSettings->ShowCorrectWhenWrong = !LoadedSettings->ShowCorrectWhenWrong;
                     SetCursorPosition(showCorrectWhenWrongX, showCorrectWhenWrongY);
                     printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
