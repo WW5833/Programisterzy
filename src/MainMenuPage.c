@@ -8,14 +8,15 @@
 #include "IOHelper.h"
 
 #include "QuizPage.h"
-#include "SettingsPage.h"
 #include "AddQuestionPage.h"
+#include "SettingsPage.h"
+#include "InstructionPage.h"
 #include "QuizQuestionPage.h"
 #include "QuestionListPage.h"
 
 #include "DebugCheck.h"
 
-#define OPTION_COUNT 4
+#define OPTION_COUNT 5
 
 #ifdef PROGRAMISTERZY_DEBUG
 #define DEBUG_OPTION_COUNT 2
@@ -28,21 +29,29 @@ void PrintMainMenu(int selected)
     ResetColor();
     ClearScreen();
     printf("Witaj w Programisterach!\n");
-    printf("[ ] Rozpocznij quiz\n");
+    for(int i = 0; i < 55; i++){
+        printf("-");
+    }
+    printf("\n[ ] Rozpocznij quiz\n");
     printf("[ ] Dodaj pytanie\n");
     printf("[ ] Ustawienia\n");
+    printf("[ ] Instrukcja Obsługi\n");
     printf("[ ] Wyjdź\n");
 #ifdef PROGRAMISTERZY_DEBUG
     printf("[ ] DEBUG\n");
     printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
 #endif
+    
+    for(int i = 0; i < 55; i++){
+        printf("-");
+    }
 
-    SetCursorPosition(2, 2 + selected);
+    SetCursorPosition(2, 3 + selected);
     printf("*");
 }
 
 void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
-    SetCursorPosition(2, 2 + *selected);
+    SetCursorPosition(2, 3 + *selected);
     printf(" ");
 
     if(down) {
@@ -51,7 +60,7 @@ void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
         *selected = (*selected - 1 + optionCount) % optionCount;
     }
     
-    SetCursorPosition(2, 2 + *selected);
+    SetCursorPosition(2, 3 + *selected);
     printf("*");
 }
 
@@ -68,12 +77,15 @@ void OnEnterPressed(int selected) {
             PageEnter_Settings();
             break;
         case 3:
+            PageEnter_Instruction();
+            break;
+        case 4:
             ExitApp(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
-        case 4:
+        case 5:
             PageEnter_Debug();
             break;
-        case 5:
+        case 6:
             PageEnter_QuestionList();  
             break;
 #endif
