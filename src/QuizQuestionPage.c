@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "Utf8Symbols.h"
 #include <time.h>
+#include "IOHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
@@ -50,6 +51,7 @@ typedef struct
 void ShowAudienceHelp(QuizQuestionPageData* data);
 void Show5050Help(QuizQuestionPageData* data);
 void ShowPhoneHelp(QuizQuestionPageData* data);
+bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
 
 void SetCursorToRestingPlace(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY + 5);
@@ -137,8 +139,10 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
 }
 
 // Calculate the amount of lines needed to wrap the text
-void CalculateQuizQuestionPageData(QuizQuestionPageData* data) {
-    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
+void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTerminalSize) {
+    if(calculateTerminalSize) {
+        GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
+    }
 
     if(data->terminalWidth % 2 == 0) data->terminalWidth--;
 
@@ -205,7 +209,7 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
         data->blockedOptions[randomIndex] = true;
     }
 
-    CalculateQuizQuestionPageData(data);
+    CalculateQuizQuestionPageData(data, true);
 
     return data;
 }
@@ -409,27 +413,6 @@ void DrawStaticUI(QuizQuestionPageData* data) {
     SetCursorToRestingPlace(data);
 }
 
-void CheckToRedrawUI(time_t* lastCheckTime, QuizQuestionPageData* data) {
-    time_t currentTime;
-    time(&currentTime);
-
-    if(difftime(currentTime, *lastCheckTime) < 1)
-        return;
-
-    *lastCheckTime = currentTime;
-
-    int newTerminalX, newTerminalY;
-    GetTerminalSize(&newTerminalX, &newTerminalY);
-    if(newTerminalX % 2 == 0) newTerminalX--;
-
-    if(newTerminalX == data->terminalWidth && newTerminalY == data->terminalHeight)
-        return;
-
-    // Resize and redraw UI
-    CalculateQuizQuestionPageData(data);
-    DrawStaticUI(data);
-}
-
 void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
     data->confirmed = false;
     PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings->SelectedAnswerColor);
@@ -512,6 +495,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             WaitForEnter();
 
             free(data);
+            UnsetResizeHandler();
             return true;
 
         case KEY_1:
@@ -546,7 +530,14 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
 
         case KEY_R:
             // Recalculate and redraw UI
-            CalculateQuizQuestionPageData(data);
+            CalculateQuizQuestionPageData(data, true);
+            DrawStaticUI(data);
+            break;
+
+        case KEY_ESCAPE:
+            if(ShowExitConfirmationWindow(data))
+                return true;
+
             DrawStaticUI(data);
             break;
 
@@ -565,25 +556,30 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
     return false;
 }
 
+void OnConsoleResize(int newWidth, int newHeight, void* data) {
+    QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
+    pageData->terminalWidth = newWidth;
+    pageData->terminalHeight = newHeight;
+
+    CalculateQuizQuestionPageData(pageData, false);
+    DrawStaticUI(pageData);
+}
+
 void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect) { 
     int offset = rand() % 4;
 
     QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities);
 
     DrawStaticUI(data);
-    
-    time_t lastCheckTime;
-    time(&lastCheckTime);
+
+    SetResizeHandler(OnConsoleResize, data);
 
     while (true)
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(HandleKeyInput(data, key, outCorrect))
+        if(HandleKeyInput(data, key, outCorrect)) {
             return;
-    
-        if(LoadedSettings->AutoResizeUI) {
-            CheckToRedrawUI(&lastCheckTime, data);
         }
     }
 }
@@ -598,8 +594,7 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
     DrawStaticUI(data);
 
-    time_t tmp;
-    time(&tmp);
+    SetResizeHandler(OnConsoleResize, data);
 
     bool continueLoop = true;
     while(continueLoop) {
@@ -611,13 +606,12 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
             case KEY_R:
                 // Recalculate and redraw UI
-                CalculateQuizQuestionPageData(data);
+                CalculateQuizQuestionPageData(data, true);
                 DrawStaticUI(data);
                 break;
 
-            case KEY_NONE:
-                if(LoadedSettings->AutoResizeUI)
-                    CheckToRedrawUI(&tmp, data);
+            case KEY_ESCAPE:
+                continueLoop = false;
                 break;
 
             default:
@@ -627,6 +621,7 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
     free(data);
     data = NULL;
+    UnsetResizeHandler();
 }
 
 void ShowAudienceHelp(QuizQuestionPageData* data) {
@@ -763,4 +758,31 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '3');
+}
+
+bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
+    const int windowWidth = 34 + 4;
+    const int beginX = (data->terminalWidth - windowWidth) / 2;
+    int beginY = 3;
+    int widnowHeight = 5;
+
+    SetCursorPosition(beginX, beginY);
+    PRINT_SINGLE_TOP_BORDER(windowWidth);
+
+    for (int i = 1; i < widnowHeight; i++)
+        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
+
+    SetCursorPosition(beginX, beginY + widnowHeight);
+    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
+
+    SetCursorPosition(beginX + 2, beginY + 1);
+    printf("Czy na pewno chcesz zakończyć grę?");
+    SetCursorPosition(beginX + 2, beginY + 3);
+    printf("[ENTER] Tak");
+    printf("\r" CSR_MOVE_RIGHT(beginX + 2 + windowWidth - 14));
+    printf("Nie [ESC]");
+
+    SetCursorToRestingPlace(data);
+    char c = WaitForKeys(ENTER, ESC);
+    return c == ENTER;
 }

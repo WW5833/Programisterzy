@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include "PageUtils.h"
+#include "IOHelper.h"
 
 bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;
@@ -36,7 +37,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
 
     if(*content == NULL) {
         perror("Failed to allocate memory for question text content");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     for (int j = 0; j < i; j++)
@@ -59,7 +60,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     if(question == NULL) {
         perror("Failed to allocate memory for question");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     question->Id = -1;
