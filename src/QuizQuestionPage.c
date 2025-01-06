@@ -51,6 +51,7 @@ typedef struct
 void ShowAudienceHelp(QuizQuestionPageData* data);
 void Show5050Help(QuizQuestionPageData* data);
 void ShowPhoneHelp(QuizQuestionPageData* data);
+bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
 
 void SetCursorToRestingPlace(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY + 5);
@@ -489,6 +490,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             WaitForEnter();
 
             free(data);
+            UnsetResizeHandler();
             return true;
 
         case KEY_1:
@@ -528,7 +530,11 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_ESCAPE:
-            break; // Todo: Add confirmation dialog
+            if(ShowExitConfirmationWindow(data))
+                return true;
+
+            DrawStaticUI(data);
+            break;
 
         default:
             return false;
@@ -568,7 +574,6 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
         KeyInputType key = HandleInteractions(false);
 
         if(HandleKeyInput(data, key, outCorrect)) {
-            UnsetResizeHandler();
             return;
         }
     }
@@ -600,6 +605,10 @@ void PageEnter_QuizQuestionPreview(Question* question) {
                 DrawStaticUI(data);
                 break;
 
+            case KEY_ESCAPE:
+                continueLoop = false;
+                break;
+
             default:
                 break;
         }
@@ -607,6 +616,7 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
     free(data);
     data = NULL;
+    UnsetResizeHandler();
 }
 
 void ShowAudienceHelp(QuizQuestionPageData* data) {
@@ -743,4 +753,31 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '3');
+}
+
+bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
+    const int windowWidth = 34 + 4;
+    const int beginX = (data->terminalWidth - windowWidth) / 2;
+    int beginY = 3;
+    int widnowHeight = 5;
+
+    SetCursorPosition(beginX, beginY);
+    PRINT_SINGLE_TOP_BORDER(windowWidth);
+
+    for (int i = 1; i < widnowHeight; i++)
+        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
+
+    SetCursorPosition(beginX, beginY + widnowHeight);
+    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
+
+    SetCursorPosition(beginX + 2, beginY + 1);
+    printf("Czy na pewno chcesz zakończyć grę?");
+    SetCursorPosition(beginX + 2, beginY + 3);
+    printf("[ENTER] Tak");
+    printf("\r" CSR_MOVE_RIGHT(beginX + 2 + windowWidth - 14));
+    printf("Nie [ESC]");
+
+    SetCursorToRestingPlace(data);
+    char c = WaitForKeys(ENTER, ESC);
+    return c == ENTER;
 }

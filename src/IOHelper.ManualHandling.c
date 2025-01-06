@@ -9,8 +9,6 @@
 
 #ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
-#define MAX_Y_SIZE_CONSOLE 150
-
 #define TEXT_INPUT_BUFFER_SIZE 256
 #define CTRL_C '\03'
 
@@ -44,7 +42,7 @@ HANDLE stdoutHandle;
 DWORD fdwStdInOldMode;
 DWORD fdwStdOutOldMode;
 
-DWORD fdwInMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
+DWORD fdwInMode = ENABLE_WINDOW_INPUT;
 DWORD fdwOutMode = 0;
 
 bool stdInHandleInitialized = false;
@@ -58,6 +56,20 @@ void CallResizeHandler(int width, int height);
 
 int latestTerminalWidth = -1;
 int latestTerminalHeight = -1;
+
+void SetConsoleModes() {
+    // Enable the window and mouse input events.
+    if (! SetConsoleMode(stdinHandle, fdwInMode)) {
+        ErrorExit("SetConsoleMode(STDIN)");
+    }
+
+    if(fdwOutMode != 0) {
+        // Set output mode to handle virtual terminal sequences
+        if (! SetConsoleMode(stdinHandle, fdwInMode)) {
+            ErrorExit("SetConsoleMode(STDOUT)");
+        }
+    }
+}
 
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void InitializeIO()
@@ -95,17 +107,7 @@ void InitializeIO()
         fdwOutMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     }
 
-    // Enable the window and mouse input events.
-    if (! SetConsoleMode(stdinHandle, fdwInMode)) {
-        ErrorExit("SetConsoleMode(STDIN)");
-    }
-
-    if(fdwOutMode != 0) {
-        // Set output mode to handle virtual terminal sequences
-        if (! SetConsoleMode(stdinHandle, fdwInMode)) {
-            ErrorExit("SetConsoleMode(STDOUT)");
-        }
-    }
+    SetConsoleModes();
     
     if(!CheckForAnsiSupport()) {
         fprintf(stderr, "ANSI not supported but requied!\n");
@@ -161,7 +163,7 @@ void IOLoop()
                 break;
 
             case MOUSE_EVENT: // mouse input
-                // MouseEventProc(irInBuf[i].Event.MouseEvent);
+                MouseEventProc(irInBuf[i].Event.MouseEvent);
                 break;
 
             case WINDOW_BUFFER_SIZE_EVENT: // scrn buf. resizing
@@ -204,37 +206,78 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
     }
 }
 
+void EnableMouseInput(bool enable)
+{
+    if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
+
+    if(enable) {
+        fdwInMode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
+    }
+    else {
+        fdwInMode &= ~((DWORD)(ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS));
+    }
+
+    SetConsoleModes();
+}
+
+void (*mouseClickHandler)(int, int, int, void *) = NULL;
+void (*mouseDoubleClickHandler)(int, int, int, void *) = NULL;
+void (*mouseScrollHandler)(bool, int, int, void *) = NULL;
+void (*mouseMoveHandler)(int, int, void *) = NULL;
+void *mouseHandlerData = NULL;
+void SetMouseHandler(
+    void (*clickHandler)(int, int, int, void *),
+    void (*doubleClickHandler)(int, int, int, void *),
+    void (*scrollHandler)(bool, int, int, void *),
+    void (*moveHandler)(int, int, void *),
+    void *data)
+{
+    mouseClickHandler = clickHandler;
+    mouseDoubleClickHandler = doubleClickHandler;
+    mouseScrollHandler = scrollHandler;
+    mouseMoveHandler = moveHandler;
+
+    mouseHandlerData = data;
+}
+
+void UnsetMouseHandler()
+{
+    mouseClickHandler = NULL;
+    mouseDoubleClickHandler = NULL;
+    mouseScrollHandler = NULL;
+    mouseMoveHandler = NULL;
+
+    mouseHandlerData = NULL;
+}
 
 void MouseEventProc(MOUSE_EVENT_RECORD mer)
 {
     switch(mer.dwEventFlags)
     {
         case 0:
-            printf("Mouse event: ");
-            if(mer.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
-            {
-                printf("left button press \n");
-            }
-            else if(mer.dwButtonState == RIGHTMOST_BUTTON_PRESSED)
-            {
-                printf("right button press \n");
-            }
-            else
-            {
-                printf("button press\n");
+            if(mouseClickHandler != NULL) {
+                mouseClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
             }
             break;
         case DOUBLE_CLICK:
-            printf("Mouse event: ");
-            printf("double click\n");
+            if(mouseDoubleClickHandler != NULL) {
+                mouseDoubleClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+            }
             break;
         case MOUSE_WHEELED:
-            printf("Mouse event: ");
-            printf("vertical mouse wheel\n");
+            if(mouseScrollHandler != NULL) {
+                mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+            }
+            break;
+        case MOUSE_MOVED:
+            if(mouseMoveHandler != NULL) {
+                mouseMoveHandler(mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+            }
             break;
     }
 }
 
+#define MAX_Y_SIZE_CONSOLE 150
 
 void (*resizeHandler)(int, int, void *) = NULL;
 void *resizeHandlerData = NULL;

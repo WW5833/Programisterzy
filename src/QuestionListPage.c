@@ -3,22 +3,35 @@
 #include "PageUtils.h"
 #include "AnsiHelper.h"
 #include "QuizQuestionPage.h"
+#include "IOHelper.h"
 
 #include <string.h>
+
+typedef struct {
+    int terminalWidth, terminalHeight;
+    int blockWidth, elementLimit;
+
+    QuestionListHeader* list;
+    int selected;
+
+    int drawQuestionStartIndex;
+} QuestionListPageData;
 
 void DrawStaticText() {
     ClearScreen();
     printf("Lista pytań\n");
 }
 
-void DrawStaticScroll(int terminalWidth, int terminalHeight) {
-    for (int i = 0; i < terminalHeight - 1; i++)
+void DrawStaticScroll(QuestionListPageData* data) {
+    if(data->list->count <= data->elementLimit) return;
+
+    for (int i = 0; i < data->terminalHeight - 1; i++)
     {
-        SetCursorPosition(terminalWidth - 1, 1 + i);
+        SetCursorPosition(data->terminalWidth - 1, 1 + i);
         if(i == 0) {
             printf("▲");
         }
-        else if(i == terminalHeight - 2) {
+        else if(i == data->terminalHeight - 2) {
             printf("▼");
         }
         else {
@@ -27,38 +40,38 @@ void DrawStaticScroll(int terminalWidth, int terminalHeight) {
     }
 }
 
-void DrawVisibleQuestions(QuestionListHeader* list, int elementLimit, int blockWidth, int selected) {
+void DrawVisibleQuestions(QuestionListPageData* data) {
     SetCursorPosition(0, 2);
     int i = 0;
 
-    int startIndex = 0;
-    if(selected > elementLimit / 2) {
-        startIndex = selected - elementLimit / 2;
+    data->drawQuestionStartIndex = 0;
+    if(data->selected > data->elementLimit / 2) {
+        data->drawQuestionStartIndex = data->selected - data->elementLimit / 2;
     }
 
-    if(startIndex + elementLimit > list->count) {
-        startIndex = list->count - elementLimit;
+    if(data->drawQuestionStartIndex + data->elementLimit > data->list->count) {
+        data->drawQuestionStartIndex = data->list->count - data->elementLimit;
     }
 
-    int widthLimit = blockWidth - 5;
+    int widthLimit = data->blockWidth - 5;
 
-    QuestionListItem* current = list->head;
+    QuestionListItem* current = data->list->head;
     while (current != NULL)
     {
-        if(i < startIndex) {
+        if(i < data->drawQuestionStartIndex) {
             i++;
             current = current->next;
             continue;
         }
 
-        if(i == selected) {
+        if(i == data->selected) {
             SetColor(COLOR_FG_WHITE);
             SetColor(COLOR_BG_BLUE);
         }
 
         int length = GetStringCharCount(current->data->Content);
 
-        printf(CSR_MOVE_CURSOR_X(blockWidth));
+        printf(CSR_MOVE_CURSOR_X(data->blockWidth));
         printf(CLR_LINE_START "\r" "%d. ", current->data->Id);
 
         if(widthLimit < length) {
@@ -78,23 +91,25 @@ void DrawVisibleQuestions(QuestionListHeader* list, int elementLimit, int blockW
             printf("%s\n", current->data->Content);
         }
 
-        if(i == selected) {
+        if(i == data->selected) {
             ResetColor();
         }
 
         i++;
         current = current->next;
 
-        if(i >= startIndex + elementLimit) {
+        if(i >= data->drawQuestionStartIndex + data->elementLimit) {
             break;
         }
     }
 }
 
-void DrawScrollBar(int terminalWidth, int terminalHeight, int oldSelected, int selected, int totalElements) {
-    int scrollHeight = terminalHeight - 3;
-    float movePerElement = (float)scrollHeight / (float)totalElements;
-    int scrollPosition = (int)((float)selected * movePerElement);
+void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
+    if(data->list->count <= data->elementLimit) return;
+
+    int scrollHeight = data->terminalHeight - 3;
+    float movePerElement = (float)scrollHeight / (float)data->list->count;
+    int scrollPosition = (int)((float)data->selected * movePerElement);
     int oldScrollPosition = (int)((float)oldSelected * movePerElement);
 
     if(scrollPosition == oldScrollPosition) {
@@ -102,42 +117,106 @@ void DrawScrollBar(int terminalWidth, int terminalHeight, int oldSelected, int s
     }
 
     if(oldScrollPosition >= 0) {
-        SetCursorPosition(terminalWidth - 1, 2 + oldScrollPosition);
+        SetCursorPosition(data->terminalWidth - 1, 2 + oldScrollPosition);
         printf("│");
     }
 
-    SetCursorPosition(terminalWidth - 1, 2 + scrollPosition);
+    SetCursorPosition(data->terminalWidth - 1, 2 + scrollPosition);
     printf("█");
 
     ResetCursor();  
 }
 
-void DrawAll(int terminalWidth, int terminalHeight, int selected, int elementLimit, int blockWidth, int elementCount) {
+void DrawAll(QuestionListPageData* data) {
     DrawStaticText();
-    DrawVisibleQuestions(GetQuestionList(), elementLimit, blockWidth, selected);
+    DrawVisibleQuestions(data);
 
-    if(elementCount > elementLimit) {
-        DrawStaticScroll(terminalWidth, terminalHeight);
-        DrawScrollBar(terminalWidth, terminalHeight, INT_MIN, selected, elementCount);
+    DrawStaticScroll(data);
+    DrawScrollBar(data, INT_MIN);
+}
+
+void Scroll(QuestionListPageData* data, bool down) {
+    int oldSelected;
+
+    if(down) {
+        if(data->selected >= data->list->count - 1) return;
+                
+        oldSelected = data->selected++;
     }
+    else {
+        if(data->selected == 0) return;
+
+        oldSelected = data->selected--;
+    }
+
+    DrawVisibleQuestions(data);
+    DrawScrollBar(data, oldSelected);
+}
+
+void OnResize(int width, int height, void* data)
+{
+    QuestionListPageData* pageData = (QuestionListPageData*)data;
+    pageData->terminalWidth = width;
+    pageData->terminalHeight = height;
+    pageData->blockWidth = width - 2;
+    pageData->elementLimit = height - 2;
+
+    DrawAll(pageData);
+}
+
+void OnScroll(bool down, int mouseX, int mouseY, void* data) {
+    Scroll((QuestionListPageData*)data, down);
+}
+
+void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
+    if((button & MOUSE_LEFT_BUTTON) == 0) return;
+    QuestionListPageData* pageData = (QuestionListPageData*)data;
+
+    int oldSelected = pageData->selected;
+    if(mouseX >= pageData->terminalWidth - 3) {
+        int boxLine = mouseY - 1;
+        float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
+        pageData->selected = boxLine * lineWorth;
+
+        if(pageData->selected >= pageData->list->count) {
+            pageData->selected = pageData->list->count - 1;
+        }
+        else if(pageData->selected < 0) {
+            pageData->selected = 0;
+        }
+    }
+    else {
+        int index = mouseY - 1 + pageData->drawQuestionStartIndex;
+        if(index < 0 || index >= pageData->elementLimit + pageData->drawQuestionStartIndex) return;
+
+        pageData->selected = index;
+    }
+
+    DrawVisibleQuestions(pageData);
+    DrawScrollBar(pageData, oldSelected);
 }
 
 void PageEnter_QuestionList()
 {
     HideCursor();
 
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
+    QuestionListPageData* data = malloc(sizeof(QuestionListPageData));
 
-    int blockWidth = terminalWidth - 2;
-    int elementLimit = terminalHeight - 2;
+    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
 
-    int selected = 0;
-    int oldSelected;
+    data->drawQuestionStartIndex = 0;
 
-    QuestionListHeader *list = GetQuestionList();
-    int elementCount = list->count;
-    DrawAll(terminalWidth, terminalHeight, selected, elementLimit, blockWidth, elementCount);
+    data->blockWidth = data->terminalWidth - 2;
+    data->elementLimit = data->terminalHeight - 2;
+
+    data->selected = 0;
+
+    data->list = GetQuestionList();
+    DrawAll(data);
+
+    SetResizeHandler(OnResize, data);
+    SetMouseHandler(OnMouseClick, NULL, OnScroll, NULL, data);
+    EnableMouseInput(true);
 
     KeyInputType key;
     while(true) {
@@ -146,27 +225,21 @@ void PageEnter_QuestionList()
         switch (key)
         {
             case KEY_ARROW_UP:
-                if(selected == 0) break;
-
-                oldSelected = selected--;
-                DrawVisibleQuestions(GetQuestionList(), elementLimit, blockWidth, selected);
-                if(elementCount > elementLimit) DrawScrollBar(terminalWidth, terminalHeight, oldSelected, selected, elementCount);
+                Scroll(data, false);
                 break;
 
             case KEY_ARROW_DOWN:
-                if(selected >= list->count - 1) break;
-                
-                oldSelected = selected++;
-                DrawVisibleQuestions(GetQuestionList(), elementLimit, blockWidth, selected);
-                if(elementCount > elementLimit) DrawScrollBar(terminalWidth, terminalHeight, oldSelected, selected, elementCount);
+                Scroll(data, true);
                 break;
 
             case KEY_ENTER:
-                PageEnter_QuizQuestionPreview(ListGetAt(list, selected));
-                DrawAll(terminalWidth, terminalHeight, selected, elementLimit, blockWidth, elementCount);
+                PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
+                DrawAll(data);
                 break;
 
             case KEY_ESCAPE:
+                UnsetMouseHandler();
+                EnableMouseInput(false);
                 return;
 
             default:
