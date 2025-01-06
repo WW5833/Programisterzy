@@ -176,7 +176,7 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
     if(mouseX >= pageData->terminalWidth - 3) {
         int boxLine = mouseY - 1;
         float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
-        pageData->selected = boxLine * lineWorth;
+        pageData->selected = boxLine * (int)lineWorth;
 
         if(pageData->selected >= pageData->list->count) {
             pageData->selected = pageData->list->count - 1;
