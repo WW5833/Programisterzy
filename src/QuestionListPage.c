@@ -15,6 +15,7 @@ typedef struct {
     int selected;
 
     int drawQuestionStartIndex;
+    int scrollSize;
 } QuestionListPageData;
 
 void DrawStaticText() {
@@ -116,14 +117,33 @@ void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
         return;
     }
 
-    if(oldScrollPosition >= 0) {
-        SetCursorPosition(data->terminalWidth - 1, 2 + oldScrollPosition);
+    bool* updated = malloc(scrollHeight * sizeof(bool));
+    for (int i = 0; i < scrollHeight; i++)
+    {
+        updated[i] = false;
+    }
+    
+
+    scrollPosition -= data->scrollSize / 2;
+    if(scrollPosition < 0) scrollPosition = 0;
+    else if(scrollPosition > scrollHeight - data->scrollSize) scrollPosition = scrollHeight - data->scrollSize;
+
+    for (int i = 0; i < data->scrollSize; i++)
+    {
+        SetCursorPosition(data->terminalWidth - 1, 2 + scrollPosition + i);
+        printf("█");
+        updated[scrollPosition + i] = true;
+    }
+
+    for (int i = 0; i < scrollHeight; i++)
+    {
+        if(updated[i]) continue;
+        SetCursorPosition(data->terminalWidth - 1, 2 + i);
         printf("│");
     }
 
-    SetCursorPosition(data->terminalWidth - 1, 2 + scrollPosition);
-    printf("█");
-
+    free(updated);
+    
     ResetCursor();  
 }
 
@@ -160,6 +180,14 @@ void OnResize(int width, int height, void* data)
     pageData->terminalHeight = height;
     pageData->blockWidth = width - 2;
     pageData->elementLimit = height - 2;
+
+    pageData->scrollSize = pageData->elementLimit*2 - 1 - pageData->list->count;
+    if(pageData->scrollSize > pageData->elementLimit) {
+        pageData->scrollSize = pageData->elementLimit;
+    }
+    else if(pageData->scrollSize < 1) {
+        pageData->scrollSize = 1;
+    }
 
     DrawAll(pageData);
 }
