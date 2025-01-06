@@ -3,7 +3,8 @@
 #include "PageUtils.h"
 #include "AnsiHelper.h"
 #include <string.h>
-#include <conio.h>
+#include <ctype.h>
+#include "IOHelper.h"
 
 #define MAX_QUESTION_LENGTH 256
 
@@ -41,6 +42,45 @@ bool CopyBuffer(char** dest, const char* src, int length) {
     return true;
 }
 
+int ReadText(char* buffer, int maxLength) {
+    int i = 0;
+    int c;
+    do {
+        c = getch();
+        if(c == '\b') {
+            if(i == 0) continue;
+
+            i--;
+            buffer[i] = '\0';
+            printf("\b \b");
+
+            continue;
+        }
+
+        if(c == '\n' || c == '\r') {
+            buffer[i] = '\0';
+            printf("\n");
+            return i;
+        }
+
+        if(c == ESCAPE_CHAR) {
+            getch();
+            continue; // Ignore arrow keys
+        }
+
+        if(!(isalnum(c) || ispunct(c) || isspace(c))) {
+            continue;
+        }
+
+        buffer[i] = (char)c;
+        printf("%c", c);
+        i++;
+    } while(i != maxLength - 1);
+
+    buffer[i] = '\0';
+    return i;
+}
+
 Question *PageEnter_AddQuestion()
 {
     ClearScreen();
@@ -56,8 +96,7 @@ Question *PageEnter_AddQuestion()
 
     load_content:
     printf("Podaj treść pytania: ");
-    fgets(buffer, MAX_QUESTION_LENGTH, stdin);
-    question->ContentLength = (int)strlen(buffer) - 1; // -1 for \n
+    question->ContentLength = ReadText(buffer, MAX_QUESTION_LENGTH);
     if(!CopyBuffer(&question->Content, buffer, question->ContentLength))
         goto load_content;
 
@@ -69,8 +108,7 @@ Question *PageEnter_AddQuestion()
         else
             printf("Podaj odpowiedź %c: ", 'A' + j);
 
-        fgets(buffer, MAX_QUESTION_LENGTH, stdin);
-        question->AnswerLength[j] = (int)strlen(buffer) - 1;
+        question->AnswerLength[j] = ReadText(buffer, MAX_QUESTION_LENGTH);
         if(!CopyBuffer(&question->Answer[j], buffer, question->AnswerLength[j]))
             goto load_answer;
     }
@@ -81,14 +119,14 @@ Question *PageEnter_AddQuestion()
     if (file == NULL)
     {
         perror("Failed to open file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     AppendQuestion(file, question);
 
     if(fclose(file)) {
         perror("Failed to close file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     QuestionListHeader *list = GetQuestionList();

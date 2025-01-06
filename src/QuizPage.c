@@ -7,7 +7,6 @@
 #include "QuizQuestionPage.h"
 #include "AnsiHelper.h"
 #include "Settings.h"
-#include <conio.h>
 
 extern Settings* LoadedSettings;
 

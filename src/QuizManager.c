@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "IOHelper.h"
 
 #define BUFFER_SIZE 1024
 
@@ -15,7 +16,7 @@ QuestionListHeader* ListCreate() {
     QuestionListHeader* list = malloc(sizeof(QuestionListHeader));
     if(list == NULL) {
         perror("Failed to allocate memory for list");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     list->head = NULL;
@@ -56,7 +57,7 @@ void ListAdd(QuestionListHeader* list, Question* data) {
     QuestionListItem* node = malloc(sizeof(QuestionListItem));
     if(node == NULL) {
         perror("Failed to allocate memory for list node");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     node->data = data;
@@ -131,7 +132,7 @@ int LoadQuestions() {
 
     if(file == NULL) {
         perror("Failed to open questions file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     int lineId = 0;
@@ -152,7 +153,7 @@ int LoadQuestions() {
 
         if(q == NULL) {
             fprintf(stderr, "%s:%d | Failed to deserialize question: \"%s\"\n", QUESTIONS_FILE, lineId, buffer);
-            exit(EXIT_FAILURE);
+            ExitApp(EXIT_FAILURE);
         }
 
         QuestionListItem* current = QuestionList->head;
@@ -160,7 +161,7 @@ int LoadQuestions() {
         {
             if(current->data->Id == q->Id) {
                 fprintf(stderr, "%s:%d | Question with id %d already exists\n", QUESTIONS_FILE, lineId, q->Id);
-                exit(EXIT_FAILURE);
+                ExitApp(EXIT_FAILURE);
             }
 
             current = current->next;
@@ -171,7 +172,7 @@ int LoadQuestions() {
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     return QuestionList->count;
@@ -204,13 +205,13 @@ QuestionListHeader* GenerateQuiz() {
 
         if(QuestionList == NULL) {
             fprintf(stderr, "Failed to load questions\n");
-            exit(EXIT_FAILURE);
+            ExitApp(EXIT_FAILURE);
         }
     }
 
     if(QuestionList->count < 10) {
         fprintf(stderr, "Minimum of 10 questions are requied\n");
-        exit(EXIT_FAILURE);
+        ExitApp(EXIT_FAILURE);
     }
 
     int questionIds[10];

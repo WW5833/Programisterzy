@@ -9,7 +9,6 @@ typedef struct {
     int SupportColor;
     int FullUTF8Support;
     int TutorialShown;
-    int AutoResizeUI;
     int ShowCorrectWhenWrong;
 } Settings;
 
