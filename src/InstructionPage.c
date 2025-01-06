@@ -5,7 +5,7 @@
 
 void PageEnter_Instruction()
 {
-    
+    DisableAlternativeBuffer();
     HideCursor();
 
     int terminalWidth, terminalHeight;
@@ -85,4 +85,5 @@ void PageEnter_Instruction()
     PRINT_SINGLE_TJUNCTION_BORDER(terminalWidth);
 
     WaitForKeys(ESC); 
+    EnableAlternativeBuffer();
 }
