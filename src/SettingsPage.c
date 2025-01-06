@@ -33,8 +33,8 @@ void PrintColors(int color) {
 }
 
 void PrintUTF8Support(bool support, int terminalWidth) {
-    char buffer[128];
-    sprintf(buffer, "Pełne wsparcie UTF-8 | Jeśli ten znak [%c%c%c] nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: %s", 0xE2, 0x96, 0xB6, (support ? "TAK\0" : "NIE\0"));
+    char buffer[256];
+    sprintf(buffer, "Pełne wsparcie UTF-8 | Jeśli ten znak [%c%c%c] (trójkąt) nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: %s", 0xE2, 0x96, 0xB6, (support ? "TAK\0" : "NIE\0"));
     PrintWrappedLine(&buffer[0], terminalWidth - 4, 4, false);
 }
 

@@ -255,9 +255,11 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
 void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     const int questionCount = 10;
     for (int i = 0; i < questionCount; i++) {
+        bool colorSet = false;
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
         if(!data->previewMode && data->questionNumer == questionCount - i) {
             SetColor(LoadedSettings->SelectedAnswerColor);
+            colorSet = true;
         }
         printf("%2d ", questionCount - i);
 
@@ -269,7 +271,8 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
         printf(" ");
         switch (questionCount - (i + 1)) {
             case 0:
-                printf("      500 zł");
+                if(!colorSet) SetColor(LoadedSettings->SupportColor);
+                printf("      500 zł");  // save point 1
                 break;
 
             case 1:
@@ -277,7 +280,8 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
                 break;
 
             case 2:
-                printf("    4 000 zł");
+                if(!colorSet) SetColor(LoadedSettings->SupportColor);
+                printf("    4 000 zł");  // save point 2
                 break;
 
             case 3:
@@ -285,11 +289,12 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
                 break;
 
             case 4:
-                printf("   25 000 zł");
+                printf("   25 000 zł"); 
                 break;
 
             case 5:
-                printf("   50 000 zł");
+                if(!colorSet) SetColor(LoadedSettings->SupportColor);
+                printf("   50 000 zł");  // save point 3
                 break;
 
             case 6:
