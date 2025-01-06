@@ -125,3 +125,13 @@ void ShowCursor()
 {
     printf(ESC_SEQ "?25h");
 }
+
+void EnableAlternativeBuffer()
+{
+    printf(SCREEN_ALTERNATIVE_BUFFER_ENABLE);
+}
+
+void DisableAlternativeBuffer()
+{
+    printf(SCREEN_ALTERNATIVE_BUFFER_DISABLE);
+}

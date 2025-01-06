@@ -113,6 +113,8 @@ void InitializeIO()
         fprintf(stderr, "ANSI not supported but requied!\n");
         ExitApp(EXIT_FAILURE);
     }
+
+    EnableAlternativeBuffer();
 }
 
 void ExitApp(int exitCode)
@@ -122,6 +124,8 @@ void ExitApp(int exitCode)
 
     // Restore output mode on exit.
     if(stdOutHandleInitialized) SetConsoleMode(stdoutHandle, fdwStdOutOldMode);
+
+    DisableAlternativeBuffer();
 
     exit(exitCode);
 }

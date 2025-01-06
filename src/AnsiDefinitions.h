@@ -33,6 +33,9 @@
 #define DIM_ON ESC_SEQ "2m"
 #define DIM_OFF ESC_SEQ "22m"
 
+#define SCREEN_ALTERNATIVE_BUFFER_ENABLE ESC_SEQ "?1049h"
+#define SCREEN_ALTERNATIVE_BUFFER_DISABLE ESC_SEQ "?1049l"
+
 #define COLOR_FG_BLACK 30
 #define COLOR_FG_RED 31
 #define COLOR_FG_GREEN 32
@@ -58,6 +61,8 @@
 
 bool CheckForAnsiSupport();
 
+void EnableAlternativeBuffer();
+void DisableAlternativeBuffer();
 void GetTerminalSize(int* x, int* y);
 // This is here so that we can use it in the IOHelper, otherwise windows.h conflicts with ShowCursor/HideCursor
 
