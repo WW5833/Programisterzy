@@ -18,6 +18,8 @@ typedef struct {
     int scrollSize;
 } QuestionListPageData;
 
+void EnterPreview(QuestionListPageData* data);
+
 void DrawStaticText() {
     ClearScreen();
     printf("Lista pytań\n");
@@ -202,26 +204,64 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
 
     int oldSelected = pageData->selected;
     if(mouseX >= pageData->terminalWidth - 3) {
-        int boxLine = mouseY - 1;
-        float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
-        pageData->selected = boxLine * (int)lineWorth;
 
-        if(pageData->selected >= pageData->list->count) {
-            pageData->selected = pageData->list->count - 1;
+        if(mouseY == 0) {
+            Scroll(pageData, false);
         }
-        else if(pageData->selected < 0) {
-            pageData->selected = 0;
+        else if(mouseY == pageData->terminalHeight - 2) {
+            Scroll(pageData, true);
+        }
+        else {
+            int boxLine = mouseY - 1;
+            float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
+            pageData->selected = (int)((float)boxLine * lineWorth);
+
+            if(pageData->selected >= pageData->list->count) {
+                pageData->selected = pageData->list->count - 1;
+            }
+            else if(pageData->selected < 0) {
+                pageData->selected = 0;
+            }
         }
     }
     else {
-        int index = mouseY - 1 + pageData->drawQuestionStartIndex;
-        if(index < 0 || index >= pageData->elementLimit + pageData->drawQuestionStartIndex) return;
+        int index = mouseY - 1;
+        if(index < 0 || index >= pageData->elementLimit) return;
 
-        pageData->selected = index;
+        pageData->selected = index + pageData->drawQuestionStartIndex;
     }
 
     DrawVisibleQuestions(pageData);
     DrawScrollBar(pageData, oldSelected);
+}
+
+void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
+    if((button & MOUSE_LEFT_BUTTON) == 0) return;
+    QuestionListPageData* pageData = (QuestionListPageData*)data;
+
+    if(mouseX >= pageData->terminalWidth - 3) {
+        return; // Scrollbar
+    }
+    else {
+        int index = mouseY - 1;
+        if(index < 0 || index >= pageData->elementLimit) return; // Out of bounds
+
+        // In bounds but on mouse click has already selected the item
+    }
+
+    EnterPreview(pageData);
+}
+
+void EnterPreview(QuestionListPageData* data) {
+    UnsetResizeHandler();
+    UnsetMouseHandler();
+
+    PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
+
+    SetResizeHandler(OnResize, data);
+    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
+
+    DrawAll(data);
 }
 
 void PageEnter_QuestionList()
@@ -233,18 +273,13 @@ void PageEnter_QuestionList()
     GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
 
     data->drawQuestionStartIndex = 0;
-
-    data->blockWidth = data->terminalWidth - 2;
-    data->elementLimit = data->terminalHeight - 2;
-
     data->selected = 0;
-
     data->list = GetQuestionList();
-    DrawAll(data);
+
+    OnResize(data->terminalWidth, data->terminalHeight, data);
 
     SetResizeHandler(OnResize, data);
-    SetMouseHandler(OnMouseClick, NULL, OnScroll, NULL, data);
-    EnableMouseInput(true);
+    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
 
     KeyInputType key;
     while(true) {
@@ -261,13 +296,12 @@ void PageEnter_QuestionList()
                 break;
 
             case KEY_ENTER:
-                PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
-                DrawAll(data);
+                EnterPreview(data);
                 break;
 
             case KEY_ESCAPE:
+                UnsetResizeHandler();
                 UnsetMouseHandler();
-                EnableMouseInput(false);
                 return;
 
             default:
