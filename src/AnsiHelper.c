@@ -13,6 +13,8 @@
 #define BUFFER_SIZE 128
 char _tmp_buffer[BUFFER_SIZE];
 
+extern bool IOHelper_LoopLock;
+
 void GetCursorPosition(int* x, int* y)
 {
     while (kbhit()) getch(); // Clear input buffer
@@ -65,8 +67,10 @@ void SetCursorPosition(int x, int y)
 
 void GetTerminalSize(int *x, int *y)
 {
+    IOHelper_LoopLock = true;
     SetCursorPosition(999, 999);
     GetCursorPosition(x, y);
+    IOHelper_LoopLock = false;
 }
 
 bool CheckForAnsiSupport() {

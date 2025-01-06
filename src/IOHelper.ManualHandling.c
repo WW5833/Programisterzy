@@ -18,6 +18,8 @@ char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
 
 #define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
 
+bool IOHelper_LoopLock = false;
+
 int getch()
 {
     while(textInputBufferReadPtr == textInputBufferWritePtr)
@@ -30,7 +32,7 @@ int getch()
 
 int kbhit()
 {
-    IOLoop();
+    if(!IOHelper_LoopLock) IOLoop();
     return textInputBufferReadPtr != textInputBufferWritePtr;
 }
 
@@ -140,7 +142,7 @@ void ErrorExit(LPSTR lpszMessage)
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()
 {
-    CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
+    if(!IOHelper_LoopLock) CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
 
     if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead)) {
         ErrorExit("GetNumberOfConsoleInputEvents");
