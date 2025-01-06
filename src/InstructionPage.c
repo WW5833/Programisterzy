@@ -2,15 +2,32 @@
 #include "PageUtils.h"
 #include "AnsiHelper.h"
 #include "Utf8Symbols.h"
+#include "IOHelper.h"
+
+void DrawUI(int terminalWidth, int terminalHeight);
+void OnInstructionPageResize(int width, int height, void* data);
 
 void PageEnter_Instruction()
 {
+    SetResizeHandler(OnInstructionPageResize, NULL);
     DisableAlternativeBuffer();
 
     HideCursor();
 
     int terminalWidth, terminalHeight;
     GetTerminalSize(&terminalWidth, &terminalHeight);
+    
+    DrawUI(terminalWidth, terminalHeight);
+
+    WaitForKeys(ESC); 
+    
+    ClearScreen();
+
+    EnableAlternativeBuffer();
+    UnsetResizeHandler();
+}
+
+void DrawUI(int terminalWidth, int terminalHeight) {
     ClearScreen();
 
     const int widthWithoutBorders = terminalWidth - 4;
@@ -91,8 +108,8 @@ void PageEnter_Instruction()
     PRINT_SINGLE_TJUNCTION_BORDER(terminalWidth);
     SetCursorPosition(0, spliterY3);
     PRINT_SINGLE_TJUNCTION_BORDER(terminalWidth);
+}
 
-    WaitForKeys(ESC); 
-    
-    EnableAlternativeBuffer();
+void OnInstructionPageResize(int width, int height, void* data) {
+    DrawUI(width, height);
 }
