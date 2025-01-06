@@ -144,7 +144,7 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
 KeyInputType HandleInteractions(bool blocking) {
     if(!blocking && !kbhit()) return KEY_NONE;
 
-    int c = getch();
+    char c = (char)getch();
 
     switch (c)
     {

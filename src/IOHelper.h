@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define ESCAPE_CHAR (unsigned char)(224)
+#define ESCAPE_CHAR (char)(224)
 
 #undef getch
 #undef kbhit
