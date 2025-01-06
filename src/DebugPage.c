@@ -120,5 +120,6 @@ void PageEnter_Debug()
 
     CalculateQuizPageWidthRequirements(terminalWidth, terminalHeight);
 
-    WaitForEnter();
+    printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
+    WaitForKeys(ESC, ENTER);
 }
