@@ -7,69 +7,7 @@
 #include "AnsiDefinitions.h"
 #include "DebugCheck.h"
 
-bool CheckForAnsiSupport() {
-    printf(ESC_SEQ "6n");
-    if(_kbhit() && _getch() == '\x1B') {
-        while (_getch() != 'R'); // Clear the buffer
-        printf(ESC_SEQ "0;0H" CLR_SCRN ESC_SEQ "0;0H");
-        return true; // ANSI supported
-    }
-
-    return false;
-}
-
-#ifndef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
-    int getch()
-    {
-        int tor = _getch();
-        if(tor == CTRL_C) {
-            ExitApp(EXIT_SUCCESS);
-        }
-
-        return tor;
-    }
-
-    int kbhit()
-    {
-        return _kbhit();
-    }
-
-    void InitializeIO()
-    {
-        system("chcp 65001");
-
-        if(CheckForAnsiSupport()) return;
-
-        // Attempt to enable ANSI support
-        HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
-        SetConsoleMode(hInput, ENABLE_VIRTUAL_TERMINAL_INPUT);
-        HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleMode(hOutput, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-
-        if(CheckForAnsiSupport()) return;
-
-        fprintf(stderr, "ANSI not supported but requied!\n");
-        ExitApp(EXIT_FAILURE);
-    }
-
-    void ExitApp(int exitCode)
-    {
-        exit(exitCode);
-    }
-
-    void SetResizeHandler(void (*handler)(int, int, void *), void *data)
-    {
-    }
-
-    void UnsetResizeHandler()
-    {
-    }
-
-    void IOLoop()
-    {
-        // Do nothing
-    }
-#else
+#ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
 #define MAX_Y_SIZE_CONSOLE 150
 

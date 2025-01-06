@@ -1,6 +1,8 @@
 #ifndef _INC_ANSIDEFINITIONS_H
 #define _INC_ANSIDEFINITIONS_H
 
+#include <stdbool.h>
+
 #define ESC_SEQ "\x1B["
 #define CLR_LINE_END ESC_SEQ "0K" // Clear from cursor to end of line
 #define CLR_LINE_START ESC_SEQ "1K" // Clear from cursor to start of line
@@ -53,6 +55,8 @@
 #define COLOR_BG_DEFAULT 49
 
 #define COLOR_BRIGHT_MOD 60
+
+bool CheckForAnsiSupport();
 
 void GetTerminalSize(int* x, int* y);
 // This is here so that we can use it in the IOHelper, otherwise windows.h conflicts with ShowCursor/HideCursor
