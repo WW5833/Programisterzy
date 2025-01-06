@@ -8,7 +8,7 @@
 
 extern Settings* LoadedSettings;
 
-#define OPTION_COUNT 8
+#define OPTION_COUNT 9
 
 bool slimMode = false;
 
@@ -96,6 +96,7 @@ void PageEnter_Settings()
     GetCursorPosition(&showCorrectWhenWrongX, &showCorrectWhenWrongY);
     printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
     printf("\n[ ] Zapisz i wróć do menu głównego");
+    printf("\n[ ] Wróć do menu głównego bez zapisywania");
 
     int lineIndexes[OPTION_COUNT] = 
     { 
@@ -106,7 +107,8 @@ void PageEnter_Settings()
         6 + (slimMode ? 4 : 0), 
         7 + (slimMode ? 5 : 0), 
         showCorrectWhenWrongY, 
-        showCorrectWhenWrongY + 1
+        showCorrectWhenWrongY + 1,
+        showCorrectWhenWrongY + 2
     };
 
     int selected = 0;
@@ -149,13 +151,18 @@ void PageEnter_Settings()
                     SetCursorPosition(showCorrectWhenWrongX, showCorrectWhenWrongY);
                     printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
                 }
-                else if(selected == OPTION_COUNT - 1) {
+                else if(selected == OPTION_COUNT - 2) {
                     SaveSettings(LoadedSettings);
+                    return;
+                }
+                else if(selected == OPTION_COUNT - 1) {
+                    LoadedSettings = LoadSettings();
                     return;
                 }
                 break;
                 
             case KEY_ARROW_LEFT: {
+                if(selected > 4) break;
                 int* option = GetOptionColor(selected);
                 *option = *option - 1;
                 if (*option <= COLOR_FG_BLACK)
@@ -173,6 +180,7 @@ void PageEnter_Settings()
             }
                 
             case KEY_ARROW_RIGHT: {
+                if(selected > 4) break;
                 int* option = GetOptionColor(selected);
                 *option = *option + 1;
                 if (*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD)
@@ -188,6 +196,10 @@ void PageEnter_Settings()
                 PrintColors(*option);
                 break;
             }
+
+            case KEY_ESCAPE: 
+                LoadedSettings = LoadSettings();
+                return;
             
             default:
                 break;
