@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "AnsiDefinitions.h"
 #include "DebugCheck.h"
+#include "PageUtils.h"
 
 #ifndef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
     int getch()
@@ -44,9 +45,30 @@
         exit(exitCode);
     }
 
+    void SetThisConsoleTitle(const char* title) {
+        SetConsoleTitle(title);
+    }
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+    void SetMouseHandler(
+        void (*clickHandler)(int, int, int, void *),
+        void (*doubleClickHandler)(int, int, int, void *),
+        void (*scrollHandler)(bool, int, int, void *),
+        void (*moveHandler)(int, int, void *),
+        void *data) {
+
+    }
+#pragma GCC diagnostic warning "-Wunused-parameter"
+
+    void UnsetMouseHandler() {
+        
+    }
+
+#pragma GCC diagnostic ignored "-Wunused-parameter"
     void SetResizeHandler(void (*handler)(int, int, void *), void *data)
     {
     }
+#pragma GCC diagnostic warning "-Wunused-parameter"
 
     void UnsetResizeHandler()
     {

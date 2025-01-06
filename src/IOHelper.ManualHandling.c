@@ -210,6 +210,11 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
     }
 }
 
+void SetThisConsoleTitle(const char *title)
+{
+    SetConsoleTitle(title);
+}
+
 void EnableMouseInput(bool enable)
 {
     if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
@@ -236,6 +241,8 @@ void SetMouseHandler(
     void (*moveHandler)(int, int, void *),
     void *data)
 {
+    EnableMouseInput(true);
+
     mouseClickHandler = clickHandler;
     mouseDoubleClickHandler = doubleClickHandler;
     mouseScrollHandler = scrollHandler;
@@ -252,6 +259,8 @@ void UnsetMouseHandler()
     mouseMoveHandler = NULL;
 
     mouseHandlerData = NULL;
+
+    EnableMouseInput(false);
 }
 
 void MouseEventProc(MOUSE_EVENT_RECORD mer)

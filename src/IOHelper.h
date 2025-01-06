@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define ESCAPE_CHAR (char)(224)
+#define ESCAPE_CHAR (unsigned char)(224)
 
 #undef getch
 #undef kbhit
@@ -15,6 +15,8 @@ void IOLoop();
 
 void InitializeIO();
 void ExitApp(int exitCode) __attribute__((noreturn));
+
+void SetThisConsoleTitle(const char* title);
 
 void EnableMouseInput(bool enable);
 
