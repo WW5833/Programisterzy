@@ -39,12 +39,6 @@ void CallResizeHandler(int width, int height)
         return;
     }
 
-    char buffer[256];
-
-    sprintf(buffer, "Programisterzy [%d x %d]", width, height);
-
-    SetConsoleTitle(buffer);
-
     lastResizeCall = time(NULL);
     resizeCallPending = false;
     internal_IOHelper_LoopLock = true;
