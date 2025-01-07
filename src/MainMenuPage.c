@@ -18,10 +18,10 @@
 
 #include "DebugCheck.h"
 
-#define OPTION_COUNT 5
+#define OPTION_COUNT 6
 
 #ifdef PROGRAMISTERZY_DEBUG
-#define DEBUG_OPTION_COUNT 2
+#define DEBUG_OPTION_COUNT 1
 #include "DebugPage.h"
 #endif
 
@@ -55,10 +55,10 @@ void PrintMainMenu(int selected)
     printf("[ ] Dodaj pytanie\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
-    printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
+    printf("[ ] DEBUG\n");
 #endif
     
     PRINT_SINGLE_BOTTOM_BORDER(terminalWidth);
@@ -97,13 +97,13 @@ void OnEnterPressed(int selected) {
             PageEnter_Instruction();
             break;
         case 4:
+            PageEnter_QuestionList();  
+            break;
+        case 5:
             ExitApp(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
-        case 5:
-            PageEnter_Debug();
-            break;
         case 6:
-            PageEnter_QuestionList();  
+            PageEnter_Debug();
             break;
 #endif
     }
