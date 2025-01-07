@@ -439,7 +439,7 @@ bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* ability
     return false;
 }
 
-bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorrect) {
+bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, QuizQuestionResult* outResult) {
     int oldSel = data->selectedQuestion;
     int abilityConfirmId = -1;
 
@@ -479,9 +479,14 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
 
             int answerIndex = (data->selectedQuestion + data->offset) % 4;
 
-            *outCorrect = answerIndex == 0;
+            if(answerIndex == 0) {
+                *outResult = QQR_Correct;
+            }
+            else {
+                *outResult = QQR_Wrong;
+            }
 
-            if(*outCorrect) {
+            if(*outResult == QQR_Correct) {
                 PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
             }
             else {
@@ -493,9 +498,6 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
 
             SetCursorToRestingPlace(data);
             WaitForEnter();
-
-            free(data);
-            UnsetResizeHandler();
             return true;
 
         case KEY_1:
@@ -535,8 +537,10 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, bool* outCorre
             break;
 
         case KEY_ESCAPE:
-            if(ShowExitConfirmationWindow(data))
+            if(ShowExitConfirmationWindow(data)) {
+                *outResult = QQR_Forfeit;
                 return true;
+            }
 
             DrawStaticUI(data);
             break;
@@ -565,7 +569,7 @@ void OnConsoleResize(int newWidth, int newHeight, void* data) {
     DrawStaticUI(pageData);
 }
 
-void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, bool* outCorrect) { 
+void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, QuizQuestionResult* outResult) { 
     int offset = rand() % 4;
 
     QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities);
@@ -578,7 +582,10 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, boo
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(HandleKeyInput(data, key, outCorrect)) {
+        if(HandleKeyInput(data, key, outResult)) {
+            UnsetResizeHandler();
+            free(data);
+            data = NULL;
             return;
         }
     }

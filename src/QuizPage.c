@@ -19,21 +19,30 @@ void PageEnter_Quiz()
     if(questions == NULL) return;
 
     bool abilitiesUsed[3] = {false, false, false};
-    bool correct = false;
+    QuizQuestionResult correct;
     QuestionListItem* current = questions->head;
     for(int i = 0; i < 10; i++) {
         PageEnter_QuizQuestion(current->data, i + 1, &abilitiesUsed[0], &correct);
-        if(!correct) break;
+        if(correct != QQR_Correct) break;
         current = current->next;
     }
 
-    if(correct) {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("Wygrałeś! Gratulacje!\n");
-    }
-    else {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("Niestety, nie udało Ci się wygrać.\n");
+    switch (correct)
+    {
+        case QQR_Correct:
+            SetColor(LoadedSettings->CorrectAnswerColor);
+            printf("Wygrałeś! Gratulacje!\n");
+            break;
+
+        case QQR_Wrong:
+            SetColor(LoadedSettings->WrongAnswerColor);
+            printf("Niestety, nie udało Ci się wygrać.\n");
+            break;
+
+        case QQR_Forfeit:
+            SetColor(LoadedSettings->SupportColor);
+            printf("Zrezygnowałeś z gry.\n");
+            break;
     }
 
     ResetColor();
