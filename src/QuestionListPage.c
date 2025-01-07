@@ -21,7 +21,7 @@ typedef struct {
     int scrollSize;
 } QuestionListPageData;
 
-void EnterPreview(QuestionListPageData* data);
+void EnterPreview(QuestionListPageData* data, bool mainLoop);
 void CalculateStartIndex(QuestionListPageData* data);
 
 void OnResize(int width, int height, void* data);
@@ -306,11 +306,19 @@ void Scroll(QuestionListPageData* data, bool down) {
     UpdateVisibleQuestions(data, oldSelected);
 }
 
-void EnterPreview(QuestionListPageData* data) {
+bool delayedEnterQuiz = false;
+void EnterPreview(QuestionListPageData* data, bool mainLoop) {
+    if(!mainLoop) {
+        delayedEnterQuiz = true;
+        return;
+    }
+
     UnsetResizeHandler();
     UnsetMouseHandler();
 
     PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
+
+    delayedEnterQuiz = false;
 
     SetResizeHandler(OnResize, data);
     SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
@@ -339,7 +347,13 @@ void PageEnter_QuestionList()
 
     KeyInputType key;
     while(true) {
-        key = HandleInteractions(true);
+        if(delayedEnterQuiz) {
+            EnterPreview(data, true);
+        }
+
+        key = HandleInteractions(false);
+
+        if(key == KEY_NONE) continue; // No key pressed
 
         switch (key)
         {
@@ -352,13 +366,15 @@ void PageEnter_QuestionList()
                 break;
 
             case KEY_ENTER:
-                EnterPreview(data);
+                EnterPreview(data, true);
                 break;
 
             case KEY_ESCAPE:
                 UnsetResizeHandler();
                 UnsetMouseHandler();
                 printf(SCREEN_SCROLL_REGION_RESET);
+                free(data);
+                data = NULL;
                 return;
 
             default:
@@ -425,7 +441,7 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
         pageData->selected = index + pageData->drawQuestionStartIndex;
 
         if(pageData->selected == oldSelected) {
-            EnterPreview(pageData);
+            EnterPreview(pageData, false);
             return;
         }
     }
@@ -447,5 +463,5 @@ void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
         // In bounds but on mouse click has already selected the item
     }
 
-    EnterPreview(pageData);
+    EnterPreview(pageData, false);
 }
