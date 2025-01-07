@@ -15,9 +15,6 @@
 bool IOHelper_LoopLock = false;
 bool internal_IOHelper_LoopLock = false;
 
-INPUT_RECORD irInBuf[128];
-DWORD cNumRead;
-
 HANDLE stdinHandle;
 HANDLE stdoutHandle;
 DWORD fdwStdInOldMode;
@@ -152,10 +149,15 @@ int WaitForAnyInput() {
     }
 }
 
+#define INPUT_RECORD_BUFFER_SIZE (DWORD)(128)
+INPUT_RECORD irInBuf[INPUT_RECORD_BUFFER_SIZE];
+DWORD cNumRead;
+
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()
 {
     Window_IOLoop();
+    Mouse_IOLoop();
 
     if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead)) {
         ErrorExit("GetNumberOfConsoleInputEvents");
@@ -164,12 +166,21 @@ void IOLoop()
     if(cNumRead == 0) return; // No events to process
 
     if (!ReadConsoleInput(
-            stdinHandle,      // input buffer handle
-            irInBuf,     // buffer to read into
-            128,         // size of read buffer
-            &cNumRead)) // number of records read
+            stdinHandle,                // input buffer handle
+            irInBuf,                    // buffer to read into
+            INPUT_RECORD_BUFFER_SIZE,   // size of read buffer
+            &cNumRead))                 // number of records read
     {
         ErrorExit("ReadConsoleInput");
+    }
+
+    // We want to handle only the last window resize event
+    DWORD lastWindowResizeEventId = 0;
+    for (DWORD i = 0; i < cNumRead; i++)
+    {
+        if(irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT) {
+            lastWindowResizeEventId = i;
+        }
     }
 
     // Dispatch the events to the appropriate handler.
@@ -186,6 +197,8 @@ void IOLoop()
                 break;
 
             case WINDOW_BUFFER_SIZE_EVENT: // scrn buf. resizing
+                if(i != lastWindowResizeEventId) continue; // Skip all but the last resize event
+
                 ResizeEventProc(irInBuf[i].Event.WindowBufferSizeEvent);
                 break;
 
@@ -198,8 +211,6 @@ void IOLoop()
                 break;
         }
     }
-    
-    Mouse_IOLoop();
 }
 
 #endif

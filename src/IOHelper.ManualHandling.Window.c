@@ -27,7 +27,7 @@ void UnsetResizeHandler()
 
 int latestTerminalWidth = -1;
 int latestTerminalHeight = -1;
-time_t lastResizeCall = 0;
+time_t lastResizeEvent = 0;
 bool resizeCallPending = false;
 void CallResizeHandler(int width, int height)
 {
@@ -35,11 +35,10 @@ void CallResizeHandler(int width, int height)
 
     if(resizeHandler == NULL || !resizeCallPending) return;
 
-    if(difftime(time(NULL), lastResizeCall) < 0.25) {
+    if(difftime(time(NULL), lastResizeEvent) < 0.10) {
         return;
     }
 
-    lastResizeCall = time(NULL);
     resizeCallPending = false;
     internal_IOHelper_LoopLock = true;
     resizeHandler(width, height, resizeHandlerData);
@@ -53,7 +52,7 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
     int termianlWidth = wbsr.dwSize.X;
     int terminalHeight = wbsr.dwSize.Y;
 
-    if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) {
+    if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) { // Cmd has always height of buffer in resize info but size check will return true value
         GetTerminalSize(&termianlWidth, &terminalHeight);
     }
 
@@ -61,7 +60,7 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
     latestTerminalHeight = terminalHeight;
 
     resizeCallPending = true;
-    CallResizeHandler(termianlWidth, terminalHeight);
+    lastResizeEvent = time(NULL);
 }
 
 void Window_IOLoop()
