@@ -11,6 +11,8 @@
 int getch();
 int kbhit();
 
+int WaitForAnyInput();
+
 void IOLoop();
 
 void InitializeIO();

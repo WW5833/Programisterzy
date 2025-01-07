@@ -2,6 +2,19 @@
 #include "AnsiHelper.h"
 #include "IOHelper.h"
 
+int GetUTF8CharSize(char start) {
+    // Determine the number of bytes in the UTF-8 character
+    for (int j = 6; j >= 0; j--)
+    {
+        if((start & (1 << j)) == 0) {
+            return 7 - j;
+        }
+    }
+
+    fprintf(stderr, "Invalid UTF-8 character 0xFF\n");
+    ExitApp(EXIT_FAILURE);
+}
+
 const char* GetNextChar(const char* c) {
     if((*c & 0x80) == 0x00) {
         return c + 1;
@@ -12,16 +25,29 @@ const char* GetNextChar(const char* c) {
         ExitApp(EXIT_FAILURE);
     }
 
-    // Determine the number of bytes in the UTF-8 character
-    for (int j = 6; j >= 0; j--)
-    {
-        if((*c & (1 << j)) == 0) {
-            return c + (7 - j);
+    return c + GetUTF8CharSize(c[0]);
+}
+
+int GetCurrentCharSize(const char* stringStart, const char* c) {
+    const char* start = GetCurrentChar(stringStart, c);
+
+    return GetUTF8CharSize(start[0]);
+}
+
+const char* GetCurrentChar(const char* stringStart, const char* c) {
+    while(stringStart <= c) {
+        if((*c & 0x80) == 0) { // ASCII character
+            return c;
         }
+
+        if((*c & 0xC0) != 0x80) { // Start of a new character
+            return c;
+        }
+
+        c--;
     }
 
-    fprintf(stderr, "Invalid UTF-8 character 0xFF\n");
-    ExitApp(EXIT_FAILURE);
+    return stringStart;
 }
 
 int GetStringCharCount(const char* start) {
@@ -204,7 +230,7 @@ char _internal_WaitForKeys(int count, char* keys)
 {
     int c;
     while(true) {
-        c = getch();
+        c = WaitForAnyInput();
 
         if(c == CTRL_C) {
             ExitOnCtrlC();
@@ -212,7 +238,10 @@ char _internal_WaitForKeys(int count, char* keys)
 
         for (int i = 0; i < count; i++)
         {
-            if(c == keys[i]) {
+            if(keys[i] == ANY_MOUSE_BUTTON && c == INT_MAX) {
+                return ANY_MOUSE_BUTTON;
+            }
+            else if(c == keys[i]) {
                 return (char)c;
             }
         }
