@@ -16,9 +16,18 @@ int textInputBufferReadPtr = 0;
 int textInputBufferWritePtr = 0;
 char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
 
-#define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
+#define GenericBufferPtrInc(ptr, size) ptr++; if(ptr >= size) ptr = 0;
+#define BufferPtrInc(ptr) GenericBufferPtrInc(ptr, TEXT_INPUT_BUFFER_SIZE)
+
+
+#define MER_QUEUE_SIZE 64
+MOUSE_EVENT_RECORD merQueue[MER_QUEUE_SIZE];
+int merQueueReadPtr = 0;
+int merQueueWritePtr = 0;
+#define MerBufferPtrInc(ptr) GenericBufferPtrInc(ptr, MER_QUEUE_SIZE)
 
 bool IOHelper_LoopLock = false;
+bool internal_IOHelper_LoopLock = false;
 
 int getch()
 {
@@ -32,7 +41,7 @@ int getch()
 
 int kbhit()
 {
-    if(!IOHelper_LoopLock) IOLoop();
+    if(!(IOHelper_LoopLock || internal_IOHelper_LoopLock)) IOLoop();
     return textInputBufferReadPtr != textInputBufferWritePtr;
 }
 
@@ -142,7 +151,7 @@ void ErrorExit(LPSTR lpszMessage)
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()
 {
-    if(!IOHelper_LoopLock) CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
+    CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
 
     if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead)) {
         ErrorExit("GetNumberOfConsoleInputEvents");
@@ -184,6 +193,13 @@ void IOLoop()
                 ErrorExit("Unknown event type");
                 break;
         }
+    }
+
+    if(internal_IOHelper_LoopLock) return;
+
+    if(merQueueReadPtr != merQueueWritePtr) {
+        MouseEventProc(merQueue[merQueueReadPtr]);
+        MerBufferPtrInc(merQueueReadPtr);
     }
 }
 
@@ -267,6 +283,13 @@ void UnsetMouseHandler()
 
 void MouseEventProc(MOUSE_EVENT_RECORD mer)
 {
+    if(internal_IOHelper_LoopLock) {
+        MerBufferPtrInc(merQueueWritePtr);
+        merQueue[merQueueWritePtr] = mer;
+        return;
+    }
+
+    internal_IOHelper_LoopLock = true;
     switch(mer.dwEventFlags)
     {
         case 0:
@@ -290,6 +313,12 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
             }
             break;
     }
+    internal_IOHelper_LoopLock = false;
+
+    if(merQueueReadPtr != merQueueWritePtr) {
+        MouseEventProc(merQueue[merQueueReadPtr]);
+        MerBufferPtrInc(merQueueReadPtr);
+    }
 }
 
 #define MAX_Y_SIZE_CONSOLE 150
@@ -312,6 +341,8 @@ time_t lastResizeCall = 0;
 bool resizeCallPending = false;
 void CallResizeHandler(int width, int height)
 {
+    if(IOHelper_LoopLock || internal_IOHelper_LoopLock) return;
+
     if(resizeHandler == NULL || !resizeCallPending) return;
 
     if(difftime(time(NULL), lastResizeCall) < 0.25) {
@@ -326,7 +357,9 @@ void CallResizeHandler(int width, int height)
 
     lastResizeCall = time(NULL);
     resizeCallPending = false;
+    internal_IOHelper_LoopLock = true;
     resizeHandler(width, height, resizeHandlerData);
+    internal_IOHelper_LoopLock = false;
 }
 
 void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
