@@ -53,6 +53,7 @@ typedef struct
 
     int selectedQuestion;
     bool confirmed;
+    bool pendingAnswerConfirmation;
 
     bool previewMode;
 } QuizQuestionPageData;
@@ -181,6 +182,7 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     data->outResult = outResult;
     data->selectedQuestion = 0;
     data->confirmed = false;
+    data->pendingAnswerConfirmation = false;
     data->previewMode = false;
     data->mouseSelectedAbility = -1;
     data->focusedWindow = CFW_Question;
@@ -260,15 +262,47 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
     DrawStaticUI_Border_RewardBox(data);
 }
 
+const char* GetRewardText(int rewardId) {
+    switch (rewardId) {
+        case 0: return "      500 zł";
+        case 1: return "    1 000 zł";
+        case 2: return "    4 000 zł";
+        case 3: return "   10 000 zł";
+        case 4: return "   25 000 zł"; 
+        case 5: return "   50 000 zł";
+        case 6: return "  100 000 zł";
+        case 7: return "  250 000 zł";
+        case 8: return "  500 000 zł";
+        case 9: return "1 000 000 zł";
+        default: return "            ";
+    }
+}
+
+int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
+    int questionNum = data->questionNumer - 1;
+    if(rewardId == questionNum) {
+        return LoadedSettings->SelectedAnswerColor;
+    }
+
+    if(rewardId == 0 || rewardId == 2 || rewardId == 5) {
+        if(rewardId < questionNum) {
+            return LoadedSettings->CorrectAnswerColor;
+        }
+
+        return LoadedSettings->SupportColor;
+    }
+
+    return 0;
+}
+
 void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     const int questionCount = 10;
     for (int i = 0; i < questionCount; i++) {
         bool colorSet = false;
+        int rewardId = questionCount - (i + 1);
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
-        if(!data->previewMode && data->questionNumer == questionCount - i) {
-            SetColor(LoadedSettings->SelectedAnswerColor);
-            colorSet = true;
-        }
+        if(!data->previewMode) SetColor(GetRewardColor(data, rewardId));
+        
         printf("%2d ", questionCount - i);
 
         if (LoadedSettings->FullUTF8Support)
@@ -277,51 +311,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
             printf(">");
 
         printf(" ");
-        switch (questionCount - (i + 1)) {
-            case 0:
-                if(!colorSet) SetColor(LoadedSettings->SupportColor);
-                printf("      500 zł");  // save point 1
-                break;
-
-            case 1:
-                printf("    1 000 zł");
-                break;
-
-            case 2:
-                if(!colorSet) SetColor(LoadedSettings->SupportColor);
-                printf("    4 000 zł");  // save point 2
-                break;
-
-            case 3:
-                printf("   10 000 zł");
-                break;
-
-            case 4:
-                printf("   25 000 zł"); 
-                break;
-
-            case 5:
-                if(!colorSet) SetColor(LoadedSettings->SupportColor);
-                printf("   50 000 zł");  // save point 3
-                break;
-
-            case 6:
-                printf("  100 000 zł");
-                break;
-
-            case 7:
-                printf("  250 000 zł");
-                break;  
-
-            case 8:
-                printf("  500 000 zł");
-                break;
-
-            case 9:
-                printf("1 000 000 zł");
-                break;
-        }
-
+        printf(GetRewardText(rewardId));
         ResetColor();
     }
 }
@@ -473,11 +463,20 @@ bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* ability
     return false;
 }
 
-bool HandleAnswerConfirmation(QuizQuestionPageData* data) {
+void RemoveMouseHandlers() {
+    UnsetMouseHandler();
+}
+
+bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     if(!data->confirmed) {
         PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
         data->confirmed = true;
         return false;
+    }
+
+    if(eventCalled) {
+        data->pendingAnswerConfirmation = true;
+        return true;
     }
 
     int answerIndex = (data->selectedQuestion + data->offset) % 4;
@@ -499,8 +498,12 @@ bool HandleAnswerConfirmation(QuizQuestionPageData* data) {
         }
     }
 
+    RemoveMouseHandlers();
+    EnableMouseInput(true);
+
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, ESC);
+    WaitForKeys(ENTER, ESC, ANY_MOUSE_BUTTON);
+    EnableMouseInput(false);
     return true;
 }
 
@@ -536,7 +539,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
             break;
         
         case KEY_ENTER:
-            if(!HandleAnswerConfirmation(data)) {
+            if(!HandleAnswerConfirmation(data, false)) {
                 break;
             }
 
@@ -697,7 +700,7 @@ void HandleMouseClickForAnswer(QuizQuestionPageData* data, int x, int y) {
         return;
     }
 
-    HandleAnswerConfirmation(data);
+    HandleAnswerConfirmation(data, true);
 }
 
 void HandleMouseClickForAbilities(QuizQuestionPageData* data, int x, int y) {
@@ -764,14 +767,20 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     {
         KeyInputType key = HandleInteractions(false);
 
+        if(data->pendingAnswerConfirmation) {
+            HandleAnswerConfirmation(data, false);
+            break;
+        }
+
         if(HandleKeyInput(data, key)) {
-            UnsetResizeHandler();
-            UnsetMouseHandler();
-            free(data);
-            data = NULL;
-            return;
+            break;
         }
     }
+
+    UnsetResizeHandler();
+    RemoveMouseHandlers();
+    free(data);
+    data = NULL;
 }
 
 void PageEnter_QuizQuestionPreview(Question* question) { 
