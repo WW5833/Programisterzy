@@ -298,7 +298,6 @@ int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
 void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     const int questionCount = 10;
     for (int i = 0; i < questionCount; i++) {
-        bool colorSet = false;
         int rewardId = questionCount - (i + 1);
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
         if(!data->previewMode) SetColor(GetRewardColor(data, rewardId));
@@ -311,7 +310,8 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
             printf(">");
 
         printf(" ");
-        printf(GetRewardText(rewardId));
+
+        printf("%s", GetRewardText(rewardId));
         ResetColor();
     }
 }
