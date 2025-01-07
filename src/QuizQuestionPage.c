@@ -607,16 +607,13 @@ void PageEnter_QuizQuestionPreview(Question* question) {
     while(continueLoop) {
         switch (HandleInteractions(false))
         {
-            case KEY_ENTER:
-                continueLoop = false;
-                break;
-
             case KEY_R:
                 // Recalculate and redraw UI
                 CalculateQuizQuestionPageData(data, true);
                 DrawStaticUI(data);
                 break;
 
+            case KEY_ENTER:
             case KEY_ESCAPE:
                 continueLoop = false;
                 break;
