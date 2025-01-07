@@ -24,10 +24,10 @@ typedef struct {
 void EnterPreview(QuestionListPageData* data, bool mainLoop);
 void CalculateStartIndex(QuestionListPageData* data);
 
-void OnResize(int width, int height, void* data);
-void OnScroll(bool down, int mouseX, int mouseY, void* data);
-void OnMouseClick(int button, int mouseX, int mouseY, void* data);
-void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data);
+void OnQuestionListPageResize(int width, int height, void* data);
+void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data);
+void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data);
+void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data);
 
 void DrawVisibleQuestions(QuestionListPageData* data);
 void DrawScrollBar(QuestionListPageData* data, int oldSelected);
@@ -320,8 +320,8 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
 
     delayedEnterQuiz = false;
 
-    SetResizeHandler(OnResize, data);
-    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
+    SetResizeHandler(OnQuestionListPageResize, data);
+    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
     DrawAll(data);
 }
@@ -340,10 +340,10 @@ void PageEnter_QuestionList()
 
     printf(SCREEN_SCROLL_REGION(2, data->terminalHeight - 1)); // Set scrolling region
 
-    OnResize(data->terminalWidth, data->terminalHeight, data);
+    OnQuestionListPageResize(data->terminalWidth, data->terminalHeight, data);
 
-    SetResizeHandler(OnResize, data);
-    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
+    SetResizeHandler(OnQuestionListPageResize, data);
+    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
     KeyInputType key;
     while(true) {
@@ -383,7 +383,7 @@ void PageEnter_QuestionList()
     }
 }
 
-void OnResize(int width, int height, void* data)
+void OnQuestionListPageResize(int width, int height, void* data)
 {
     QuestionListPageData* pageData = (QuestionListPageData*)data;
     pageData->terminalWidth = width;
@@ -403,12 +403,12 @@ void OnResize(int width, int height, void* data)
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void OnScroll(bool down, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data) {
     Scroll((QuestionListPageData*)data, down);
 }
 #pragma GCC diagnostic warning "-Wunused-parameter"
 
-void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
@@ -449,7 +449,7 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
     UpdateVisibleQuestions(pageData, oldSelected);
 }
 
-void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
