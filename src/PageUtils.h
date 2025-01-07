@@ -10,6 +10,9 @@
 #define ESC '\033'
 
 const char* GetNextChar(const char* c);
+const char* GetCurrentChar(const char* stringStart, const char* c);
+int GetCurrentCharSize(const char* stringStart, const char* c);
+
 int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
 int GetWrappedLineCount(const char* line, int width);

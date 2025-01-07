@@ -50,10 +50,8 @@ int ReadText(char* buffer, int maxLength) {
         if(c == '\b') {
             if(i == 0) continue;
 
-            i--;
-            buffer[i] = '\0';
+            i -= GetCurrentCharSize(buffer, buffer + i - 1);
             printf("\b \b");
-
             continue;
         }
 
@@ -68,7 +66,7 @@ int ReadText(char* buffer, int maxLength) {
             continue; // Ignore arrow keys
         }
 
-        if(!(isalnum(c) || ispunct(c) || isspace(c))) {
+        if(!(isalnum(c) || ispunct(c) || isspace(c) || (c & 0x80) /* UTF-8 */)) {
             continue;
         }
 
