@@ -9,7 +9,6 @@ void OnInstructionPageResize(int width, int height, void* data);
 
 void PageEnter_Instruction()
 {
-    SetResizeHandler(OnInstructionPageResize, NULL);
     DisableAlternativeBuffer();
 
     HideCursor();
@@ -19,12 +18,15 @@ void PageEnter_Instruction()
     
     DrawUI(terminalWidth, terminalHeight);
 
-    WaitForKeys(ESC); 
+    SetResizeHandler(OnInstructionPageResize, NULL);
+
+    WaitForKeys(ESC);
+
+    UnsetResizeHandler();
     
     ClearScreen();
 
     EnableAlternativeBuffer();
-    UnsetResizeHandler();
 }
 
 void DrawUI(int terminalWidth, int terminalHeight) {
