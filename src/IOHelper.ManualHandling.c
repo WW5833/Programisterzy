@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "AnsiDefinitions.h"
 #include "DebugCheck.h"
+#include "Settings.h"
 
 #include "IOHelper.ManualHandling.Mouse.h"
 #include "IOHelper.ManualHandling.Window.h"
@@ -49,8 +50,14 @@ void SetThisConsoleTitle(const char *title)
     SetConsoleTitle(title);
 }
 
+extern Settings* LoadedSettings;
+
 void EnableMouseInput(bool enable)
 {
+    if(enable && !LoadedSettings->EnableMouseSupport) {
+        return;
+    }
+
     if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
 
     if(enable) {
