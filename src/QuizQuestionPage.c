@@ -15,6 +15,14 @@
 #define ABILITY_5050 1
 #define ABILITY_PHONE 2
 
+typedef enum {
+    CFW_Question,
+    CFW_Audience,
+    CFW_5050,
+    CFW_Phone,
+    CFW_Exit,
+} CurrentFocusedVindow;
+
 extern Settings* LoadedSettings;
 
 typedef struct
@@ -39,9 +47,9 @@ typedef struct
 
     QuizQuestionResult* outResult;
     QuizQuestionAbilityStatus* abilities;
+    int mouseSelectedAbility;
 
-    bool abilitiesConfirm[3];
-    bool abilitiesNow[3];
+    CurrentFocusedVindow focusedWindow;
 
     int selectedQuestion;
     bool confirmed;
@@ -174,6 +182,8 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     data->selectedQuestion = 0;
     data->confirmed = false;
     data->previewMode = false;
+    data->mouseSelectedAbility = -1;
+    data->focusedWindow = CFW_Question;
 
     // Generate random audience votes
     int votes[4] = {0, 0, 0, 0};
@@ -327,6 +337,11 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
     printf(CSR_MOVE_LEFT(54));
     int status = data->abilities[abilityId];
     int color = 0;
+
+    if(data->mouseSelectedAbility == abilityId) {
+        color = LoadedSettings->SelectedAnswerColor;
+    }
+
     switch (status)
     {
         case QQAS_Unavailable:
@@ -590,6 +605,150 @@ void OnConsoleResize(int newWidth, int newHeight, void* data) {
     DrawStaticUI(pageData);
 }
 
+bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) {
+    const int startX = data->questionContentEndY - 1;
+    const int endX = data->answersEndY - 2;
+    const int centerY = startX + data->ansLineCountMaxAB + 4;
+
+    if(y < startX || y > endX) {
+        return false;
+    }
+
+    const int leftX = 2;
+    const int centerX = leftX + data->ansWidth;
+    const int rightX = centerX + data->ansWidth;
+
+    if(x < leftX || x > rightX || x == centerX) {
+        return false;
+    }
+
+    int oldSel = data->selectedQuestion;
+    int newSel = 0;
+
+    if(y < centerY) {
+        newSel = 0;
+    }
+    else {
+        newSel = 2;
+    }
+
+    if(x > centerX) {
+        newSel++;
+    }
+
+    if(newSel != oldSel) {
+        data->selectedQuestion = newSel;
+        ResetAbilityConfirm(data, -1);
+        UpdateAnswersBlocks(data, oldSel);
+    }
+
+    return true;
+}
+
+bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) {
+    bool result = false;
+    int oldSelected = data->mouseSelectedAbility;
+    data->mouseSelectedAbility = -1;
+
+    const int startY = data->answersEndY;
+    const int endY = startY + 3;
+
+    if(y < startY || y >= endY) {
+        goto ret;
+    }
+
+    // if(x < 3 || x > 3 + 20) {
+    //     goto ret;
+    // }
+
+    int abilityId = y - startY;
+
+    if(abilityId == -1) {
+        goto ret;
+    }
+
+    data->mouseSelectedAbility = abilityId;
+    result = true;
+
+    ret:
+
+    if(oldSelected == data->mouseSelectedAbility) {
+        return result;
+    }
+
+    DrawStaticUI_Abilities(data);
+
+    return result;
+}
+
+void OnQuizQuestionPageMouseMove(int x, int y, void* data) {
+    QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
+
+    if(pageData->focusedWindow != CFW_Question) {
+        return;
+    }
+
+    SelectAnswerBasedOnMousePosition(pageData, x, y);
+    SelectAbilityBasedOnMousePosition(data, x, y);
+}
+
+void HandleMouseClickForAnswer(QuizQuestionPageData* data, int x, int y) {
+    if(!SelectAnswerBasedOnMousePosition(data, x, y)) {
+        return;
+    }
+
+    HandleAnswerConfirmation(data);
+}
+
+void HandleMouseClickForAbilities(QuizQuestionPageData* data, int x, int y) {
+    if(!SelectAbilityBasedOnMousePosition(data, x, y)) {
+        return;
+    }
+
+    int abilityConfirmId = -1;
+    if(HandleAbilityButton(data, data->mouseSelectedAbility, &abilityConfirmId)) {
+        ResetAbilityConfirm(data, abilityConfirmId);
+        return;
+    }
+
+    switch (data->mouseSelectedAbility)
+    {
+        case ABILITY_AUDIENCE:
+            ShowAudienceHelp(data);
+            break;
+        case ABILITY_5050:
+            Show5050Help(data);
+            break;
+        case ABILITY_PHONE:
+            ShowPhoneHelp(data);
+            break;
+    }
+
+    DrawStaticUI(data);
+}
+
+void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
+    QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
+
+    if((button & MOUSE_LEFT_BUTTON) == 0) {
+        return;
+    }
+
+    if(pageData->focusedWindow == CFW_Exit) {
+        return;
+    }
+
+    if(pageData->focusedWindow == CFW_Question) {
+        HandleMouseClickForAnswer(pageData, x, y);
+        HandleMouseClickForAbilities(pageData, x, y);
+    }
+
+    // Maybe add option to exit from abilities windows but that whould require awaiting for mouse click in WaitForKeys
+}
+
+void OnQuizQuestionPageDoubleMouseClick(int button, int x, int y, void* data) {
+    OnQuizQuestionPageMouseClick(button, x, y, data);
+}
 
 void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) { 
     int offset = rand() % 4;
@@ -599,6 +758,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     DrawStaticUI(data);
 
     SetResizeHandler(OnConsoleResize, data);
+    SetMouseHandler(OnQuizQuestionPageMouseClick, OnQuizQuestionPageDoubleMouseClick, NULL, OnQuizQuestionPageMouseMove, data);
 
     while (true)
     {
@@ -606,6 +766,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
 
         if(HandleKeyInput(data, key)) {
             UnsetResizeHandler();
+            UnsetMouseHandler();
             free(data);
             data = NULL;
             return;
@@ -652,6 +813,8 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 }
 
 void ShowAudienceHelp(QuizQuestionPageData* data) {
+    data->focusedWindow = CFW_Audience;
+
     const int windowWidth = 54;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 2;
@@ -741,9 +904,13 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '1', ESC);
+
+    data->focusedWindow = CFW_Question;
 }
 
 void Show5050Help(QuizQuestionPageData* data) {
+    data->focusedWindow = CFW_5050;
+
     const int windowWidth = 49 + 4;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
@@ -763,9 +930,13 @@ void Show5050Help(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '2', ESC);
+
+    data->focusedWindow = CFW_Question;
 }
 
 void ShowPhoneHelp(QuizQuestionPageData* data) {
+    data->focusedWindow = CFW_Phone;
+
     const int windowWidth = 49 + 4;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
@@ -785,9 +956,13 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '3', ESC);
+
+    data->focusedWindow = CFW_Question;
 }
 
 bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
+    data->focusedWindow = CFW_Exit;
+
     const int windowWidth = 34 + 4;
     const int beginX = (data->terminalWidth - windowWidth) / 2;
     int beginY = 3;
@@ -811,5 +986,8 @@ bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
 
     SetCursorToRestingPlace(data);
     char c = WaitForKeys(ENTER, ESC);
+
+    data->focusedWindow = CFW_Question;
+
     return c == ENTER;
 }
