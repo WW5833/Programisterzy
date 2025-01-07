@@ -230,7 +230,7 @@ char _internal_WaitForKeys(int count, char* keys)
 {
     int c;
     while(true) {
-        c = getch();
+        c = WaitForAnyInput();
 
         if(c == CTRL_C) {
             ExitOnCtrlC();
@@ -238,7 +238,10 @@ char _internal_WaitForKeys(int count, char* keys)
 
         for (int i = 0; i < count; i++)
         {
-            if(c == keys[i]) {
+            if(keys[i] == ANY_MOUSE_BUTTON && c == INT_MAX) {
+                return ANY_MOUSE_BUTTON;
+            }
+            else if(c == keys[i]) {
                 return (char)c;
             }
         }

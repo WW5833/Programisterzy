@@ -8,6 +8,7 @@
 #define CTRL_C '\03'
 #define ENTER '\015'
 #define ESC '\033'
+#define ANY_MOUSE_BUTTON '\255'
 
 const char* GetNextChar(const char* c);
 const char* GetCurrentChar(const char* stringStart, const char* c);

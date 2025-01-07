@@ -128,6 +128,23 @@ void ErrorExit(LPSTR lpszMessage)
     ExitApp(EXIT_FAILURE);
 }
 
+bool internal_IO_WaitingForMousePress = false;
+int WaitForAnyInput() {
+    internal_IO_WaitingForMousePress = true;
+    while(true) {
+
+        if(!internal_IO_WaitingForMousePress) {
+            return INT_MAX;
+        }
+
+        if(kbhit()) {
+            return getch();
+        }
+
+        IOLoop();
+    }
+}
+
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()
 {
