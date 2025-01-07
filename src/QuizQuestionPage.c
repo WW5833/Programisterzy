@@ -37,7 +37,8 @@ typedef struct
     double audienceVotes[4];
     bool blockedOptions[4];
 
-    bool* abilities;
+    QuizQuestionResult* outResult;
+    QuizQuestionAbilityStatus* abilities;
 
     bool abilitiesConfirm[3];
     bool abilitiesNow[3];
@@ -124,13 +125,13 @@ void PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int color
 void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
     SetCursorPosition(startX, startY);
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
-    if(data->abilitiesNow[ABILITY_5050] && data->blockedOptions[ansIndex]) {
+    if(data->abilities[ABILITY_5050] == QQAS_Active && data->blockedOptions[ansIndex]) {
         SetCursorPosition(startX + data->ansWidthLimit - 11, startY + height);
         SetColor(LoadedSettings->WrongAnswerColor);
         printf("NIEPOPRAWNA");
         ResetColor();
     }
-    else if(data->abilitiesNow[ABILITY_AUDIENCE]) { // Print Audience help
+    else if(data->abilities[ABILITY_AUDIENCE] == QQAS_Active) { // Print Audience help
         SetCursorPosition(startX + data->ansWidthLimit - 4, startY + height);
         SetColor(LoadedSettings->SupportColor);
         printf("%2.1f%%", data->audienceVotes[ansIndex]);
@@ -163,23 +164,16 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
 }
 
 // Create a new QuizQuestionPageData object
-QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, int offset, bool* abilities) {
+QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, int offset, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
     QuizQuestionPageData* data = malloc(sizeof(QuizQuestionPageData));
     data->question = question;
     data->questionNumer = number;
     data->offset = offset;
     data->abilities = abilities;
+    data->outResult = outResult;
     data->selectedQuestion = 0;
     data->confirmed = false;
     data->previewMode = false;
-
-    data->abilitiesNow[ABILITY_AUDIENCE] = false;
-    data->abilitiesNow[ABILITY_5050] = false;
-    data->abilitiesNow[ABILITY_PHONE] = false;
-
-    data->abilitiesConfirm[ABILITY_AUDIENCE] = false;
-    data->abilitiesConfirm[ABILITY_5050] = false;
-    data->abilitiesConfirm[ABILITY_PHONE] = false;
 
     // Generate random audience votes
     int votes[4] = {0, 0, 0, 0};
@@ -328,24 +322,38 @@ void DrawStaticUI_QuestionContent(QuizQuestionPageData* data) {
     PrintWrappedLine(data->question->Content, data->terminalWidth - 16, 14, false);
 }
 
-void PrintAbilityText(QuizQuestionPageData* data, int answerId, const char* text, char key) {
+void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* text, char key) {
     printf("                                                      ");
     printf(CSR_MOVE_LEFT(54));
-    if(data->abilitiesNow[answerId]) {
-        SetColor(LoadedSettings->SelectedAnswerColor);
-        printf("%c) %s: Wykorzystano", key, text);
-    }
-    else if(data->abilities[answerId]) {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("%c) %s: Wykorzystano", key, text);
-    }
-    else if(data->abilitiesConfirm[answerId]) {
-        SetColor(LoadedSettings->ConfirmedAnswerColor);
-        printf("%c) %s: Potwierdź wykorzystanie (%c)", key, text, key);
-    }
-    else {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("%c) %s: Dostępny", key, text);
+    int status = data->abilities[abilityId];
+    int color = 0;
+    switch (status)
+    {
+        case QQAS_Unavailable:
+            SetColor(LoadedSettings->WrongAnswerColor);
+            printf("%c) %s: Wykorzystano", key, text);
+            break;
+        
+        case QQAS_Active:
+            if(color == 0) SetColor(LoadedSettings->SelectedAnswerColor);
+            else SetColor(color);
+
+            printf("%c) %s: Wykorzystano", key, text);
+            break;
+
+        case QQAS_Selected:
+            if(color == 0) SetColor(LoadedSettings->ConfirmedAnswerColor);
+            else SetColor(color);
+
+            printf("%c) %s: Potwierdź wykorzystanie (%c)", key, text, key);
+            break;
+
+        case QQAS_Avaialable:
+            if(color == 0) SetColor(LoadedSettings->CorrectAnswerColor);
+            else SetColor(color);
+
+            printf("%c) %s: Dostępny", key, text);
+            break;
     }
 }
 
@@ -418,28 +426,70 @@ void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
     PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings->SelectedAnswerColor);
 }
 
+void ResetAbilityConfirm(QuizQuestionPageData* data, int selectedAbilityId) {
+    for (int i = 0; i < 3; i++)
+    {
+        if(selectedAbilityId == i) continue;
+        if(data->abilities[i] == QQAS_Selected) {
+            data->abilities[i] = QQAS_Avaialable;
+            DrawStaticUI_Abilities(data);
+        }
+    }
+}
+
 bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* abilityConfirmId) {
     // Allow to reopen help window
-    if(data->abilitiesNow[abilityId]) {
+    if(data->abilities[abilityId] == QQAS_Active) {
         return false;
     }
 
-    if(data->abilities[abilityId]) {
+    if(data->abilities[abilityId] == QQAS_Unavailable) {
         return true;
     }
 
-    if(!data->abilitiesConfirm[abilityId]) {
+    if(data->abilities[abilityId] != QQAS_Selected) {
         *abilityConfirmId = abilityId;
-        data->abilitiesConfirm[abilityId] = true;
+        data->abilities[abilityId] = QQAS_Selected;
         DrawStaticUI_Abilities(data);
         return true;
     }
 
-    data->abilitiesNow[abilityId] = data->abilities[abilityId] = true;
+    data->abilities[abilityId] = QQAS_Active;
     return false;
 }
 
-bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, QuizQuestionResult* outResult) {
+bool HandleAnswerConfirmation(QuizQuestionPageData* data) {
+    if(!data->confirmed) {
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
+        data->confirmed = true;
+        return false;
+    }
+
+    int answerIndex = (data->selectedQuestion + data->offset) % 4;
+
+    if(answerIndex == 0) {
+        *data->outResult = QQR_Correct;
+    }
+    else {
+        *data->outResult = QQR_Wrong;
+    }
+
+    if(*data->outResult == QQR_Correct) {
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
+    }
+    else {
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
+        if(LoadedSettings->ShowCorrectWhenWrong) {
+            PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
+        }
+    }
+
+    SetCursorToRestingPlace(data);
+    WaitForKeys(ENTER, ESC);
+    return true;
+}
+
+bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
     int oldSel = data->selectedQuestion;
     int abilityConfirmId = -1;
 
@@ -471,33 +521,10 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, QuizQuestionRe
             break;
         
         case KEY_ENTER:
-            if(!data->confirmed) {
-                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
-                data->confirmed = true;
+            if(!HandleAnswerConfirmation(data)) {
                 break;
             }
 
-            int answerIndex = (data->selectedQuestion + data->offset) % 4;
-
-            if(answerIndex == 0) {
-                *outResult = QQR_Correct;
-            }
-            else {
-                *outResult = QQR_Wrong;
-            }
-
-            if(*outResult == QQR_Correct) {
-                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
-            }
-            else {
-                PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
-                if(LoadedSettings->ShowCorrectWhenWrong) {
-                    PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
-                }
-            }
-
-            SetCursorToRestingPlace(data);
-            WaitForEnter();
             return true;
 
         case KEY_1:
@@ -538,7 +565,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, QuizQuestionRe
 
         case KEY_ESCAPE:
             if(ShowExitConfirmationWindow(data)) {
-                *outResult = QQR_Forfeit;
+                *data->outResult = QQR_Forfeit;
                 return true;
             }
 
@@ -549,13 +576,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key, QuizQuestionRe
             return false;
     }
 
-    for (int i = 0; i < 3; i++)
-    {
-        if(abilityConfirmId != i && data->abilitiesConfirm[i]) {
-            data->abilitiesConfirm[i] = false;
-            DrawStaticUI_Abilities(data);
-        }
-    }
+    ResetAbilityConfirm(data, abilityConfirmId);
 
     return false;
 }
@@ -569,10 +590,11 @@ void OnConsoleResize(int newWidth, int newHeight, void* data) {
     DrawStaticUI(pageData);
 }
 
-void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, QuizQuestionResult* outResult) { 
+
+void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) { 
     int offset = rand() % 4;
 
-    QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities);
+    QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities, outResult);
 
     DrawStaticUI(data);
 
@@ -582,7 +604,7 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, Qui
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(HandleKeyInput(data, key, outResult)) {
+        if(HandleKeyInput(data, key)) {
             UnsetResizeHandler();
             free(data);
             data = NULL;
@@ -594,9 +616,10 @@ void PageEnter_QuizQuestion(Question* question, int number, bool* abilities, Qui
 void PageEnter_QuizQuestionPreview(Question* question) { 
     int offset = rand() % 4;
 
-    bool abilities[3] = {true, true, true};
+    QuizQuestionAbilityStatus abilities[3] = {QQAS_Unavailable, QQAS_Unavailable, QQAS_Unavailable};
+    QuizQuestionResult result;
 
-    QuizQuestionPageData* data = new_QuizQuestionPageData(question, question->Id, offset, abilities);
+    QuizQuestionPageData* data = new_QuizQuestionPageData(question, question->Id, offset, abilities, &result);
     data->previewMode = true;
 
     DrawStaticUI(data);
@@ -717,7 +740,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     }
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '1');
+    WaitForKeys(ENTER, '1', ESC);
 }
 
 void Show5050Help(QuizQuestionPageData* data) {
@@ -739,7 +762,7 @@ void Show5050Help(QuizQuestionPageData* data) {
     PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", windowWidth - 4, beginX + 2, true);
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '2');
+    WaitForKeys(ENTER, '2', ESC);
 }
 
 void ShowPhoneHelp(QuizQuestionPageData* data) {
@@ -761,7 +784,7 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     PrintWrappedLine("Niestety twój przyiaciel nie odbiera.", windowWidth - 4, beginX + 2, true);
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '3');
+    WaitForKeys(ENTER, '3', ESC);
 }
 
 bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
