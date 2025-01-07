@@ -27,5 +27,6 @@ int main() {
 
     PageEnter_MainMenu();
 
+    free(LoadedSettings);
     ExitApp(EXIT_SUCCESS);
 }
