@@ -55,36 +55,41 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
         return;
     }
 
-    internal_IOHelper_LoopLock = true;
-    switch(mer.dwEventFlags)
-    {
-        case 0:
-            if(mouseClickHandler != NULL) {
-                mouseClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case DOUBLE_CLICK:
-            if(mouseDoubleClickHandler != NULL) {
-                mouseDoubleClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case MOUSE_WHEELED:
-            if(mouseScrollHandler != NULL) {
-                mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case MOUSE_MOVED:
-            if(mouseMoveHandler != NULL) {
-                mouseMoveHandler(mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-    }
-    internal_IOHelper_LoopLock = false;
+    do {
+        internal_IOHelper_LoopLock = true;
+        switch(mer.dwEventFlags)
+        {
+            case 0:
+                if(mouseClickHandler != NULL) {
+                    mouseClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                }
+                break;
+            case DOUBLE_CLICK:
+                if(mouseDoubleClickHandler != NULL) {
+                    mouseDoubleClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                }
+                break;
+            case MOUSE_WHEELED:
+                if(mouseScrollHandler != NULL) {
+                    mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                }
+                break;
+            case MOUSE_MOVED:
+                if(mouseMoveHandler != NULL) {
+                    mouseMoveHandler(mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                }
+                break;
+        }
+        internal_IOHelper_LoopLock = false;
 
-    if(merQueueReadPtr != merQueueWritePtr) {
-        MouseEventProc(merQueue[merQueueReadPtr]);
+        if(merQueueReadPtr == merQueueWritePtr) {
+            break;
+        }
+
+        mer = merQueue[merQueueReadPtr];
         MerBufferPtrInc(merQueueReadPtr);
     }
+    while(true);
 }
 
 #endif
