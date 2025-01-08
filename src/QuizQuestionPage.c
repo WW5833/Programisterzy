@@ -341,7 +341,7 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
             break;
         
         case QQAS_Active:
-            if(color == 0) SetColor(LoadedSettings->SelectedAnswerColor);
+            if(color == 0) SetColor(LoadedSettings->SupportColor);
             else SetColor(color);
 
             printf("%c) %s: Wykorzystano", key, text);
