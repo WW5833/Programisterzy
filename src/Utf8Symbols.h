@@ -40,8 +40,6 @@
 
 #define TRIANGLE "▶" /* Does not work on all terminals */
 
-#define DASHED_HORIZONTAL_LINE "╌" /* Does not work on all terminals */
-
 void PrintGenericBorder(
     int width, 
     const char* leftFormat,

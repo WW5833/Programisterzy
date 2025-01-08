@@ -6,10 +6,6 @@
 #include "AnsiDefinitions.h"
 #include <conio.h>
 
-#define SET_COLOR(x) ESC_SEQ "%dm", x
-#define CSR_MOVE_TO(x, y) ESC_SEQ "%d;%dH", x, y
-#define CLR_LINE ESC_SEQ "2K" // Clear line
-
 #define BUFFER_SIZE 128
 char _tmp_buffer[BUFFER_SIZE];
 

@@ -4,10 +4,14 @@
 #include <stdbool.h>
 
 #define ESC_SEQ "\x1B["
-#define CLR_LINE_END ESC_SEQ "0K" // Clear from cursor to end of line
-#define CLR_LINE_START ESC_SEQ "1K" // Clear from cursor to start of line
 
-#define CLR_SCRN ESC_SEQ "2J" // Clear screen
+#define CLR_LINE_END ESC_SEQ "0K"   // Clear from cursor to end of line
+#define CLR_LINE_START ESC_SEQ "1K" // Clear from cursor to start of line
+#define CLR_LINE ESC_SEQ "2K"       // Clear line
+
+#define CLR_SCRN ESC_SEQ "2J"       // Clear screen
+
+#define CSR_MOVE_TO(x, y) ESC_SEQ "%d;%dH", x, y
 
 #define CSR_MOVE_UP(x) ESC_SEQ "%dA", x
 #define CSR_MOVE_DOWN(x) ESC_SEQ "%dB", x
@@ -41,6 +45,12 @@
 
 #define SCREEN_SCROLL_REGION(begin, end) ESC_SEQ "%d;%dr", begin, end
 #define SCREEN_SCROLL_REGION_RESET ESC_SEQ ";r"
+
+#define SET_RGB_FG_COLOR(r, g, b) ESC_SEQ "38;2;%d;%d;%dm", r, g, b
+#define SET_RGB_BG_COLOR(r, g, b) ESC_SEQ "48;2;%d;%d;%dm", r, g, b
+
+#define SET_COLOR(x) ESC_SEQ "%dm", x
+#define SET_COLORS(x, y) ESC_SEQ "%d;%dm", x, y
 
 #define COLOR_FG_BLACK 30
 #define COLOR_FG_RED 31
