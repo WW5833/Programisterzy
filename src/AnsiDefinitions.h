@@ -69,6 +69,7 @@ bool CheckForAnsiSupport();
 
 void EnableAlternativeBuffer();
 void DisableAlternativeBuffer();
+void ClearScreenManual();
 void GetTerminalSize(int* x, int* y);
 // This is here so that we can use it in the IOHelper, otherwise windows.h conflicts with ShowCursor/HideCursor
 

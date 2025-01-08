@@ -79,7 +79,6 @@ bool CheckForAnsiSupport() {
     // Use _getch() instead of custom getch() because this function is called before IOHelper is fully initialized
     if(_kbhit() && _getch() == '\x1B') { 
         while (_getch() != 'R'); // Clear the buffer
-        ClearScreenManual();
         return true; // ANSI supported
     }
 

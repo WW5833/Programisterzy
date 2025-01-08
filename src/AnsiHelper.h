@@ -6,7 +6,6 @@
 void GetCursorPosition(int* x, int* y);
 void SetCursorPosition(int x, int y);
 void ClearScreen();
-void ClearScreenManual();
 void ClearLine();
 void SetColors(int fgColor, int bgColor);
 void SetColor(int color);

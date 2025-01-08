@@ -107,6 +107,8 @@ void InitializeIO()
         ExitApp(EXIT_FAILURE);
     }
 
+    ClearScreenManual();
+
     EnableAlternativeBuffer();
 }
 
