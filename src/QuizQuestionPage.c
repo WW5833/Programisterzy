@@ -304,7 +304,8 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     for (int i = 0; i < questionCount; i++) {
         int rewardId = questionCount - (i + 1);
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
-        if(!data->previewMode) SetColor(GetRewardColor(data, rewardId));
+        int color = GetRewardColor(data, rewardId);
+        if(!data->previewMode && color != 0) SetColor(color);
         
         printf("%2d ", questionCount - i);
 
