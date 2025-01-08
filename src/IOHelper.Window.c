@@ -1,10 +1,7 @@
-#include "IOHelper.ManualHandling.Window.h"
+#include "IOHelper.Window.h"
 #include <stdio.h>
 #include <time.h>
 #include "AnsiDefinitions.h"
-#include "DebugCheck.h"
-
-#ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
 extern bool IOHelper_LoopLock;
 extern bool internal_IOHelper_LoopLock;
@@ -67,5 +64,3 @@ void Window_IOLoop()
 {
     CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
 }
-
-#endif

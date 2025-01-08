@@ -1,8 +1,5 @@
-#include "IOHelper.ManualHandling.Keyboard.h"
+#include "IOHelper.Keyboard.h"
 #include <stdio.h>
-#include "DebugCheck.h"
-
-#ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
 #define TEXT_INPUT_BUFFER_SIZE 256
 #define CTRL_C '\03'
@@ -56,5 +53,3 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
         }
     }
 }
-
-#endif

@@ -3,14 +3,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "AnsiDefinitions.h"
-#include "DebugCheck.h"
 #include "Settings.h"
 
-#include "IOHelper.ManualHandling.Mouse.h"
-#include "IOHelper.ManualHandling.Window.h"
-#include "IOHelper.ManualHandling.Keyboard.h"
-
-#ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
+#include "IOHelper.Mouse.h"
+#include "IOHelper.Window.h"
+#include "IOHelper.Keyboard.h"
 
 bool IOHelper_LoopLock = false;
 bool internal_IOHelper_LoopLock = false;
@@ -212,5 +209,3 @@ void IOLoop()
         }
     }
 }
-
-#endif

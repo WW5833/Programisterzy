@@ -1,8 +1,5 @@
-#include "IOHelper.ManualHandling.Mouse.h"
+#include "IOHelper.Mouse.h"
 #include <stdio.h>
-#include "DebugCheck.h"
-
-#ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
 #define MER_QUEUE_SIZE 64
 MOUSE_EVENT_RECORD merQueue[MER_QUEUE_SIZE];
@@ -97,8 +94,6 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
     }
     while(true);
 }
-
-#endif
 
 void Mouse_IOLoop()
 {
