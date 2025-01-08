@@ -36,7 +36,6 @@ void PageEnter_Quiz()
             else if(abilitiesStatus[j] == QQAS_Active) {
                 abilitiesStatus[j] = QQAS_Unavailable;
             }
-            abilitiesStatus[j] = QQAS_Avaialable;
         }
         
         PageEnter_QuizQuestion(current->data, i + 1, &abilitiesStatus[0], &correct);
