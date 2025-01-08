@@ -4,8 +4,8 @@
 #include "Utf8Symbols.h"
 #include "IOHelper.h"
 
-#define SET_COLOR_RED ESC_SEQ "31m"
-#define SET_COLOR_BRIGHT_RED ESC_SEQ "91m"
+#define SET_COLOR_RED ESC_SEQ "38;2;139;0;0m"
+#define SET_COLOR_BRIGHT_RED ESC_SEQ "38;2;255;36;0m"
 
 #define RESET_COLOR ESC_SEQ "39;40m"
 
