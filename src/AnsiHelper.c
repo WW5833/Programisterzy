@@ -6,6 +6,7 @@
 #include "AnsiDefinitions.h"
 #include <conio.h>
 #include "Settings.h"
+#include "RGBColors.h"
 
 #define BUFFER_SIZE 128
 char _tmp_buffer[BUFFER_SIZE];
@@ -106,25 +107,9 @@ void ClearLine()
     printf(CLR_LINE);
 }
 
-void SetColors(int fgColor, int bgColor)
-{
-    printf(SET_COLORS(fgColor, bgColor));
-}
-
-void SetColor(int color)
-{
-    printf(SET_COLOR(color));
-}
-
 void ResetColor()
 {
-    if(LoadedSettings->DarkMode == false) {
-        SetColors(COLOR_FG_BLACK, COLOR_BG_WHITE);
-        printf(SET_RGB_BG_COLOR(255, 255, 255));
-    }
-    else {
-        SetColors(COLOR_FG_DEFAULT, COLOR_BG_BLACK);
-    }
+    SetResetColor();
 }
 
 void ResetCursor()

@@ -5,10 +5,11 @@
 #include <stdbool.h>
 #include "PageUtils.h"
 #include "IOHelper.h"
+#include "RGBColors.h"
 
 extern Settings* LoadedSettings;
 
-#define COLOR_PALET_WIDTH 30
+#define COLOR_PALET_WIDTH (RGB_COLOR_COUNT * 2 + 1)
 
 #define OPTION_COUNT 11
 
@@ -33,18 +34,10 @@ void PrintColors(SettingsPageData* data, int color) {
     if(data->slimMode) printf("\n    ");
     ResetColor();
     printf("|");
-    for (int i = 1; i < 8; i++)
+    for (int i = 0; i < RGB_COLOR_COUNT; i++)
     {
-        SetColors(COLOR_FG_BLACK, COLOR_BG_BLACK + i);
-        printf((color == COLOR_FG_BLACK + i) ? "*" : " ");
-        ResetColor();
-        printf("|");
-    }
-
-    for (int i = 1; i < 8; i++)
-    {
-        SetColors(COLOR_FG_BLACK, COLOR_BG_BLACK + i + COLOR_BRIGHT_MOD);
-        printf((color == COLOR_FG_BLACK + i + COLOR_BRIGHT_MOD) ? "*" : " ");
+        SetColorRGBPreset(i, true);
+        printf((color == i) ? "*" : " ");
         ResetColor();
         printf("|");
     }
@@ -193,24 +186,10 @@ void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     int* option = GetOptionColor(data->selected);
     *option = *option + direction;
 
-    if(direction > 0) {
-        if(*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD) {
-            *option = COLOR_FG_RED;
-        }
-        else if(*option > COLOR_FG_WHITE && *option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD) {
-            *option = COLOR_FG_RED + COLOR_BRIGHT_MOD;
-        }
-    }
-    else {
-        if (*option <= COLOR_FG_BLACK)
-        {
-            *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
-        }
-        else if(*option > COLOR_FG_WHITE && *option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD)
-        {
-            *option = COLOR_FG_WHITE;
-        }
-    }
+    if(*option < 0)
+        *option = RGB_COLOR_COUNT - 1;
+    else if(*option >= RGB_COLOR_COUNT)
+        *option = 0;
 
     SetCursorPosition(data->colorsX, data->lineIndexes[data->selected]);
     PrintColors(data, *option);

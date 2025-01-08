@@ -5,6 +5,7 @@
 #include "Utf8Symbols.h"
 #include <time.h>
 #include "IOHelper.h"
+#include "RGBColors.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
@@ -68,7 +69,7 @@ void SetCursorToRestingPlace(QuizQuestionPageData* data) {
 }
 
 void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
-    if(color) SetColor(colorFg);
+    if(color) SetColorRGBPreset(colorFg, false);
     SetCursorPosition(beginX, beginY);
 
     const int totalMargin = 1 + 1; // Top + Bottom
@@ -99,7 +100,7 @@ void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount,
     // Print text
     SetCursorPosition(beginX + startText + 2, beginY);
 
-    SetColor(LoadedSettings->ConfirmedAnswerColor);
+    SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
     printf("Odpowiedź: %c", letter);
 
     ResetColor();
@@ -136,13 +137,13 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
     if(data->abilities[ABILITY_5050] == QQAS_Active && data->blockedOptions[ansIndex]) {
         SetCursorPosition(startX + data->ansWidthLimit - 11, startY + height);
-        SetColor(LoadedSettings->WrongAnswerColor);
+        SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
         printf("NIEPOPRAWNA");
         ResetColor();
     }
     else if(data->abilities[ABILITY_AUDIENCE] == QQAS_Active) { // Print Audience help
         SetCursorPosition(startX + data->ansWidthLimit - 4, startY + height);
-        SetColor(LoadedSettings->SupportColor);
+        SetColorRGBPreset(LoadedSettings->SupportColor, false);
         printf("%2.1f%%", data->audienceVotes[ansIndex]);
         ResetColor();
     }
@@ -305,7 +306,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
         int rewardId = questionCount - (i + 1);
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
         int color = GetRewardColor(data, rewardId);
-        if(!data->previewMode && color != 0) SetColor(color);
+        if(!data->previewMode && color != 0) SetColorRGBPreset(color, false);
         
         printf("%2d ", questionCount - i);
 
@@ -340,27 +341,27 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
     switch (status)
     {
         case QQAS_Unavailable:
-            SetColor(LoadedSettings->WrongAnswerColor);
+            SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
             printf("%c) %s: Wykorzystano", key, text);
             break;
         
         case QQAS_Active:
-            if(color == 0) SetColor(LoadedSettings->SupportColor);
-            else SetColor(color);
+            if(color == 0) SetColorRGBPreset(LoadedSettings->SupportColor, false);
+            else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Wykorzystano", key, text);
             break;
 
         case QQAS_Selected:
-            if(color == 0) SetColor(LoadedSettings->ConfirmedAnswerColor);
-            else SetColor(color);
+            if(color == 0) SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
+            else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Potwierdź wykorzystanie (%c)", key, text, key);
             break;
 
         case QQAS_Avaialable:
-            if(color == 0) SetColor(LoadedSettings->CorrectAnswerColor);
-            else SetColor(color);
+            if(color == 0) SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Dostępny", key, text);
             break;
@@ -851,7 +852,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     for (int j = 0; j < 4; j++)
     {
         SetCursorPosition(beginX + 2, beginY + windowHeight - 2 - (segmentCount / 3)*j);
-        SetColor(LoadedSettings->SupportColor);
+        SetColorRGBPreset(LoadedSettings->SupportColor, false);
 
         printf(UNDERLINE_ON "%2d%%", 20*j);
 
