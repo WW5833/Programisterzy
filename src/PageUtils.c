@@ -104,7 +104,7 @@ int GetWrappedLineCount(const char* line, int width)
     return lineCount;
 }
 
-void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
+int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
 {
     int byteLineLength;
     int lineLength = GetStringCharCount(line);
@@ -114,9 +114,10 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
         }
 
         printf("%s", line);
-        return;
+        return 1;
     }
 
+    int lineCount = 1;
     int currentWidth = 0;
     const char* wordStart = line;
     const char* current = line;
@@ -143,6 +144,7 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
                 printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(secondaryOffset));
                 currentWidth = 0;
                 lineStart = wordStart;
+                lineCount++;
             }
 
             if(!centerText) {
@@ -165,6 +167,8 @@ void PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cen
         byteLineLength = (int)(current - lineStart);
         printf("%.*s", byteLineLength, lineStart);
     }
+
+    return lineCount;
 }
 
 KeyInputType HandleInteractions(bool blocking) {

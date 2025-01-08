@@ -51,6 +51,10 @@ void PrintGenericBorderEdges(
     const char* format,
     bool clearInside);
 
+void PrintGenericBorderEdgesHere(
+    int startX, int width,
+    const char* format);
+
 #define PRINT_SINGLE_TOP_BORDER(width) PrintGenericBorder(width, SINGLE_TOP_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_TOP_RIGHT_CORNER)
 #define PRINT_SINGLE_BOTTOM_BORDER(width) PrintGenericBorder(width, SINGLE_BOTTOM_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_BOTTOM_RIGHT_CORNER)
 #define PRINT_SINGLE_TJUNCTION_BORDER(width) PrintGenericBorder(width, SINGLE_BREAK_RIGHT, SINGLE_HORIZONTAL_LINE, SINGLE_BREAK_LEFT)
