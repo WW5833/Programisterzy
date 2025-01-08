@@ -264,16 +264,17 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
 
 const char* GetRewardText(int rewardId) {
     switch (rewardId) {
-        case 0: return "      500 zł";
-        case 1: return "    1 000 zł";
-        case 2: return "    4 000 zł";
-        case 3: return "   10 000 zł";
-        case 4: return "   25 000 zł"; 
-        case 5: return "   50 000 zł";
-        case 6: return "  100 000 zł";
-        case 7: return "  250 000 zł";
-        case 8: return "  500 000 zł";
-        case 9: return "1 000 000 zł";
+        case -1: return "        0 zł";
+        case 0:  return "      500 zł";
+        case 1:  return "    1 000 zł";
+        case 2:  return "    4 000 zł";
+        case 3:  return "   10 000 zł";
+        case 4:  return "   25 000 zł"; 
+        case 5:  return "   50 000 zł";
+        case 6:  return "  100 000 zł";
+        case 7:  return "  250 000 zł";
+        case 8:  return "  500 000 zł";
+        case 9:  return "1 000 000 zł";
         default: return "            ";
     }
 }
