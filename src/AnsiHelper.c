@@ -5,10 +5,12 @@
 #include "PageUtils.h"
 #include "AnsiDefinitions.h"
 #include <conio.h>
+#include "Settings.h"
 
 #define BUFFER_SIZE 128
 char _tmp_buffer[BUFFER_SIZE];
 
+extern Settings* LoadedSettings;
 extern bool IOHelper_LoopLock;
 
 void GetCursorPosition(int* x, int* y)
@@ -116,8 +118,13 @@ void SetColor(int color)
 
 void ResetColor()
 {
-    // printf(SET_COLOR(COLOR_RESET));
-    SetColors(COLOR_FG_DEFAULT, COLOR_BG_BLACK);
+    if(LoadedSettings->DarkMode == false) {
+        SetColors(COLOR_FG_BLACK, COLOR_BG_WHITE);
+        printf(SET_RGB_BG_COLOR(255, 255, 255));
+    }
+    else {
+        SetColors(COLOR_FG_DEFAULT, COLOR_BG_BLACK);
+    }
 }
 
 void ResetCursor()

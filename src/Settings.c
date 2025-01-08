@@ -17,6 +17,7 @@ void LoadDefaultSettings(Settings* settings) {
     settings->TutorialShown = 0;
     settings->ShowCorrectWhenWrong = 1;
     settings->EnableMouseSupport = 1;
+    settings->DarkMode = 1;
 }
 
 Settings* LoadSettings()
@@ -33,7 +34,7 @@ Settings* LoadSettings()
         return settings;
     }
 
-    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
+    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
         &settings->CorrectAnswerColor, 
         &settings->WrongAnswerColor, 
         &settings->SelectedAnswerColor, 
@@ -42,7 +43,8 @@ Settings* LoadSettings()
         &settings->FullUTF8Support, 
         &settings->TutorialShown,
         &settings->ShowCorrectWhenWrong,
-        &settings->EnableMouseSupport);
+        &settings->EnableMouseSupport,
+        &settings->DarkMode);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
@@ -61,7 +63,7 @@ void SaveSettings(Settings *settings)
         ExitApp(EXIT_FAILURE);
     }
 
-    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
+    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
         settings->CorrectAnswerColor, 
         settings->WrongAnswerColor, 
         settings->SelectedAnswerColor, 
@@ -70,7 +72,8 @@ void SaveSettings(Settings *settings)
         settings->FullUTF8Support, 
         settings->TutorialShown,
         settings->ShowCorrectWhenWrong,
-        settings->EnableMouseSupport);
+        settings->EnableMouseSupport,
+        settings->DarkMode);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");

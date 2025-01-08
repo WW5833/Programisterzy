@@ -10,7 +10,7 @@ extern Settings* LoadedSettings;
 
 #define COLOR_PALET_WIDTH 30
 
-#define OPTION_COUNT 10
+#define OPTION_COUNT 11
 
 typedef struct {
     int terminalWidth;
@@ -24,6 +24,7 @@ typedef struct {
     int utf8SupportX, utf8SupportY;
     int showCorrectWhenWrongX, showCorrectWhenWrongY;
     int enableMouseSupportX, enableMouseSupportY;
+    int darkModeX, darkModeY;
 
     int lineIndexes[OPTION_COUNT];
 } SettingsPageData;
@@ -76,6 +77,7 @@ int* GetOptionColor(int selected) {
 }
 
 void DrawSettingsUI(SettingsPageData* data) {
+    ResetColor();
     ClearScreen();
     printf("Ustawienia");
     printf("\n[ ] Kolor poprawnej odpowiedzi     ");
@@ -104,6 +106,10 @@ void DrawSettingsUI(SettingsPageData* data) {
     printf("\n[ ] Włącz wsparcie myszki: ");
     GetCursorPosition(&data->enableMouseSupportX, &data->enableMouseSupportY);
     printf(LoadedSettings->EnableMouseSupport ? "TAK" : "NIE");
+    
+    printf("\n[ ] Włącz tryb ciemny: ");
+    GetCursorPosition(&data->darkModeX, &data->darkModeY);
+    printf(LoadedSettings->DarkMode ? "TAK" : "NIE");
 
     printf("\n");
 
@@ -119,8 +125,9 @@ void DrawSettingsUI(SettingsPageData* data) {
 
     data->lineIndexes[6] = data->showCorrectWhenWrongY;
     data->lineIndexes[7] = data->enableMouseSupportY;
-    data->lineIndexes[8] = data->enableMouseSupportY + 2;
-    data->lineIndexes[9] = data->enableMouseSupportY + 3;
+    data->lineIndexes[8] = data->darkModeY;
+    data->lineIndexes[9] = data->darkModeY + 2;
+    data->lineIndexes[10] = data->darkModeY + 3;
 
     SetCursorPosition(2, data->lineIndexes[data->selected]);
     printf("*");
@@ -159,6 +166,13 @@ bool HandleEnterKey(SettingsPageData* data) {
                 EnableMouseInput(false);
             }
             
+            break;
+        case 8:
+            LoadedSettings->DarkMode = !LoadedSettings->DarkMode;
+            SetCursorPosition(data->darkModeX, data->darkModeY);
+            printf(LoadedSettings->DarkMode ? "TAK" : "NIE");
+
+            DrawSettingsUI(data);
             break;
 
         case OPTION_COUNT - 2:
