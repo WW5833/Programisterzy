@@ -4,43 +4,31 @@
 
 void PrintGenericBorder(
     int width, 
-    const char* leftFormat, 
-    const int leftArg1, 
-    const int leftArg2, 
-    const int leftArg3,
-    const char* middleFormat, 
-    const int middleArg1, 
-    const int middleArg2, 
-    const int middleArg3,
-    const char* rightFormat, 
-    const int rightArg1, 
-    const int rightArg2, 
-    const int rightArg3) 
+    const char* leftFormat,
+    const char* middleFormat,
+    const char* rightFormat) 
 {
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-    printf(leftFormat, leftArg1, leftArg2, leftArg3);
+    printf("%s", leftFormat);
     for (int _i = 0; _i < width - 2; _i++)
-        printf(middleFormat, middleArg1, middleArg2, middleArg3);
-    printf(rightFormat, rightArg1, rightArg2, rightArg3);
+        printf("%s", middleFormat);
+    printf("%s", rightFormat);
     printf(CSR_MOVE_LEFT_0_DOWN1);
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 }
 
 void PrintGenericBorderEdges(
     int startX, int width, int y,
-    const char* format, 
-    const int arg1, 
-    const int arg2, 
-    const int arg3,
+    const char* format,
     bool clearInside) 
 {
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
     SetCursorPosition(startX, y);
-    printf(format, arg1, arg2, arg3);
+    printf("%s", format);
     if (clearInside)
         for (int j = 0; j < width - 2; j++) printf(" ");
     else
         SetCursorPosition(startX + width, y);
-    printf(format, arg1, arg2, arg3);
+    printf("%s", format);
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 }

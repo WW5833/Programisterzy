@@ -229,7 +229,7 @@ void DrawStaticUI_Border_RewardBox(QuizQuestionPageData* data) {
     printf(TJUNCTION_DOWN_SINGLE);
     for (int i = 0; i < MAX(data->answersEndY - data->questionContentEndY, 10); i++) {
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH - 2, data->questionContentEndY + i);
-        printf(SINGLE_LIGHT_VERTICAL_LINE);
+        printf(SINGLE_VERTICAL_LINE);
     }
 
     // Add connector for reward box

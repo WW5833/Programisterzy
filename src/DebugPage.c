@@ -27,7 +27,7 @@ int GetMaxWordLength(const char* line)
 
 void CalculateQuizPageWidthRequirements(const int terminalWidth, const int terminalHeight) {
 
-    printf("Calculating quiz page width requirements\n");
+    printf("\nCalculating quiz page width requirements\n");
 
     const int rewardBoxWidth = 19 + 1;
     const int rewardBoxHeight = 10;
@@ -110,6 +110,13 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
     printf("\n");
 }
 
+void PrintSymbols() {
+    printf("\nSymbols\n");
+    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤┃━┏┓┗┛┫┣┃▁▂▃▄▅▆▇█▶╌");
+    printf("\n←↑→↓⇐⇑⇒⇓⇦⇧⇨⇩");
+    printf("\n┄╌│─┌┐└┘┤├");
+}
+
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_Debug()
@@ -118,6 +125,7 @@ void PageEnter_Debug()
     printf("Debug page\n");
 
     CalculateQuizPageWidthRequirements(LatestTerminalWidth, LatestTerminalHeight);
+    PrintSymbols();
 
     printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
     WaitForKeys(ESC, ENTER);

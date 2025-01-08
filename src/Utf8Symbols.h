@@ -3,68 +3,54 @@
 
 #include "stdbool.h"
 
-#define VERTICAL_LINE "%c%c%c", 0xE2, 0x95, 0x91 /*'║'*/
-#define HORIZONTAL_LINE "%c%c%c", 0xE2, 0x95, 0x90 /*'═'*/
-#define TOP_LEFT_CORNER "%c%c%c", 0xE2, 0x95, 0x94 /*'╔'*/
-#define TOP_RIGHT_CORNER "%c%c%c", 0xE2, 0x95, 0x97 /*'╗'*/
-#define BOTTOM_LEFT_CORNER "%c%c%c", 0xE2, 0x95, 0x9A /*'╚'*/
-#define BOTTOM_RIGHT_CORNER "%c%c%c", 0xE2, 0x95, 0x9D /*'╝'*/
-#define CROSS "%c%c%c", 0xE2, 0x95, 0xAC /*'╬'*/
-#define TJUNCTION_LEFT "%c%c%c", 0xE2, 0x95, 0xA0 /*'╠'*/
-#define TJUNCTION_RIGHT "%c%c%c", 0xE2, 0x95, 0xA3 /*'╣'*/
-#define TJUNCTION_UP "%c%c%c", 0xE2, 0x95, 0xA6 /*'╦'*/
-#define TJUNCTION_DOWN "%c%c%c", 0xE2, 0x95, 0xA9 /*'╩'*/
+#define VERTICAL_LINE "║"
+#define HORIZONTAL_LINE "═"
+#define TOP_LEFT_CORNER "╔"
+#define TOP_RIGHT_CORNER "╗"
+#define BOTTOM_LEFT_CORNER "╚"
+#define BOTTOM_RIGHT_CORNER "╝"
+#define CROSS "╬"
+#define TJUNCTION_LEFT "╠"
+#define TJUNCTION_RIGHT "╣"
+#define TJUNCTION_UP "╦"
+#define TJUNCTION_DOWN "╩"
 
-#define TJUNCTION_UP_SINGLE "%c%c%c", 0xE2, 0x95, 0xA7 /*'╧'*/
-#define TJUNCTION_DOWN_SINGLE "%c%c%c", 0xE2, 0x95, 0xA4 /*'╤'*/
+#define TJUNCTION_UP_SINGLE "╧"
+#define TJUNCTION_DOWN_SINGLE "╤"
 
-#define SINGLE_VERTICAL_LINE "%c%c%c", 0xE2, 0x94, 0x83 /*'┃'*/
-#define SINGLE_HORIZONTAL_LINE "%c%c%c", 0xE2, 0x94, 0x81 /*'━'*/
-#define SINGLE_TOP_LEFT_CORNER "%c%c%c", 0xE2, 0x94, 0x8F /*'┏'*/
-#define SINGLE_TOP_RIGHT_CORNER "%c%c%c", 0xE2, 0x94, 0x93 /*'┓'*/
-#define SINGLE_BOTTOM_LEFT_CORNER "%c%c%c", 0xE2, 0x94, 0x97 /*'┗'*/
-#define SINGLE_BOTTOM_RIGHT_CORNER "%c%c%c", 0xE2, 0x94, 0x9B /*'┛'*/
+#define SINGLE_VERTICAL_LINE "│"
+#define SINGLE_HORIZONTAL_LINE "─"
+#define SINGLE_TOP_LEFT_CORNER "┌"
+#define SINGLE_TOP_RIGHT_CORNER "┐"
+#define SINGLE_BOTTOM_LEFT_CORNER "└"
+#define SINGLE_BOTTOM_RIGHT_CORNER "┘"
 
-#define SINGLE_BREAK_LEFT "%c%c%c", 0xE2, 0x94, 0xAB /*'┫'*/
-#define SINGLE_BREAK_RIGHT "%c%c%c", 0xE2, 0x94, 0xA3 /*'┣'*/
+#define SINGLE_BREAK_LEFT "┤"
+#define SINGLE_BREAK_RIGHT "├"
 
-#define SINGLE_LIGHT_VERTICAL_LINE "%c%c%c", 0xE2, 0x94, 0x82 /*'┃'*/
+#define BLOCK_x_8(x) "%c%c%c", 0xE2, 0x96, (0x80+x)
+#define BLOCK_1_8 "▁" /* Does not work on all terminals */
+#define BLOCK_2_8 "▂" /* Does not work on all terminals */
+#define BLOCK_3_8 "▃" /* Does not work on all terminals */
+#define BLOCK_4_8 "▄"
+#define BLOCK_5_8 "▅" /* Does not work on all terminals */
+#define BLOCK_6_8 "▆" /* Does not work on all terminals */
+#define BLOCK_7_8 "▇" /* Does not work on all terminals */
+#define BLOCK_8_8 "█"
 
-#define BLOCK_x_8(x) "%c%c%c", 0xE2, 0x96, (0x80+x) /*'▁'*/
-#define BLOCK_1_8 "%c%c%c", 0xE2, 0x96, 0x81 /*'▁'*/
-#define BLOCK_2_8 "%c%c%c", 0xE2, 0x96, 0x82 /*'▂'*/
-#define BLOCK_3_8 "%c%c%c", 0xE2, 0x96, 0x83 /*'▃'*/
-#define BLOCK_4_8 "%c%c%c", 0xE2, 0x96, 0x84 /*'▄'*/
-#define BLOCK_5_8 "%c%c%c", 0xE2, 0x96, 0x85 /*'▅'*/
-#define BLOCK_6_8 "%c%c%c", 0xE2, 0x96, 0x86 /*'▆'*/
-#define BLOCK_7_8 "%c%c%c", 0xE2, 0x96, 0x87 /*'▇'*/
-#define BLOCK_8_8 "%c%c%c", 0xE2, 0x96, 0x88 /*'█'*/
+#define TRIANGLE "▶" /* Does not work on all terminals */
 
-#define TRIANGLE "%c%c%c", 0xE2, 0x96, 0xB6 /*'▶'*/
-
-#define DASHED_HORIZONTAL_LINE "%c%c%c", 0xE2, 0x95, 0x8C /*'╌'*/
+#define DASHED_HORIZONTAL_LINE "╌" /* Does not work on all terminals */
 
 void PrintGenericBorder(
     int width, 
-    const char* leftFormat, 
-    const int leftArg1, 
-    const int leftArg2, 
-    const int leftArg3,
+    const char* leftFormat,
     const char* middleFormat, 
-    const int middleArg1, 
-    const int middleArg2, 
-    const int middleArg3,
-    const char* rightFormat, 
-    const int rightArg1, 
-    const int rightArg2, 
-    const int rightArg3);
+    const char* rightFormat);
 
 void PrintGenericBorderEdges(
     int startX, int width, int y,
-    const char* format, 
-    const int arg1, 
-    const int arg2, 
-    const int arg3,
+    const char* format,
     bool clearInside);
 
 #define PRINT_SINGLE_TOP_BORDER(width) PrintGenericBorder(width, SINGLE_TOP_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_TOP_RIGHT_CORNER)
