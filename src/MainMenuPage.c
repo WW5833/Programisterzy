@@ -21,8 +21,9 @@
 #define OPTION_COUNT 6
 
 #ifdef PROGRAMISTERZY_DEBUG
-#define DEBUG_OPTION_COUNT 1
+#define DEBUG_OPTION_COUNT 2
 #include "DebugPage.h"
+#include "WelcomePage.h"
 #endif
 
 
@@ -58,7 +59,8 @@ void PrintMainMenu(int selected)
     printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
-    printf("[ ] DEBUG\n");
+    printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Strona powitalna\n");
 #endif
     
     PRINT_SINGLE_BOTTOM_BORDER(terminalWidth);
@@ -102,8 +104,11 @@ void OnEnterPressed(int selected) {
         case 5:
             ExitApp(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
-        case 6:
+        case OPTION_COUNT:
             PageEnter_Debug();
+            break;
+        case OPTION_COUNT + 1:
+            PageEnter_Welcome();  
             break;
 #endif
     }
