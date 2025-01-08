@@ -30,6 +30,7 @@ extern Settings* LoadedSettings;
 
 void SetTextColorToComplementBackground(int color) {
     bool darkText = false;
+    bool noSwap = false;
     switch (color)
     {
         case RGB_ID_GREEN:
@@ -41,9 +42,13 @@ void SetTextColorToComplementBackground(int color) {
             darkText = true;
             break;
 
-        case RGB_ID_YELLOW:
         case RGB_ID_BLUE:
             darkText = false;
+            break;
+
+        case RGB_ID_YELLOW:
+            darkText = true;
+            noSwap = true;
             break;
 
         default:
@@ -51,7 +56,7 @@ void SetTextColorToComplementBackground(int color) {
             break;
     }
 
-    if(!LoadedSettings->DarkMode) {
+    if(!noSwap && !LoadedSettings->DarkMode) {
         darkText = !darkText;
     }
 
