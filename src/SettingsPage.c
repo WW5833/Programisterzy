@@ -178,13 +178,24 @@ void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
 
     int* option = GetOptionColor(data->selected);
     *option = *option + direction;
-    if (*option <= COLOR_FG_BLACK)
-    {
-        *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
+
+    if(direction > 0) {
+        if(*option > COLOR_FG_WHITE + COLOR_BRIGHT_MOD) {
+            *option = COLOR_FG_RED;
+        }
+        else if(*option > COLOR_FG_WHITE && *option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD) {
+            *option = COLOR_FG_RED + COLOR_BRIGHT_MOD;
+        }
     }
-    else if (*option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD && *option > COLOR_FG_WHITE+1)
-    {
-        *option = COLOR_FG_WHITE;
+    else {
+        if (*option <= COLOR_FG_BLACK)
+        {
+            *option = COLOR_FG_WHITE + COLOR_BRIGHT_MOD;
+        }
+        else if(*option > COLOR_FG_WHITE && *option <= COLOR_FG_BLACK + COLOR_BRIGHT_MOD)
+        {
+            *option = COLOR_FG_WHITE;
+        }
     }
 
     SetCursorPosition(data->colorsX, data->lineIndexes[data->selected]);
