@@ -19,6 +19,9 @@ int main() {
 
     GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
 
+    ClearScreenManual();
+    EnableAlternativeBuffer();
+
     ResetColor();
     ClearScreen();
 

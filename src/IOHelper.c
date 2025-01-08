@@ -106,10 +106,6 @@ void InitializeIO()
         fprintf(stderr, "ANSI not supported but requied!\n");
         ExitApp(EXIT_FAILURE);
     }
-
-    ClearScreenManual();
-
-    EnableAlternativeBuffer();
 }
 
 void ExitApp(int exitCode)
