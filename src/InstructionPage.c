@@ -7,7 +7,7 @@
 #define SET_COLOR_RED ESC_SEQ "31m"
 #define SET_COLOR_BRIGHT_RED ESC_SEQ "91m"
 
-#define RESET_COLOR ESC_SEQ "0m"
+#define RESET_COLOR ESC_SEQ "39;40m"
 
 typedef struct {
     int terminalWidth;
