@@ -326,13 +326,15 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     DrawAll(data);
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 void PageEnter_QuestionList()
 {
     HideCursor();
 
     QuestionListPageData* data = malloc(sizeof(QuestionListPageData));
-
-    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
 
     data->drawQuestionStartIndex = 0;
     data->selected = 0;

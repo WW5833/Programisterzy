@@ -148,10 +148,13 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
     }
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 // Calculate the amount of lines needed to wrap the text
 void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTerminalSize) {
     if(calculateTerminalSize) {
-        GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
+        data->terminalWidth = LatestTerminalWidth;
+        data->terminalHeight = LatestTerminalHeight;
     }
 
     if(data->terminalWidth % 2 == 0) data->terminalWidth--;

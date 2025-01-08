@@ -9,13 +9,11 @@
 #include "Settings.h"
 
 extern Settings* LoadedSettings;
+extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_Quiz()
 {
     HideCursor();
-
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
 
     ClearScreen();
 
@@ -59,7 +57,7 @@ void PageEnter_Quiz()
         case QQR_Wrong:
             SetColor(LoadedSettings->WrongAnswerColor);
             sprintf(textBuffer, "Niestety, nie udało Ci się wygrać głównej nagrody ale dostajesz %s, ostatnią bezpieczną nagrodę.\n", GetRewardText(safe));
-            PrintWrappedLine(textBuffer, terminalWidth, 0, false);
+            PrintWrappedLine(textBuffer, LatestTerminalWidth, 0, false);
             break;
 
         case QQR_Forfeit:

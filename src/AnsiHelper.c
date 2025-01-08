@@ -92,11 +92,10 @@ void ClearScreen()
     ResetCursor();
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
 void ClearScreenManual() 
 {
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
-    for (int i = 1; i <= terminalHeight; i++)
+    for (int i = 1; i <= LatestTerminalWidth; i++)
     {
         SetCursorPosition(0, i);
         ClearLine();

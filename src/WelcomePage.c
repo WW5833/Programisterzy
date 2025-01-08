@@ -7,6 +7,8 @@
 
 extern Settings* LoadedSettings;
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 void PrintSettingsColors() {
     int bgOffset = 10;
     SetColor(LoadedSettings->CorrectAnswerColor + bgOffset);
@@ -24,9 +26,6 @@ void PrintSettingsColors() {
 void PageEnter_Welcome()
 {
     HideCursor();
-
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
 
     ClearScreen();
 
@@ -48,7 +47,7 @@ void PageEnter_Welcome()
     ResetColor();
     PrintWrappedLine(
         "\nChodzi o to abyś mógł odróżnić te kolory od domyślnego koloru tekstu ponieważ niektóre z tych kolorów mogą być użyte do odróżnienia zanaczonych odpowiedzi.", 
-        terminalWidth, 0, false);
+        LatestTerminalWidth, 0, false);
     printf("\n1. TAK");
     printf("\n2. NIE, przejdź do ustawień abym mógł zmienić kolory");
 

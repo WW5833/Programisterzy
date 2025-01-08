@@ -21,6 +21,8 @@ void DrawUIPageThree(InstructionPageData* data);
 void DrawUI(InstructionPageData* data);
 void OnInstructionPageResize(int width, int height, void* data);
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 void PageEnter_Instruction()
 {
     DisableAlternativeBuffer();
@@ -28,9 +30,10 @@ void PageEnter_Instruction()
     HideCursor();
 
     InstructionPageData* data = malloc(sizeof(InstructionPageData));
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
     data->pageNumber = 1;
 
-    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
     DrawUI(data);
 
     SetResizeHandler(OnInstructionPageResize, data);
@@ -59,6 +62,7 @@ void PageEnter_Instruction()
             case KEY_ESCAPE: 
                 UnsetResizeHandler();
                 free(data);
+                data = NULL;
                 ClearScreenManual();
                 EnableAlternativeBuffer();
                 return;

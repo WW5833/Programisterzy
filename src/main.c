@@ -10,10 +10,14 @@
 
 Settings* LoadedSettings;
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 int main() {
     srand((unsigned int)time(NULL));
 
     InitializeIO();
+
+    GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
 
     ResetColor();
     ClearScreen();
@@ -36,4 +40,3 @@ int main() {
     free(LoadedSettings);
     ExitApp(EXIT_SUCCESS);
 }
-

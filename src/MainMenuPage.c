@@ -21,35 +21,39 @@
 #define OPTION_COUNT 6
 
 #ifdef PROGRAMISTERZY_DEBUG
-#define DEBUG_OPTION_COUNT 2
-#include "DebugPage.h"
-#include "WelcomePage.h"
+    #define DEBUG_OPTION_COUNT 2
+    #include "DebugPage.h"
+    #include "WelcomePage.h"
+    #define TOTAL_OPTION_COUNT (OPTION_COUNT+DEBUG_OPTION_COUNT)
+#else
+    #define TOTAL_OPTION_COUNT (OPTION_COUNT)
 #endif
 
-
-void PrintMainMenu(int selected)
+typedef struct
 {
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
+    int terminalWidth;
+    int terminalHeight;
 
+    int selected;
+} MainMenuPageData;
+
+void PrintMainMenu(MainMenuPageData* data)
+{
     ResetColor();
     ClearScreen();
 
-    int height = OPTION_COUNT + 2;
-#ifdef PROGRAMISTERZY_DEBUG
-    height += DEBUG_OPTION_COUNT;
-#endif
+    int height = TOTAL_OPTION_COUNT + 2;
     for (int i = 0; i < height; i++)
     {
-        PrintGenericBorderEdges(0, terminalWidth, i + 2, SINGLE_VERTICAL_LINE, false);
+        PrintGenericBorderEdges(0, data->terminalWidth, i + 2, SINGLE_VERTICAL_LINE, false);
     }
     ResetCursor();
 
-    PRINT_SINGLE_TOP_BORDER(terminalWidth);
+    PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
     printf(CSR_MOVE_RIGHT(2));
     printf("Witaj w Programisterach!\n");
     
-    PRINT_SINGLE_TJUNCTION_BORDER(terminalWidth);
+    PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
 
     printf(CSR_MOVE_RIGHT(2));
     printf("[ ] Rozpocznij quiz\n" CSR_MOVE_RIGHT(2));
@@ -63,28 +67,28 @@ void PrintMainMenu(int selected)
     printf("[ ] Strona powitalna\n");
 #endif
     
-    PRINT_SINGLE_BOTTOM_BORDER(terminalWidth);
+    PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
-    SetCursorPosition(4, 4 + selected);
+    SetCursorPosition(4, 4 + data->selected);
     printf("*");
 }
 
-void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
-    SetCursorPosition(4, 4 + *selected);
+void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
+    SetCursorPosition(4, 4 + data->selected);
     printf(" ");
 
     if(down) {
-        *selected = (*selected + 1) % optionCount;
+        data->selected = (data->selected + 1) % TOTAL_OPTION_COUNT;
     } else {
-        *selected = (*selected - 1 + optionCount) % optionCount;
+        data->selected = (data->selected - 1 + TOTAL_OPTION_COUNT) % TOTAL_OPTION_COUNT;
     }
     
-    SetCursorPosition(4, 4 + *selected);
+    SetCursorPosition(4, 4 + data->selected);
     printf("*");
 }
 
-void OnEnterPressed(int selected) {
-    switch (selected)
+void OnEnterPressed(MainMenuPageData* data) {
+    switch (data->selected)
     {
         case 0:
             PageEnter_Quiz();
@@ -113,29 +117,30 @@ void OnEnterPressed(int selected) {
 #endif
     }
 
-    PrintMainMenu(selected);
+    PrintMainMenu(data);
 }
+
+extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_MainMenu()
 {
     HideCursor();
 
-    int optionCount = OPTION_COUNT;
-#ifdef PROGRAMISTERZY_DEBUG
-    optionCount += DEBUG_OPTION_COUNT;
-#endif
+    MainMenuPageData* data = malloc(sizeof(MainMenuPageData));
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
+    data->selected = 0;
 
-    int selected = 0;
-    PrintMainMenu(selected);
+    PrintMainMenu(data);
 
     while (true)
     {
         KeyInputType key = HandleInteractions(true);
         if(key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
-            OnArrowKeysPressed(&selected, optionCount, key == KEY_ARROW_DOWN);
+            OnArrowKeysPressed(data, key == KEY_ARROW_DOWN);
         }
         else if (key == KEY_ENTER) {
-            OnEnterPressed(selected);
+            OnEnterPressed(data);
         }
     }
 }

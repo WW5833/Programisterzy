@@ -210,14 +210,16 @@ void OnSettingsPageResize(int width, int height, void* data) {
     DrawSettingsUI(pageData);
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 void PageEnter_Settings()
 {
     HideCursor();
 
     SettingsPageData* data = malloc(sizeof(SettingsPageData));
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
     data->selected = 0;
-
-    GetTerminalSize(&data->terminalWidth, &data->terminalHeight);
 
     DrawSettingsUI(data);
 

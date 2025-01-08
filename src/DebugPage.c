@@ -110,15 +110,14 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
     printf("\n");
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 void PageEnter_Debug()
 {
-    int terminalWidth, terminalHeight;
-    GetTerminalSize(&terminalWidth, &terminalHeight);
-
     ClearScreen();
     printf("Debug page\n");
 
-    CalculateQuizPageWidthRequirements(terminalWidth, terminalHeight);
+    CalculateQuizPageWidthRequirements(LatestTerminalWidth, LatestTerminalHeight);
 
     printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
     WaitForKeys(ESC, ENTER);

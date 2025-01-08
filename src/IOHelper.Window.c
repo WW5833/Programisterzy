@@ -22,8 +22,9 @@ void UnsetResizeHandler()
     resizeHandlerData = NULL;
 }
 
-int latestTerminalWidth = -1;
-int latestTerminalHeight = -1;
+int LatestTerminalWidth = -1;
+int LatestTerminalHeight = -1;
+
 time_t lastResizeEvent = 0;
 bool resizeCallPending = false;
 void CallResizeHandler(int width, int height)
@@ -44,8 +45,6 @@ void CallResizeHandler(int width, int height)
 
 void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
 {
-    if(resizeHandler == NULL) return;
-
     int termianlWidth = wbsr.dwSize.X;
     int terminalHeight = wbsr.dwSize.Y;
 
@@ -53,8 +52,10 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
         GetTerminalSize(&termianlWidth, &terminalHeight);
     }
 
-    latestTerminalWidth = termianlWidth;
-    latestTerminalHeight = terminalHeight;
+    LatestTerminalWidth = termianlWidth;
+    LatestTerminalHeight = terminalHeight;
+
+    if(resizeHandler == NULL) return;
 
     resizeCallPending = true;
     lastResizeEvent = time(NULL);
@@ -62,5 +63,5 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
 
 void Window_IOLoop()
 {
-    CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
+    CallResizeHandler(LatestTerminalWidth, LatestTerminalHeight);
 }
