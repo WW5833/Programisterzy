@@ -127,6 +127,16 @@ void PageEnter_Debug()
     CalculateQuizPageWidthRequirements(LatestTerminalWidth, LatestTerminalHeight);
     PrintSymbols();
 
+    printf("\n\n");
+    printf(ESC_SEQ "1m" "TEST" ESC_SEQ "22m" "\n");
+    printf(ESC_SEQ "2m" "TEST" ESC_SEQ "22m" "\n");
+    printf(ESC_SEQ "3m" "TEST" ESC_SEQ "23m" "\n");
+    printf(ESC_SEQ "4m" "TEST" ESC_SEQ "24m" "\n");
+    printf(ESC_SEQ "5m" "TEST" ESC_SEQ "25m" "\n");
+    printf(ESC_SEQ "7m" "TEST" ESC_SEQ "27m" "\n");
+    printf(ESC_SEQ "8m" "TEST" ESC_SEQ "28m" "\n");
+    printf(ESC_SEQ "9m" "TEST" ESC_SEQ "29m" "\n");
+
     printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
     WaitForKeys(ESC, ENTER);
 }
