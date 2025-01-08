@@ -1,41 +1,19 @@
 #include "IOHelper.h"
-#include <conio.h>
 #include <windows.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <time.h>
 #include "AnsiDefinitions.h"
 #include "DebugCheck.h"
+#include "Settings.h"
+
+#include "IOHelper.ManualHandling.Mouse.h"
+#include "IOHelper.ManualHandling.Window.h"
+#include "IOHelper.ManualHandling.Keyboard.h"
 
 #ifdef PROGRAMISTERZY_EXTENDED_TERMINAL_INTEGRATION
 
-#define TEXT_INPUT_BUFFER_SIZE 256
-#define CTRL_C '\03'
-
-int textInputBufferReadPtr = 0;
-int textInputBufferWritePtr = 0;
-char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
-
-#define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
-
-int getch()
-{
-    while(textInputBufferReadPtr == textInputBufferWritePtr)
-        IOLoop();
-    
-    BufferPtrInc(textInputBufferReadPtr);
-
-    return textInputBuffer[textInputBufferReadPtr];
-}
-
-int kbhit()
-{
-    IOLoop();
-    return textInputBufferReadPtr != textInputBufferWritePtr;
-}
-
-INPUT_RECORD irInBuf[128];
-DWORD cNumRead;
+bool IOHelper_LoopLock = false;
+bool internal_IOHelper_LoopLock = false;
 
 HANDLE stdinHandle;
 HANDLE stdoutHandle;
@@ -49,26 +27,44 @@ bool stdInHandleInitialized = false;
 bool stdOutHandleInitialized = false;
 
 void ErrorExit(LPSTR);
-void KeyEventProc(KEY_EVENT_RECORD);
-void MouseEventProc(MOUSE_EVENT_RECORD);
-void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD);
-void CallResizeHandler(int width, int height);
-
-int latestTerminalWidth = -1;
-int latestTerminalHeight = -1;
 
 void SetConsoleModes() {
     // Enable the window and mouse input events.
-    if (! SetConsoleMode(stdinHandle, fdwInMode)) {
+    if (!SetConsoleMode(stdinHandle, fdwInMode)) {
         ErrorExit("SetConsoleMode(STDIN)");
     }
 
     if(fdwOutMode != 0) {
         // Set output mode to handle virtual terminal sequences
-        if (! SetConsoleMode(stdinHandle, fdwInMode)) {
+        if (!SetConsoleMode(stdinHandle, fdwInMode)) {
             ErrorExit("SetConsoleMode(STDOUT)");
         }
     }
+}
+
+void SetThisConsoleTitle(const char *title)
+{
+    SetConsoleTitle(title);
+}
+
+extern Settings* LoadedSettings;
+
+void EnableMouseInput(bool enable)
+{
+    if(enable && !LoadedSettings->EnableMouseSupport) {
+        return;
+    }
+
+    if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
+
+    if(enable) {
+        fdwInMode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
+    }
+    else {
+        fdwInMode &= ~((DWORD)(ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS));
+    }
+
+    SetConsoleModes();
 }
 
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
@@ -136,11 +132,32 @@ void ErrorExit(LPSTR lpszMessage)
     ExitApp(EXIT_FAILURE);
 }
 
+bool internal_IO_WaitingForMousePress = false;
+int WaitForAnyInput() {
+    internal_IO_WaitingForMousePress = true;
+    while(true) {
+
+        if(!internal_IO_WaitingForMousePress) {
+            return INT_MAX;
+        }
+
+        if(kbhit()) {
+            return getch();
+        }
+
+        IOLoop();
+    }
+}
+
+#define INPUT_RECORD_BUFFER_SIZE (DWORD)(128)
+INPUT_RECORD irInBuf[INPUT_RECORD_BUFFER_SIZE];
+DWORD cNumRead;
 
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()
 {
-    CallResizeHandler(latestTerminalWidth, latestTerminalHeight);
+    Window_IOLoop();
+    Mouse_IOLoop();
 
     if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead)) {
         ErrorExit("GetNumberOfConsoleInputEvents");
@@ -149,12 +166,21 @@ void IOLoop()
     if(cNumRead == 0) return; // No events to process
 
     if (!ReadConsoleInput(
-            stdinHandle,      // input buffer handle
-            irInBuf,     // buffer to read into
-            128,         // size of read buffer
-            &cNumRead)) // number of records read
+            stdinHandle,                // input buffer handle
+            irInBuf,                    // buffer to read into
+            INPUT_RECORD_BUFFER_SIZE,   // size of read buffer
+            &cNumRead))                 // number of records read
     {
         ErrorExit("ReadConsoleInput");
+    }
+
+    // We want to handle only the last window resize event
+    DWORD lastWindowResizeEventId = 0;
+    for (DWORD i = 0; i < cNumRead; i++)
+    {
+        if(irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT) {
+            lastWindowResizeEventId = i;
+        }
     }
 
     // Dispatch the events to the appropriate handler.
@@ -171,6 +197,8 @@ void IOLoop()
                 break;
 
             case WINDOW_BUFFER_SIZE_EVENT: // scrn buf. resizing
+                if(i != lastWindowResizeEventId) continue; // Skip all but the last resize event
+
                 ResizeEventProc(irInBuf[i].Event.WindowBufferSizeEvent);
                 break;
 
@@ -183,166 +211,6 @@ void IOLoop()
                 break;
         }
     }
-}
-
-void KeyEventProc(KEY_EVENT_RECORD ker)
-{
-    if(ker.bKeyDown)
-    {
-        if(ker.uChar.AsciiChar == CTRL_C) {
-            ExitApp(EXIT_SUCCESS);
-        }
-
-        if(ker.uChar.AsciiChar != 0) {
-            BufferPtrInc(textInputBufferWritePtr);
-            textInputBuffer[textInputBufferWritePtr] = ker.uChar.AsciiChar;
-            return;
-        }
-
-        if((ker.dwControlKeyState & ENHANCED_KEY) != 0) {
-            if((ker.wVirtualScanCode & 0x40) == 0) return; // Ignore non arrows
-            BufferPtrInc(textInputBufferWritePtr);
-            textInputBuffer[textInputBufferWritePtr] = ESCAPE_CHAR;
-            BufferPtrInc(textInputBufferWritePtr);
-            textInputBuffer[textInputBufferWritePtr] = (char)ker.wVirtualScanCode;
-            return;
-        }
-    }
-}
-
-void SetThisConsoleTitle(const char *title)
-{
-    SetConsoleTitle(title);
-}
-
-void EnableMouseInput(bool enable)
-{
-    if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
-
-    if(enable) {
-        fdwInMode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
-    }
-    else {
-        fdwInMode &= ~((DWORD)(ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS));
-    }
-
-    SetConsoleModes();
-}
-
-void (*mouseClickHandler)(int, int, int, void *) = NULL;
-void (*mouseDoubleClickHandler)(int, int, int, void *) = NULL;
-void (*mouseScrollHandler)(bool, int, int, void *) = NULL;
-void (*mouseMoveHandler)(int, int, void *) = NULL;
-void *mouseHandlerData = NULL;
-void SetMouseHandler(
-    void (*clickHandler)(int, int, int, void *),
-    void (*doubleClickHandler)(int, int, int, void *),
-    void (*scrollHandler)(bool, int, int, void *),
-    void (*moveHandler)(int, int, void *),
-    void *data)
-{
-    EnableMouseInput(true);
-
-    mouseClickHandler = clickHandler;
-    mouseDoubleClickHandler = doubleClickHandler;
-    mouseScrollHandler = scrollHandler;
-    mouseMoveHandler = moveHandler;
-
-    mouseHandlerData = data;
-}
-
-void UnsetMouseHandler()
-{
-    mouseClickHandler = NULL;
-    mouseDoubleClickHandler = NULL;
-    mouseScrollHandler = NULL;
-    mouseMoveHandler = NULL;
-
-    mouseHandlerData = NULL;
-
-    EnableMouseInput(false);
-}
-
-void MouseEventProc(MOUSE_EVENT_RECORD mer)
-{
-    switch(mer.dwEventFlags)
-    {
-        case 0:
-            if(mouseClickHandler != NULL) {
-                mouseClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case DOUBLE_CLICK:
-            if(mouseDoubleClickHandler != NULL) {
-                mouseDoubleClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case MOUSE_WHEELED:
-            if(mouseScrollHandler != NULL) {
-                mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-        case MOUSE_MOVED:
-            if(mouseMoveHandler != NULL) {
-                mouseMoveHandler(mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
-            }
-            break;
-    }
-}
-
-#define MAX_Y_SIZE_CONSOLE 150
-
-void (*resizeHandler)(int, int, void *) = NULL;
-void *resizeHandlerData = NULL;
-void SetResizeHandler(void (*handler)(int, int, void *), void *data)
-{
-    resizeHandler = handler;
-    resizeHandlerData = data;
-}
-
-void UnsetResizeHandler()
-{
-    resizeHandler = NULL;
-    resizeHandlerData = NULL;
-}
-
-time_t lastResizeCall = 0;
-bool resizeCallPending = false;
-void CallResizeHandler(int width, int height)
-{
-    if(resizeHandler == NULL || !resizeCallPending) return;
-
-    if(difftime(time(NULL), lastResizeCall) < 0.25) {
-        return;
-    }
-
-    char buffer[256];
-
-    sprintf(buffer, "Programisterzy [%d x %d]", width, height);
-
-    SetConsoleTitle(buffer);
-
-    lastResizeCall = time(NULL);
-    resizeCallPending = false;
-    resizeHandler(width, height, resizeHandlerData);
-}
-
-void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
-{
-    if(resizeHandler == NULL) return;
-
-    int termianlWidth = wbsr.dwSize.X;
-    int terminalHeight = wbsr.dwSize.Y;
-
-    if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) {
-        GetTerminalSize(&termianlWidth, &terminalHeight);
-    }
-
-    latestTerminalWidth = termianlWidth;
-    latestTerminalHeight = terminalHeight;
-
-    resizeCallPending = true;
-    CallResizeHandler(termianlWidth, terminalHeight);
 }
 
 #endif

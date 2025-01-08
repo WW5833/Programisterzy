@@ -10,6 +10,7 @@ typedef struct {
     int FullUTF8Support;
     int TutorialShown;
     int ShowCorrectWhenWrong;
+    int EnableMouseSupport;
 } Settings;
 
 Settings* LoadSettings();

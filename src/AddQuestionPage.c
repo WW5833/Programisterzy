@@ -50,10 +50,8 @@ int ReadText(char* buffer, int maxLength) {
         if(c == '\b') {
             if(i == 0) continue;
 
-            i--;
-            buffer[i] = '\0';
+            i -= GetCurrentCharSize(buffer, buffer + i - 1);
             printf("\b \b");
-
             continue;
         }
 
@@ -68,7 +66,12 @@ int ReadText(char* buffer, int maxLength) {
             continue; // Ignore arrow keys
         }
 
-        if(!(isalnum(c) || ispunct(c) || isspace(c))) {
+        if(c == ESC) {
+            buffer[0] = '\0';
+            return -1;
+        }
+
+        if(!(isalnum(c) || ispunct(c) || isspace(c) || (c & 0x80) /* UTF-8 */)) {
             continue;
         }
 
@@ -97,6 +100,11 @@ Question *PageEnter_AddQuestion()
     load_content:
     printf("Podaj treść pytania: ");
     question->ContentLength = ReadText(buffer, MAX_QUESTION_LENGTH);
+    if(question->ContentLength == -1) {
+        DestroyQuestion(question);
+        HideCursor();
+        return NULL;
+    }
     if(!CopyBuffer(&question->Content, buffer, question->ContentLength))
         goto load_content;
 
@@ -109,6 +117,11 @@ Question *PageEnter_AddQuestion()
             printf("Podaj odpowiedź %c: ", 'A' + j);
 
         question->AnswerLength[j] = ReadText(buffer, MAX_QUESTION_LENGTH);
+        if(question->AnswerLength[j] == -1) {
+            DestroyQuestion(question);
+            HideCursor();
+            return NULL;
+        }
         if(!CopyBuffer(&question->Answer[j], buffer, question->AnswerLength[j]))
             goto load_answer;
     }

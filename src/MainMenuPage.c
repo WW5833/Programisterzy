@@ -8,41 +8,69 @@
 #include "IOHelper.h"
 
 #include "QuizPage.h"
-#include "SettingsPage.h"
 #include "AddQuestionPage.h"
+#include "SettingsPage.h"
+#include "InstructionPage.h"
 #include "QuizQuestionPage.h"
 #include "QuestionListPage.h"
 
+#include "Utf8Symbols.h"
+
 #include "DebugCheck.h"
 
-#define OPTION_COUNT 4
+#define OPTION_COUNT 6
 
 #ifdef PROGRAMISTERZY_DEBUG
 #define DEBUG_OPTION_COUNT 2
 #include "DebugPage.h"
+#include "WelcomePage.h"
 #endif
 
 
 void PrintMainMenu(int selected)
 {
+    int terminalWidth, terminalHeight;
+    GetTerminalSize(&terminalWidth, &terminalHeight);
+
     ResetColor();
     ClearScreen();
-    printf("Witaj w Programisterach!\n");
-    printf("[ ] Rozpocznij quiz\n");
-    printf("[ ] Dodaj pytanie\n");
-    printf("[ ] Ustawienia\n");
-    printf("[ ] Wyjdź\n");
-#ifdef PROGRAMISTERZY_DEBUG
-    printf("[ ] DEBUG\n");
-    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n");
-#endif
 
-    SetCursorPosition(2, 2 + selected);
+    int height = OPTION_COUNT + 2;
+#ifdef PROGRAMISTERZY_DEBUG
+    height += DEBUG_OPTION_COUNT;
+#endif
+    for (int i = 0; i < height; i++)
+    {
+        PrintGenericBorderEdges(0, terminalWidth, i + 2, SINGLE_VERTICAL_LINE, false);
+    }
+    ResetCursor();
+
+    PRINT_SINGLE_TOP_BORDER(terminalWidth);
+    printf(CSR_MOVE_RIGHT(2));
+    printf("Witaj w Programisterach!\n");
+    
+    PRINT_SINGLE_TJUNCTION_BORDER(terminalWidth);
+
+    printf(CSR_MOVE_RIGHT(2));
+    printf("[ ] Rozpocznij quiz\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Dodaj pytanie\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
+#ifdef PROGRAMISTERZY_DEBUG
+    printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Strona powitalna\n");
+#endif
+    
+    PRINT_SINGLE_BOTTOM_BORDER(terminalWidth);
+
+    SetCursorPosition(4, 4 + selected);
     printf("*");
 }
 
 void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
-    SetCursorPosition(2, 2 + *selected);
+    SetCursorPosition(4, 4 + *selected);
     printf(" ");
 
     if(down) {
@@ -51,7 +79,7 @@ void OnArrowKeysPressed(int* selected, int optionCount, bool down) {
         *selected = (*selected - 1 + optionCount) % optionCount;
     }
     
-    SetCursorPosition(2, 2 + *selected);
+    SetCursorPosition(4, 4 + *selected);
     printf("*");
 }
 
@@ -68,13 +96,19 @@ void OnEnterPressed(int selected) {
             PageEnter_Settings();
             break;
         case 3:
-            ExitApp(EXIT_SUCCESS);
-#ifdef PROGRAMISTERZY_DEBUG
+            PageEnter_Instruction();
+            break;
         case 4:
-            PageEnter_Debug();
+            PageEnter_QuestionList();  
             break;
         case 5:
-            PageEnter_QuestionList();  
+            ExitApp(EXIT_SUCCESS);
+#ifdef PROGRAMISTERZY_DEBUG
+        case OPTION_COUNT:
+            PageEnter_Debug();
+            break;
+        case OPTION_COUNT + 1:
+            PageEnter_Welcome();  
             break;
 #endif
     }

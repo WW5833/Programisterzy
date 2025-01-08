@@ -7,28 +7,33 @@
 
 #define SETTINGS_FILE "./settings.txt"
 
-Settings *LoadSettings()
+void LoadDefaultSettings(Settings* settings) {
+    settings->CorrectAnswerColor = COLOR_FG_GREEN;
+    settings->WrongAnswerColor = COLOR_FG_RED;
+    settings->SelectedAnswerColor = COLOR_FG_YELLOW;
+    settings->ConfirmedAnswerColor = COLOR_FG_CYAN;
+    settings->SupportColor = COLOR_FG_MAGENTA;
+    settings->FullUTF8Support = 1;
+    settings->TutorialShown = 0;
+    settings->ShowCorrectWhenWrong = 1;
+    settings->EnableMouseSupport = 1;
+}
+
+Settings* LoadSettings()
 {
     FILE* file = fopen(SETTINGS_FILE, "r");
 
     Settings* settings = malloc(sizeof(Settings));
 
     if(file == NULL) {
-        settings->CorrectAnswerColor = COLOR_FG_GREEN;
-        settings->WrongAnswerColor = COLOR_FG_RED;
-        settings->SelectedAnswerColor = COLOR_FG_YELLOW;
-        settings->ConfirmedAnswerColor = COLOR_FG_CYAN;
-        settings->SupportColor = COLOR_FG_MAGENTA;
-        settings->FullUTF8Support = 1;
-        settings->TutorialShown = 0;
-        settings->ShowCorrectWhenWrong = 1;
+        LoadDefaultSettings(settings);
 
         SaveSettings(settings);
 
         return settings;
     }
 
-    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
+    fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
         &settings->CorrectAnswerColor, 
         &settings->WrongAnswerColor, 
         &settings->SelectedAnswerColor, 
@@ -36,7 +41,8 @@ Settings *LoadSettings()
         &settings->SupportColor, 
         &settings->FullUTF8Support, 
         &settings->TutorialShown,
-        &settings->ShowCorrectWhenWrong);
+        &settings->ShowCorrectWhenWrong,
+        &settings->EnableMouseSupport);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");
@@ -55,7 +61,7 @@ void SaveSettings(Settings *settings)
         ExitApp(EXIT_FAILURE);
     }
 
-    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d",
+    fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d",
         settings->CorrectAnswerColor, 
         settings->WrongAnswerColor, 
         settings->SelectedAnswerColor, 
@@ -63,7 +69,8 @@ void SaveSettings(Settings *settings)
         settings->SupportColor,
         settings->FullUTF8Support, 
         settings->TutorialShown,
-        settings->ShowCorrectWhenWrong);
+        settings->ShowCorrectWhenWrong,
+        settings->EnableMouseSupport);
 
     if(fclose(file) != 0) {
         perror("Failed to close file");

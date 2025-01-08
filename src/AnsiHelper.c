@@ -13,6 +13,8 @@
 #define BUFFER_SIZE 128
 char _tmp_buffer[BUFFER_SIZE];
 
+extern bool IOHelper_LoopLock;
+
 void GetCursorPosition(int* x, int* y)
 {
     while (kbhit()) getch(); // Clear input buffer
@@ -65,8 +67,10 @@ void SetCursorPosition(int x, int y)
 
 void GetTerminalSize(int *x, int *y)
 {
+    IOHelper_LoopLock = true;
     SetCursorPosition(999, 999);
     GetCursorPosition(x, y);
+    IOHelper_LoopLock = false;
 }
 
 bool CheckForAnsiSupport() {
@@ -75,7 +79,7 @@ bool CheckForAnsiSupport() {
     // Use _getch() instead of custom getch() because this function is called before IOHelper is fully initialized
     if(_kbhit() && _getch() == '\x1B') { 
         while (_getch() != 'R'); // Clear the buffer
-        ClearScreen();
+        ClearScreenManual();
         return true; // ANSI supported
     }
 
@@ -87,6 +91,18 @@ void ClearScreen()
     ResetCursor();
     printf(CLR_SCRN);
     ResetCursor();
+}
+
+void ClearScreenManual() 
+{
+    int terminalWidth, terminalHeight;
+    GetTerminalSize(&terminalWidth, &terminalHeight);
+    for (int i = 1; i <= terminalHeight; i++)
+    {
+        SetCursorPosition(0, i);
+        ClearLine();
+    }
+    ResetCursor();    
 }
 
 void ClearLine()

@@ -18,22 +18,42 @@ void PageEnter_Quiz()
     QuestionListHeader* questions = GenerateQuiz();
     if(questions == NULL) return;
 
-    bool abilitiesUsed[3] = {false, false, false};
-    bool correct = false;
+    QuizQuestionAbilityStatus abilitiesStatus[3] = {QQAS_Avaialable, QQAS_Avaialable, QQAS_Avaialable};
+    QuizQuestionResult correct;
     QuestionListItem* current = questions->head;
     for(int i = 0; i < 10; i++) {
-        PageEnter_QuizQuestion(current->data, i + 1, &abilitiesUsed[0], &correct);
-        if(!correct) break;
+
+        for (int j = 0; j < 3; j++)
+        {
+            if(abilitiesStatus[j] == QQAS_Selected) {
+                abilitiesStatus[j] = QQAS_Avaialable;
+            }
+            else if(abilitiesStatus[j] == QQAS_Active) {
+                abilitiesStatus[j] = QQAS_Unavailable;
+            }
+        }
+        
+        PageEnter_QuizQuestion(current->data, i + 1, &abilitiesStatus[0], &correct);
+        if(correct != QQR_Correct) break;
         current = current->next;
     }
 
-    if(correct) {
-        SetColor(LoadedSettings->CorrectAnswerColor);
-        printf("Wygrałeś! Gratulacje!\n");
-    }
-    else {
-        SetColor(LoadedSettings->WrongAnswerColor);
-        printf("Niestety, nie udało Ci się wygrać.\n");
+    switch (correct)
+    {
+        case QQR_Correct:
+            SetColor(LoadedSettings->CorrectAnswerColor);
+            printf("Wygrałeś! Gratulacje!\n");
+            break;
+
+        case QQR_Wrong:
+            SetColor(LoadedSettings->WrongAnswerColor);
+            printf("Niestety, nie udało Ci się wygrać.\n");
+            break;
+
+        case QQR_Forfeit:
+            SetColor(LoadedSettings->SupportColor);
+            printf("Zrezygnowałeś z gry.\n");
+            break;
     }
 
     ResetColor();

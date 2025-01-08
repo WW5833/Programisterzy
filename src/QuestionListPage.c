@@ -21,13 +21,13 @@ typedef struct {
     int scrollSize;
 } QuestionListPageData;
 
-void EnterPreview(QuestionListPageData* data);
+void EnterPreview(QuestionListPageData* data, bool mainLoop);
 void CalculateStartIndex(QuestionListPageData* data);
 
-void OnResize(int width, int height, void* data);
-void OnScroll(bool down, int mouseX, int mouseY, void* data);
-void OnMouseClick(int button, int mouseX, int mouseY, void* data);
-void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data);
+void OnQuestionListPageResize(int width, int height, void* data);
+void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data);
+void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data);
+void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data);
 
 void DrawVisibleQuestions(QuestionListPageData* data);
 void DrawScrollBar(QuestionListPageData* data, int oldSelected);
@@ -306,14 +306,22 @@ void Scroll(QuestionListPageData* data, bool down) {
     UpdateVisibleQuestions(data, oldSelected);
 }
 
-void EnterPreview(QuestionListPageData* data) {
+bool delayedEnterQuiz = false;
+void EnterPreview(QuestionListPageData* data, bool mainLoop) {
+    if(!mainLoop) {
+        delayedEnterQuiz = true;
+        return;
+    }
+
     UnsetResizeHandler();
     UnsetMouseHandler();
 
     PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
 
-    SetResizeHandler(OnResize, data);
-    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
+    delayedEnterQuiz = false;
+
+    SetResizeHandler(OnQuestionListPageResize, data);
+    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
     DrawAll(data);
 }
@@ -332,14 +340,20 @@ void PageEnter_QuestionList()
 
     printf(SCREEN_SCROLL_REGION(2, data->terminalHeight - 1)); // Set scrolling region
 
-    OnResize(data->terminalWidth, data->terminalHeight, data);
+    OnQuestionListPageResize(data->terminalWidth, data->terminalHeight, data);
 
-    SetResizeHandler(OnResize, data);
-    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
+    SetResizeHandler(OnQuestionListPageResize, data);
+    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
     KeyInputType key;
     while(true) {
-        key = HandleInteractions(true);
+        if(delayedEnterQuiz) {
+            EnterPreview(data, true);
+        }
+
+        key = HandleInteractions(false);
+
+        if(key == KEY_NONE) continue; // No key pressed
 
         switch (key)
         {
@@ -352,13 +366,15 @@ void PageEnter_QuestionList()
                 break;
 
             case KEY_ENTER:
-                EnterPreview(data);
+                EnterPreview(data, true);
                 break;
 
             case KEY_ESCAPE:
                 UnsetResizeHandler();
                 UnsetMouseHandler();
                 printf(SCREEN_SCROLL_REGION_RESET);
+                free(data);
+                data = NULL;
                 return;
 
             default:
@@ -367,7 +383,7 @@ void PageEnter_QuestionList()
     }
 }
 
-void OnResize(int width, int height, void* data)
+void OnQuestionListPageResize(int width, int height, void* data)
 {
     QuestionListPageData* pageData = (QuestionListPageData*)data;
     pageData->terminalWidth = width;
@@ -387,12 +403,12 @@ void OnResize(int width, int height, void* data)
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void OnScroll(bool down, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data) {
     Scroll((QuestionListPageData*)data, down);
 }
 #pragma GCC diagnostic warning "-Wunused-parameter"
 
-void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
@@ -425,7 +441,7 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
         pageData->selected = index + pageData->drawQuestionStartIndex;
 
         if(pageData->selected == oldSelected) {
-            EnterPreview(pageData);
+            EnterPreview(pageData, false);
             return;
         }
     }
@@ -433,7 +449,7 @@ void OnMouseClick(int button, int mouseX, int mouseY, void* data) {
     UpdateVisibleQuestions(pageData, oldSelected);
 }
 
-void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
@@ -447,5 +463,5 @@ void OnMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
         // In bounds but on mouse click has already selected the item
     }
 
-    EnterPreview(pageData);
+    EnterPreview(pageData, false);
 }
