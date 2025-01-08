@@ -49,32 +49,6 @@
 #define SET_RGB_FG_COLOR(r, g, b) ESC_SEQ "38;2;%d;%d;%dm", r, g, b
 #define SET_RGB_BG_COLOR(r, g, b) ESC_SEQ "48;2;%d;%d;%dm", r, g, b
 
-#define SET_COLOR(x) ESC_SEQ "%dm", x
-#define SET_COLORS(x, y) ESC_SEQ "%d;%dm", x, y
-
-#define COLOR_FG_BLACK 30
-#define COLOR_FG_RED 31
-#define COLOR_FG_GREEN 32
-#define COLOR_FG_YELLOW 33
-#define COLOR_FG_BLUE 34
-#define COLOR_FG_MAGENTA 35
-#define COLOR_FG_CYAN 36
-#define COLOR_FG_WHITE 37
-#define COLOR_FG_DEFAULT 39
-#define COLOR_RESET 0
-
-#define COLOR_BG_BLACK 40
-#define COLOR_BG_RED 41
-#define COLOR_BG_GREEN 42
-#define COLOR_BG_YELLOW 43
-#define COLOR_BG_BLUE 44
-#define COLOR_BG_MAGENTA 45
-#define COLOR_BG_CYAN 46
-#define COLOR_BG_WHITE 47
-#define COLOR_BG_DEFAULT 49
-
-#define COLOR_BRIGHT_MOD 60
-
 bool CheckForAnsiSupport();
 
 void EnableAlternativeBuffer();

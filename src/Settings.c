@@ -4,15 +4,16 @@
 #include <errno.h>
 #include "AnsiHelper.h"
 #include "IOHelper.h"
+#include "RGBColors.h"
 
 #define SETTINGS_FILE "./settings.txt"
 
 void LoadDefaultSettings(Settings* settings) {
-    settings->CorrectAnswerColor = COLOR_FG_GREEN;
-    settings->WrongAnswerColor = COLOR_FG_RED;
-    settings->SelectedAnswerColor = COLOR_FG_YELLOW;
-    settings->ConfirmedAnswerColor = COLOR_FG_CYAN;
-    settings->SupportColor = COLOR_FG_MAGENTA;
+    settings->CorrectAnswerColor = RGB_ID_GREEN;
+    settings->WrongAnswerColor = RGB_ID_RED;
+    settings->SelectedAnswerColor = RGB_ID_YELLOW;
+    settings->ConfirmedAnswerColor = RGB_ID_CYAN;
+    settings->SupportColor = RGB_ID_MAGENTA;
     settings->FullUTF8Support = 1;
     settings->TutorialShown = 0;
     settings->ShowCorrectWhenWrong = 1;
