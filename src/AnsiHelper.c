@@ -106,8 +106,7 @@ void ClearLine()
 
 void SetColors(int fgColor, int bgColor)
 {
-    printf(SET_COLOR(fgColor));
-    printf(SET_COLOR(bgColor));
+    printf(SET_COLORS(fgColor, bgColor));
 }
 
 void SetColor(int color)
