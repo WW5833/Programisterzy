@@ -10,15 +10,6 @@
 #define ESC '\033'
 #define ANY_MOUSE_BUTTON '\255'
 
-const char* GetNextChar(const char* c);
-const char* GetCurrentChar(const char* stringStart, const char* c);
-int GetCurrentCharSize(const char* stringStart, const char* c);
-
-int GetStringCharCount(const char* start);
-int GetCharCount(const char* start, const char* end);
-int GetWrappedLineCount(const char* line, int width);
-int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText);
-
 typedef enum {
     KEY_NONE = 0,
     KEY_ARROW_UP,

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "IOHelper.h"
+#include "TextHelper.h"
 
 #define MAX_QUESTION_LENGTH 256
 

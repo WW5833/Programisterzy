@@ -19,19 +19,22 @@ int main() {
 
     LoadedSettings = LoadSettings();
 
-    GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
-
     ClearScreenManual();
     EnableAlternativeBuffer();
 
     ResetColor();
     ClearScreen();
+    HideCursor();
 
     LoadQuestions();
 
     if(GetQuestionList() == NULL) {
-        fprintf(stderr, "Failed to load questions\n");
-        ExitApp(EXIT_FAILURE);
+    }
+
+    IOLoop();
+
+    if(LatestTerminalHeight == -1) {
+        GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
     }
 
     if(LoadedSettings->TutorialShown == 0) {

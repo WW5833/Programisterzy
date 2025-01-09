@@ -6,6 +6,7 @@
 #include "PageUtils.h"
 #include "IOHelper.h"
 #include "RGBColors.h"
+#include "TextHelper.h"
 
 extern Settings* LoadedSettings;
 

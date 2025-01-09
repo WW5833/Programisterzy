@@ -4,6 +4,7 @@
 #include <errno.h>
 #include "PageUtils.h"
 #include "IOHelper.h"
+#include "TextHelper.h"
 
 bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;

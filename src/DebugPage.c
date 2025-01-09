@@ -2,6 +2,7 @@
 #include "PageUtils.h"
 #include "QuizManager.h"
 #include "AnsiHelper.h"
+#include "TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 

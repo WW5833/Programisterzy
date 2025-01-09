@@ -7,6 +7,7 @@
 #include "IOHelper.h"
 #include "RGBColors.h"
 #include "Popup.h"
+#include "TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 

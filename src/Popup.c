@@ -2,6 +2,7 @@
 #include "Utf8Symbols.h"
 #include "AnsiHelper.h"
 #include "PageUtils.h"
+#include "TextHelper.h"
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 

@@ -3,6 +3,7 @@
 #include "AnsiHelper.h"
 #include "Utf8Symbols.h"
 #include "IOHelper.h"
+#include "TextHelper.h"
 
 #define SET_COLOR_RED ESC_SEQ "38;2;139;0;0m"
 #define SET_COLOR_BRIGHT_RED ESC_SEQ "38;2;255;36;0m"

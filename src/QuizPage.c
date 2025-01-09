@@ -11,6 +11,7 @@
 #include "Popup.h"
 #include "Utf8Symbols.h"
 #include <string.h>
+#include "TextHelper.h"
 
 extern Settings* LoadedSettings;
 extern int LatestTerminalWidth, LatestTerminalHeight;

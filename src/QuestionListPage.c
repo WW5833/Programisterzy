@@ -5,6 +5,7 @@
 #include "QuizQuestionPage.h"
 #include "IOHelper.h"
 #include "RGBColors.h"
+#include "TextHelper.h"
 
 #include <string.h>
 
