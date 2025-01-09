@@ -77,6 +77,7 @@ bool CheckForAnsiSupportPost() {
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void InitializeIO()
 {
+    internal_IOHelper_LoopLock = true;
     system("chcp 65001");
 
     // Get the standard input handle.
@@ -115,6 +116,8 @@ void InitializeIO()
     if(!CheckForAnsiSupportPost()) {
         ExitAppWithErrorMessage(EXIT_FAILURE, "ANSI not supported but requied!");
     }
+
+    internal_IOHelper_LoopLock = false;
 }
 
 void _internal_PreExitApp()

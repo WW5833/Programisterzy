@@ -61,7 +61,12 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
     int terminalHeight = wbsr.dwSize.Y;
 
     if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) { // Cmd has always height of buffer in resize info but size check will return true value
-        GetTerminalSize(&termianlWidth, &terminalHeight);
+        if(internal_IOHelper_LoopLock) {
+            terminalHeight = LatestTerminalHeight; // Prevent infinite loop
+        }
+        else {
+            GetTerminalSize(&termianlWidth, &terminalHeight);
+        }
     }
 
     LatestTerminalWidth = termianlWidth;
