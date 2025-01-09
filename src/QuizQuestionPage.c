@@ -24,6 +24,12 @@ typedef enum {
     CFW_Exit,
 } CurrentFocusedVindow;
 
+typedef enum {
+    PMA_None,
+    PMA_AnswerConfirmation,
+    PMA_AbilityActivation,
+} PendingMouseAction;
+
 extern Settings* LoadedSettings;
 
 typedef struct
@@ -54,7 +60,7 @@ typedef struct
 
     int selectedQuestion;
     bool confirmed;
-    bool pendingAnswerConfirmation;
+    PendingMouseAction pendingAction;
 
     bool previewMode;
 } QuizQuestionPageData;
@@ -186,7 +192,7 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     data->outResult = outResult;
     data->selectedQuestion = 0;
     data->confirmed = false;
-    data->pendingAnswerConfirmation = false;
+    data->pendingAction = PMA_None;
     data->previewMode = false;
     data->mouseSelectedAbility = -1;
     data->focusedWindow = CFW_Question;
@@ -481,7 +487,7 @@ bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     }
 
     if(eventCalled) {
-        data->pendingAnswerConfirmation = true;
+        data->pendingAction = PMA_AnswerConfirmation;
         return true;
     }
 
@@ -654,7 +660,7 @@ bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) 
     return true;
 }
 
-bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) {
+bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int y) {
     bool result = false;
     int oldSelected = data->mouseSelectedAbility;
     data->mouseSelectedAbility = -1;
@@ -698,7 +704,7 @@ void OnQuizQuestionPageMouseMove(int x, int y, void* data) {
     }
 
     SelectAnswerBasedOnMousePosition(pageData, x, y);
-    SelectAbilityBasedOnMousePosition(data, x, y);
+    SelectAbilityBasedOnMousePosition(data, y);
 }
 
 void HandleMouseClickForAnswer(QuizQuestionPageData* data, int x, int y) {
@@ -709,8 +715,8 @@ void HandleMouseClickForAnswer(QuizQuestionPageData* data, int x, int y) {
     HandleAnswerConfirmation(data, true);
 }
 
-void HandleMouseClickForAbilities(QuizQuestionPageData* data, int x, int y) {
-    if(!SelectAbilityBasedOnMousePosition(data, x, y)) {
+void HandleMouseClickForAbilities(QuizQuestionPageData* data, int y) {
+    if(!SelectAbilityBasedOnMousePosition(data, y)) {
         return;
     }
 
@@ -720,20 +726,7 @@ void HandleMouseClickForAbilities(QuizQuestionPageData* data, int x, int y) {
         return;
     }
 
-    switch (data->mouseSelectedAbility)
-    {
-        case ABILITY_AUDIENCE:
-            ShowAudienceHelp(data);
-            break;
-        case ABILITY_5050:
-            Show5050Help(data);
-            break;
-        case ABILITY_PHONE:
-            ShowPhoneHelp(data);
-            break;
-    }
-
-    DrawStaticUI(data);
+    data->pendingAction = PMA_AbilityActivation;
 }
 
 void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
@@ -749,7 +742,7 @@ void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
 
     if(pageData->focusedWindow == CFW_Question) {
         HandleMouseClickForAnswer(pageData, x, y);
-        HandleMouseClickForAbilities(pageData, x, y);
+        HandleMouseClickForAbilities(pageData, y);
     }
 
     // Maybe add option to exit from abilities windows but that whould require awaiting for mouse click in WaitForKeys
@@ -773,9 +766,26 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(data->pendingAnswerConfirmation) {
+        if(data->pendingAction == PMA_AnswerConfirmation) {
+            data->pendingAction = PMA_None;
             HandleAnswerConfirmation(data, false);
             break;
+        } else if(data->pendingAction == PMA_AbilityActivation) {  
+            data->pendingAction = PMA_None; 
+            switch (data->mouseSelectedAbility)
+            {
+                case ABILITY_AUDIENCE:
+                    ShowAudienceHelp(data);
+                    break;
+                case ABILITY_5050:
+                    Show5050Help(data);
+                    break;
+                case ABILITY_PHONE:
+                    ShowPhoneHelp(data);
+                    break;
+            }
+
+            DrawStaticUI(data);
         }
 
         if(HandleKeyInput(data, key)) {
@@ -918,7 +928,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     }
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '1', ESC);
+    WaitForKeys(ENTER, '1', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
@@ -944,7 +954,7 @@ void Show5050Help(QuizQuestionPageData* data) {
     PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", windowWidth - 4, beginX + 2, true);
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '2', ESC);
+    WaitForKeys(ENTER, '2', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
@@ -970,7 +980,7 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     PrintWrappedLine("Niestety twój przyiaciel nie odbiera.", windowWidth - 4, beginX + 2, true);
 
     SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '3', ESC);
+    WaitForKeys(ENTER, '3', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
