@@ -110,7 +110,8 @@ int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cent
     int lineLength = GetStringCharCount(line);
     if(lineLength <= width) {
         if(centerText) {
-            printf(CSR_MOVE_RIGHT((width - lineLength) / 2));
+            int leftSpaces = (width - lineLength) / 2;
+            if(leftSpaces > 0) printf(CSR_MOVE_RIGHT(leftSpaces));
         }
 
         printf("%s", line);
@@ -141,7 +142,8 @@ int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cent
                     printf("%.*s", byteLineLength, lineStart);
                 }
 
-                printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(secondaryOffset));
+                printf(CSR_MOVE_LEFT_0_DOWN1);
+                if(secondaryOffset > 0) printf(CSR_MOVE_LEFT(secondaryOffset));
                 currentWidth = 0;
                 lineStart = wordStart;
                 lineCount++;
