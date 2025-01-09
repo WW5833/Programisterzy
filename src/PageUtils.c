@@ -9,10 +9,6 @@ KeyInputType HandleInteractions(bool blocking) {
 
     switch (c)
     {
-        case CTRL_C:
-            ExitOnCtrlC();
-            break;
-
         case ENTER:
             return KEY_ENTER;
         case '1':
@@ -52,11 +48,6 @@ KeyInputType HandleInteractions(bool blocking) {
     return KEY_NONE;
 }
 
-void ExitOnCtrlC() {
-    // printf("Exiting... (CTRL+C)\t");
-    ExitApp(EXIT_SUCCESS);
-}
-
 void WaitForEnter() {
     WaitForKeys(ENTER);
 }
@@ -66,10 +57,6 @@ char _internal_WaitForKeys(int count, char* keys)
     int c;
     while(true) {
         c = WaitForAnyInput();
-
-        if(c == CTRL_C) {
-            ExitOnCtrlC();
-        }
 
         for (int i = 0; i < count; i++)
         {

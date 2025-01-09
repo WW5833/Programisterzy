@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define CTRL_C '\03'
 #define ENTER '\015'
 #define ESC '\033'
 #define ANY_MOUSE_BUTTON '\255'
@@ -26,7 +25,6 @@ typedef enum {
 
 KeyInputType HandleInteractions(bool blocking);
 
-void ExitOnCtrlC();
 void WaitForEnter();
 char _internal_WaitForKeys(int count, char* keys);
 #define WaitForKeys(...) _internal_WaitForKeys(sizeof((char[]){__VA_ARGS__}), (char[]){__VA_ARGS__})

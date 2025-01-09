@@ -21,16 +21,10 @@ void GetCursorPosition(int* x, int* y)
     printf(ESC_SEQ "6n");
 
     int c = getch();
-    if(c == CTRL_C) {
-        ExitOnCtrlC();
-    }
     
     if(c != '\x1B') {
         while(kbhit()) {
             c = getch();
-            if(c == CTRL_C) {
-                ExitOnCtrlC();
-            }
             if(c == '\x1B'){
                 goto esc_seq_found;
             }
