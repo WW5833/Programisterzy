@@ -32,7 +32,7 @@ void SetConsoleModes() {
 
     if(fdwOutMode != 0) {
         // Set output mode to handle virtual terminal sequences
-        if (!SetConsoleMode(stdinHandle, fdwInMode)) {
+        if (!SetConsoleMode(stdoutHandle, fdwOutMode)) {
             ErrorExit("SetConsoleMode(STDOUT)");
         }
     }
