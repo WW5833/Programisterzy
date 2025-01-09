@@ -6,6 +6,7 @@
 #include <time.h>
 #include "IOHelper.h"
 #include "RGBColors.h"
+#include "Popup.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
@@ -274,18 +275,18 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
 
 const char* GetRewardText(int rewardId) {
     switch (rewardId) {
-        case -1: return "        0 zł";
-        case 0:  return "      500 zł";
-        case 1:  return "    1 000 zł";
-        case 2:  return "    4 000 zł";
-        case 3:  return "   10 000 zł";
-        case 4:  return "   25 000 zł"; 
-        case 5:  return "   50 000 zł";
-        case 6:  return "  100 000 zł";
-        case 7:  return "  250 000 zł";
-        case 8:  return "  500 000 zł";
+        case -1: return "0 zł";
+        case 0:  return "500 zł";
+        case 1:  return "1 000 zł";
+        case 2:  return "4 000 zł";
+        case 3:  return "10 000 zł";
+        case 4:  return "25 000 zł"; 
+        case 5:  return "50 000 zł";
+        case 6:  return "100 000 zł";
+        case 7:  return "250 000 zł";
+        case 8:  return "500 000 zł";
         case 9:  return "1 000 000 zł";
-        default: return "            ";
+        default: return "";
     }
 }
 
@@ -323,7 +324,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
 
         printf(" ");
 
-        printf("%s", GetRewardText(rewardId));
+        printf("%13s", GetRewardText(rewardId));
         ResetColor();
     }
 }
@@ -841,20 +842,11 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Audience;
 
     const int windowWidth = 54;
-    const int beginX = (data->terminalWidth - windowWidth) / 2;
-    int beginY = 2;
     int windowHeight = 13;
     int segmentCount = 9;
 
-    SetCursorPosition(beginX, beginY);
-
-    PRINT_SINGLE_TOP_BORDER(windowWidth);
-
-    for (int i = 1; i < windowHeight; i++)
-        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
-
-    SetCursorPosition(beginX, beginY + windowHeight);
-    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
+    int beginX, beginY;
+    DrawEmptyPopup(windowWidth, windowHeight + 1, &beginX, &beginY);
 
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine("Publiczność zagłosowała za odpowiedziami.", windowWidth - 4, beginX + 2, true);
@@ -936,25 +928,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
 void Show5050Help(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_5050;
 
-    const int windowWidth = 49 + 4;
-    const int beginX = (data->terminalWidth - windowWidth) / 2;
-    int beginY = 3;
-    int widnowHeight = 3;
-
-    SetCursorPosition(beginX, beginY);
-    PRINT_SINGLE_TOP_BORDER(windowWidth);
-
-    for (int i = 1; i < widnowHeight; i++)
-        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
-
-    SetCursorPosition(beginX, beginY + widnowHeight);
-    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
-
-    SetCursorPosition(beginX + 2, beginY + 1);
-    PrintWrappedLine("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", windowWidth - 4, beginX + 2, true);
-
-    SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '2', ESC, ANY_MOUSE_BUTTON);
+    ShowAlertPopup("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", 48 + 4);
 
     data->focusedWindow = CFW_Question;
 }
@@ -962,25 +936,7 @@ void Show5050Help(QuizQuestionPageData* data) {
 void ShowPhoneHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Phone;
 
-    const int windowWidth = 49 + 4;
-    const int beginX = (data->terminalWidth - windowWidth) / 2;
-    int beginY = 3;
-    int widnowHeight = 3;
-
-    SetCursorPosition(beginX, beginY);
-    PRINT_SINGLE_TOP_BORDER(windowWidth);
-
-    for (int i = 1; i < widnowHeight; i++)
-        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
-
-    SetCursorPosition(beginX, beginY + widnowHeight);
-    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
-
-    SetCursorPosition(beginX + 2, beginY + 1);
-    PrintWrappedLine("Niestety twój przyiaciel nie odbiera.", windowWidth - 4, beginX + 2, true);
-
-    SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '3', ESC, ANY_MOUSE_BUTTON);
+    ShowAlertPopup("Niestety twój przyiaciel nie odbiera.", 37 + 4);
 
     data->focusedWindow = CFW_Question;
 }
@@ -988,31 +944,17 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
 bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Exit;
 
-    const int windowWidth = 34 + 4;
-    const int beginX = (data->terminalWidth - windowWidth) / 2;
-    int beginY = 3;
-    int widnowHeight = 5;
-
-    SetCursorPosition(beginX, beginY);
-    PRINT_SINGLE_TOP_BORDER(windowWidth);
-
-    for (int i = 1; i < widnowHeight; i++)
-        PrintGenericBorderEdges(beginX, windowWidth, beginY + i, SINGLE_VERTICAL_LINE, true);
-
-    SetCursorPosition(beginX, beginY + widnowHeight);
-    PRINT_SINGLE_BOTTOM_BORDER(windowWidth);
-
-    SetCursorPosition(beginX + 2, beginY + 1);
-    printf("Czy na pewno chcesz zakończyć grę?");
-    SetCursorPosition(beginX + 2, beginY + 3);
-    printf("[ENTER] Tak");
-    printf("\r" CSR_MOVE_RIGHT(beginX + 2 + windowWidth - 14));
-    printf("Nie [ESC]");
-
-    SetCursorToRestingPlace(data);
-    char c = WaitForKeys(ENTER, ESC);
+    if(ShowConfirmationPopup(
+        "Czy na pewno chcesz zakończyć grę?",
+        "TAK",
+        "NIE",
+        34 + 4
+        ))
+    {
+        data->focusedWindow = CFW_Question;
+        return true;
+    }
 
     data->focusedWindow = CFW_Question;
-
-    return c == ENTER;
+    return false;
 }

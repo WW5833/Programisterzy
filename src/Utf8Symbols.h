@@ -27,6 +27,8 @@
 
 #define SINGLE_BREAK_LEFT "┤"
 #define SINGLE_BREAK_RIGHT "├"
+#define SINGLE_BREAK_TOP "┴"
+#define SINGLE_BREAK_BOTTOM "┬"
 
 #define BLOCK_x_8(x) "%c%c%c", 0xE2, 0x96, (0x80+x)
 #define BLOCK_1_8 "▁" /* Does not work on all terminals */

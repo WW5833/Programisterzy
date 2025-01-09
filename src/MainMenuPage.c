@@ -64,8 +64,10 @@ void PrintMainMenu(MainMenuPageData* data)
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
     printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Strona powitalna\n");
+    printf("[ ] Strona powitalna\n"  CSR_MOVE_RIGHT(2));
 #endif
+
+    printf("\r");
     
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 

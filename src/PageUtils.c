@@ -131,27 +131,21 @@ int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cent
         if (*current == ' ' || *next == '\0') {
             int wordLength = GetCharCount(wordStart, current) + (*next == '\0' ? 1 : 0);
             if (currentWidth + wordLength > width) {
+                lineLength = GetCharCount(lineStart, wordStart) - 1;
 
                 if(centerText) {
-                    lineLength = GetCharCount(lineStart, wordStart) - 1;
-
                     leftSpaces = (width - lineLength) / 2;
                     if(leftSpaces > 0) printf(CSR_MOVE_RIGHT(leftSpaces));
-
-                    byteLineLength = (int)(wordStart - lineStart) - 1;
-                    printf("%.*s", byteLineLength, lineStart);
                 }
 
+                byteLineLength = (int)(wordStart - lineStart) - 1;
+                printf("%.*s", byteLineLength, lineStart);
+
                 printf(CSR_MOVE_LEFT_0_DOWN1);
-                if(secondaryOffset > 0) printf(CSR_MOVE_LEFT(secondaryOffset));
+                if(secondaryOffset > 0) printf(CSR_MOVE_RIGHT(secondaryOffset));
                 currentWidth = 0;
                 lineStart = wordStart;
                 lineCount++;
-            }
-
-            if(!centerText) {
-                int byteWordLength = (int)(current - wordStart) + (*next == '\0' ? 1 : 0);
-                printf("%.*s ", byteWordLength, wordStart);
             }
 
             currentWidth += wordLength + 1;
@@ -160,15 +154,14 @@ int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool cent
         current = next;
     }
 
+    lineLength = GetCharCount(lineStart, wordStart);
     if(centerText) {
-        lineLength = GetCharCount(lineStart, wordStart);
-
         leftSpaces = (width - lineLength) / 2;
         if(leftSpaces > 0) printf(CSR_MOVE_RIGHT(leftSpaces));
-
-        byteLineLength = (int)(current - lineStart);
-        printf("%.*s", byteLineLength, lineStart);
     }
+
+    byteLineLength = (int)(current - lineStart);
+    printf("%.*s", byteLineLength, lineStart);
 
     return lineCount;
 }
