@@ -47,6 +47,8 @@ void PageEnter_Quiz()
     else if(i > 2) safe = 2;
     else if(i > 0) safe = 0;
 
+    SetCursorPosition(0, LatestTerminalHeight - 1);
+
     char textBuffer[100];
     switch (correct)
     {
