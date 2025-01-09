@@ -18,7 +18,7 @@
 #define RGB_DARK_GREEN     78, 154,   6
 #define RGB_FULL_YELLOW   255, 255,   0
 #define RGB_DARK_BLUE       6,  53, 204
-#define RGB_LIGHT_MAGENTA 255, 128, 255
+#define RGB_LIGHT_MAGENTA 192,  96, 192
 #define RGB_DARK_CYAN       6, 152, 204
 
 #define COLOR_FG 38
