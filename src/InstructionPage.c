@@ -28,14 +28,14 @@ void PageEnter_Instruction()
 {
     HideCursor();
 
-    InstructionPageData* data = malloc(sizeof(InstructionPageData));
-    data->terminalWidth = LatestTerminalWidth;
-    data->terminalHeight = LatestTerminalHeight;
-    data->pageNumber = 1;
+    InstructionPageData data;
+    data.terminalWidth = LatestTerminalWidth;
+    data.terminalHeight = LatestTerminalHeight;
+    data.pageNumber = 1;
 
-    DrawUI(data);
+    DrawUI(&data);
 
-    SetResizeHandler(OnInstructionPageResize, data);
+    SetResizeHandler(OnInstructionPageResize, &data);
 
     while(true){
         KeyInputType key = HandleInteractions(true);
@@ -45,23 +45,21 @@ void PageEnter_Instruction()
                 break;
                 
             case KEY_ARROW_LEFT: {
-                data->pageNumber--;
-                if(data->pageNumber < 1) data->pageNumber = 1;
-                else DrawUI(data);
+                data.pageNumber--;
+                if(data.pageNumber < 1) data.pageNumber = 1;
+                else DrawUI(&data);
                 break;
             }
                 
             case KEY_ARROW_RIGHT: {
-                data->pageNumber++;
-                if(data->pageNumber > 3) data->pageNumber = 3;
-                else DrawUI(data);
+                data.pageNumber++;
+                if(data.pageNumber > 3) data.pageNumber = 3;
+                else DrawUI(&data);
                 break;
             }
 
             case KEY_ESCAPE: 
                 UnsetResizeHandler();
-                free(data);
-                data = NULL;
                 return;
             
             default:

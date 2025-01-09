@@ -335,25 +335,25 @@ void PageEnter_QuestionList()
 {
     HideCursor();
 
-    QuestionListPageData* data = malloc(sizeof(QuestionListPageData));
-    data->terminalWidth = LatestTerminalWidth;
-    data->terminalHeight = LatestTerminalHeight;
+    QuestionListPageData data;
+    data.terminalWidth = LatestTerminalWidth;
+    data.terminalHeight = LatestTerminalHeight;
 
-    data->drawQuestionStartIndex = 0;
-    data->selected = 0;
-    data->list = GetQuestionList();
+    data.drawQuestionStartIndex = 0;
+    data.selected = 0;
+    data.list = GetQuestionList();
 
-    printf(SCREEN_SCROLL_REGION(2, data->terminalHeight - 1)); // Set scrolling region
+    printf(SCREEN_SCROLL_REGION(2, data.terminalHeight - 1)); // Set scrolling region
 
-    OnQuestionListPageResize(data->terminalWidth, data->terminalHeight, data);
+    OnQuestionListPageResize(data.terminalWidth, data.terminalHeight, &data);
 
-    SetResizeHandler(OnQuestionListPageResize, data);
-    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
+    SetResizeHandler(OnQuestionListPageResize, &data);
+    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, &data);
 
     KeyInputType key;
     while(true) {
         if(delayedEnterQuiz) {
-            EnterPreview(data, true);
+            EnterPreview(&data, true);
         }
 
         key = HandleInteractions(false);
@@ -363,23 +363,21 @@ void PageEnter_QuestionList()
         switch (key)
         {
             case KEY_ARROW_UP:
-                Scroll(data, false);
+                Scroll(&data, false);
                 break;
 
             case KEY_ARROW_DOWN:
-                Scroll(data, true);
+                Scroll(&data, true);
                 break;
 
             case KEY_ENTER:
-                EnterPreview(data, true);
+                EnterPreview(&data, true);
                 break;
 
             case KEY_ESCAPE:
                 UnsetResizeHandler();
                 UnsetMouseHandler();
                 printf(SCREEN_SCROLL_REGION_RESET);
-                free(data);
-                data = NULL;
                 return;
 
             default:

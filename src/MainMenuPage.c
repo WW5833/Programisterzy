@@ -128,21 +128,22 @@ void PageEnter_MainMenu()
 {
     HideCursor();
 
-    MainMenuPageData* data = malloc(sizeof(MainMenuPageData));
-    data->terminalWidth = LatestTerminalWidth;
-    data->terminalHeight = LatestTerminalHeight;
-    data->selected = 0;
+    MainMenuPageData data;
+    data.terminalWidth = LatestTerminalWidth;
+    data.terminalHeight = LatestTerminalHeight;
+    data.selected = 0;
 
-    PrintMainMenu(data);
+    PrintMainMenu(&data);
+
 
     while (true)
     {
         KeyInputType key = HandleInteractions(true);
         if(key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
-            OnArrowKeysPressed(data, key == KEY_ARROW_DOWN);
+            OnArrowKeysPressed(&data, key == KEY_ARROW_DOWN);
         }
         else if (key == KEY_ENTER) {
-            OnEnterPressed(data);
+            OnEnterPressed(&data);
         }
     }
 }

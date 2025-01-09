@@ -209,14 +209,14 @@ void PageEnter_Settings()
 {
     HideCursor();
 
-    SettingsPageData* data = malloc(sizeof(SettingsPageData));
-    data->terminalWidth = LatestTerminalWidth;
-    data->terminalHeight = LatestTerminalHeight;
-    data->selected = 0;
+    SettingsPageData data;
+    data.terminalWidth = LatestTerminalWidth;
+    data.terminalHeight = LatestTerminalHeight;
+    data.selected = 0;
 
-    DrawSettingsUI(data);
+    DrawSettingsUI(&data);
 
-    SetResizeHandler(OnSettingsPageResize, data);
+    SetResizeHandler(OnSettingsPageResize, &data);
 
     bool continueLoop = true;
     while (continueLoop)
@@ -225,25 +225,25 @@ void PageEnter_Settings()
         switch (key)
         {
             case KEY_ARROW_UP:
-                HandleArrowUpDownKeys(data, -1);
+                HandleArrowUpDownKeys(&data, -1);
                 break;
 
             case KEY_ARROW_DOWN:
-                HandleArrowUpDownKeys(data, 1);
+                HandleArrowUpDownKeys(&data, 1);
                 break;
                 
             case KEY_ENTER:
-                if(HandleEnterKey(data)) {
+                if(HandleEnterKey(&data)) {
                     continueLoop = false; // Exit page
                 }
                 break;
                 
             case KEY_ARROW_LEFT:
-                HandleArrowLeftRightKeys(data, -1);
+                HandleArrowLeftRightKeys(&data, -1);
                 break;
                 
             case KEY_ARROW_RIGHT: 
-                HandleArrowLeftRightKeys(data, 1);
+                HandleArrowLeftRightKeys(&data, 1);
                 break;
 
             case KEY_ESCAPE: 
@@ -257,6 +257,4 @@ void PageEnter_Settings()
     }
 
     UnsetResizeHandler();
-    free(data);
-    data = NULL;
 }

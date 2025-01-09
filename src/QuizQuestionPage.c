@@ -184,9 +184,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
     data->answersEndY = data->questionContentEndY + data->ansLineCountMaxAB + data->ansLineCountMaxCD + 8;
 }
 
-// Create a new QuizQuestionPageData object
-QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, int offset, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
-    QuizQuestionPageData* data = malloc(sizeof(QuizQuestionPageData));
+void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, int number, int offset, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
     data->question = question;
     data->questionNumer = number;
     data->offset = offset;
@@ -228,8 +226,6 @@ QuizQuestionPageData* new_QuizQuestionPageData(Question* question, int number, i
     }
 
     CalculateQuizQuestionPageData(data, true);
-
-    return data;
 }
 
 void DrawStaticUI_Border_RewardBox(QuizQuestionPageData* data) {
@@ -757,48 +753,47 @@ void OnQuizQuestionPageDoubleMouseClick(int button, int x, int y, void* data) {
 void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) { 
     int offset = rand() % 4;
 
-    QuizQuestionPageData* data = new_QuizQuestionPageData(question, number, offset, abilities, outResult);
+    QuizQuestionPageData data;
+    ini_QuizQuestionPageData(&data, question, number, offset, abilities, outResult);
 
-    DrawStaticUI(data);
+    DrawStaticUI(&data);
 
-    SetResizeHandler(OnConsoleResize, data);
-    SetMouseHandler(OnQuizQuestionPageMouseClick, OnQuizQuestionPageDoubleMouseClick, NULL, OnQuizQuestionPageMouseMove, data);
+    SetResizeHandler(OnConsoleResize, &data);
+    SetMouseHandler(OnQuizQuestionPageMouseClick, OnQuizQuestionPageDoubleMouseClick, NULL, OnQuizQuestionPageMouseMove, &data);
 
     while (true)
     {
         KeyInputType key = HandleInteractions(false);
 
-        if(data->pendingAction == PMA_AnswerConfirmation) {
-            data->pendingAction = PMA_None;
-            HandleAnswerConfirmation(data, false);
+        if(data.pendingAction == PMA_AnswerConfirmation) {
+            data.pendingAction = PMA_None;
+            HandleAnswerConfirmation(&data, false);
             break;
-        } else if(data->pendingAction == PMA_AbilityActivation) {  
-            data->pendingAction = PMA_None; 
-            switch (data->mouseSelectedAbility)
+        } else if(data.pendingAction == PMA_AbilityActivation) {  
+            data.pendingAction = PMA_None; 
+            switch (data.mouseSelectedAbility)
             {
                 case ABILITY_AUDIENCE:
-                    ShowAudienceHelp(data);
+                    ShowAudienceHelp(&data);
                     break;
                 case ABILITY_5050:
-                    Show5050Help(data);
+                    Show5050Help(&data);
                     break;
                 case ABILITY_PHONE:
-                    ShowPhoneHelp(data);
+                    ShowPhoneHelp(&data);
                     break;
             }
 
-            DrawStaticUI(data);
+            DrawStaticUI(&data);
         }
 
-        if(HandleKeyInput(data, key)) {
+        if(HandleKeyInput(&data, key)) {
             break;
         }
     }
 
     UnsetResizeHandler();
     RemoveMouseHandlers();
-    free(data);
-    data = NULL;
 }
 
 void PageEnter_QuizQuestionPreview(Question* question) { 
@@ -807,12 +802,13 @@ void PageEnter_QuizQuestionPreview(Question* question) {
     QuizQuestionAbilityStatus abilities[3] = {QQAS_Unavailable, QQAS_Unavailable, QQAS_Unavailable};
     QuizQuestionResult result;
 
-    QuizQuestionPageData* data = new_QuizQuestionPageData(question, question->Id, offset, abilities, &result);
-    data->previewMode = true;
+    QuizQuestionPageData data;
+    ini_QuizQuestionPageData(&data, question, question->Id, offset, abilities, &result);
+    data.previewMode = true;
 
-    DrawStaticUI(data);
+    DrawStaticUI(&data);
 
-    SetResizeHandler(OnConsoleResize, data);
+    SetResizeHandler(OnConsoleResize, &data);
 
     bool continueLoop = true;
     while(continueLoop) {
@@ -820,8 +816,8 @@ void PageEnter_QuizQuestionPreview(Question* question) {
         {
             case KEY_R:
                 // Recalculate and redraw UI
-                CalculateQuizQuestionPageData(data, true);
-                DrawStaticUI(data);
+                CalculateQuizQuestionPageData(&data, true);
+                DrawStaticUI(&data);
                 break;
 
             case KEY_ENTER:
@@ -834,8 +830,6 @@ void PageEnter_QuizQuestionPreview(Question* question) {
         }
     }
 
-    free(data);
-    data = NULL;
     UnsetResizeHandler();
 }
 
