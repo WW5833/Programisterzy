@@ -30,8 +30,7 @@ void GetCursorPosition(int* x, int* y)
             }
         }
 
-        fprintf(stderr, "Failed to get cursor position, ANSI not supported?\n");
-        ExitApp(EXIT_FAILURE);
+        ExitAppWithErrorMessage(EXIT_FAILURE, "Failed to get cursor position, ANSI not supported?");
     }
     esc_seq_found:
 

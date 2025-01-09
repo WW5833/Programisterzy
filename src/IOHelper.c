@@ -64,6 +64,17 @@ void EnableMouseInput(bool enable)
     SetConsoleModes();
 }
 
+bool CheckForAnsiSupportPost() {
+    printf(ESC_SEQ "6n");
+    
+    if(kbhit() && getch() == '\x1B') { 
+        while (getch() != 'R'); // Clear the buffer
+        return true; // ANSI supported
+    }
+
+    return false;
+}
+
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void InitializeIO()
 {
@@ -102,13 +113,12 @@ void InitializeIO()
 
     SetConsoleModes();
     
-    if(!CheckForAnsiSupport()) {
-        fprintf(stderr, "ANSI not supported but requied!\n");
-        ExitApp(EXIT_FAILURE);
+    if(!CheckForAnsiSupportPost()) {
+        ExitAppWithErrorMessage(EXIT_FAILURE, "ANSI not supported but requied!");
     }
 }
 
-void ExitApp(int exitCode)
+void _internal_PreExitApp()
 {
     // Restore input mode on exit.
     if(stdInHandleInitialized) SetConsoleMode(stdinHandle, fdwStdInOldMode);
@@ -117,14 +127,39 @@ void ExitApp(int exitCode)
     if(stdOutHandleInitialized) SetConsoleMode(stdoutHandle, fdwStdOutOldMode);
 
     DisableAlternativeBuffer();
+}
 
+void ExitAppWithErrorFormat(int exitCode, const char* format, ...)
+{
+    _internal_PreExitApp();
+
+    va_list args;
+    va_start(args, format);
+
+    vfprintf(stderr, format, args);
+
+    va_end(args);
+
+    exit(exitCode);
+}
+
+void ExitAppWithErrorMessage(int exitCode, const char* message)
+{
+    _internal_PreExitApp();
+    
+    fprintf(stderr, "[ERROR] %s\n", message);
+
+    exit(exitCode);
+}
+
+void ExitApp(int exitCode) {
+    _internal_PreExitApp();
     exit(exitCode);
 }
 
 void ErrorExit(LPSTR lpszMessage)
 {
-    fprintf(stderr, "[IO] %s\n", lpszMessage);
-    ExitApp(EXIT_FAILURE);
+    ExitAppWithErrorFormat(EXIT_FAILURE, "[IO] %s\n", lpszMessage);
 }
 
 bool internal_IO_WaitingForMousePress = false;

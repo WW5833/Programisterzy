@@ -78,7 +78,7 @@ void ListAdd(QuestionListHeader* list, Question* data) {
 
 Question* ListGetAt(QuestionListHeader* list, int index) {
     if(index < 0 || index >= list->count) {
-        fprintf(stderr, "Index out of range\n");
+        fprintf(stderr, "[ERROR] Index out of range");
         return NULL;
     }
 
@@ -152,16 +152,14 @@ int LoadQuestions() {
         Question* q = DeserializeQuestion(buffer);
 
         if(q == NULL) {
-            fprintf(stderr, "%s:%d | Failed to deserialize question: \"%s\"\n", QUESTIONS_FILE, lineId, buffer);
-            ExitApp(EXIT_FAILURE);
+            ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] %s:%d | Failed to deserialize question: \"%s\"\n", QUESTIONS_FILE, lineId, buffer);
         }
 
         QuestionListItem* current = QuestionList->head;
         while (current != NULL)
         {
             if(current->data->Id == q->Id) {
-                fprintf(stderr, "%s:%d | Question with id %d already exists\n", QUESTIONS_FILE, lineId, q->Id);
-                ExitApp(EXIT_FAILURE);
+                ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] %s:%d | Question with id %d already exists\n", QUESTIONS_FILE, lineId, q->Id);
             }
 
             current = current->next;
@@ -204,14 +202,12 @@ QuestionListHeader* GenerateQuiz() {
         LoadQuestions();
 
         if(QuestionList == NULL) {
-            fprintf(stderr, "Failed to load questions\n");
-            ExitApp(EXIT_FAILURE);
+            ExitAppWithErrorMessage(EXIT_FAILURE, "Failed to load questions");
         }
     }
 
     if(QuestionList->count < 10) {
-        fprintf(stderr, "Minimum of 10 questions are requied\n");
-        ExitApp(EXIT_FAILURE);
+        ExitAppWithErrorMessage(EXIT_FAILURE, "Minimum of 10 questions are requied");
     }
 
     int questionIds[10];

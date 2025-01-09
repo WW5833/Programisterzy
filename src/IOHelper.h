@@ -16,7 +16,10 @@ int WaitForAnyInput();
 void IOLoop();
 
 void InitializeIO();
+
 void ExitApp(int exitCode) __attribute__((noreturn));
+void ExitAppWithErrorMessage(int exitCode, const char* message) __attribute__((noreturn));
+void ExitAppWithErrorFormat(int exitCode, const char* format, ...) __attribute__((noreturn));
 
 void SetThisConsoleTitle(const char* title);
 

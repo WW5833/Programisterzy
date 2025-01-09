@@ -47,7 +47,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
     *offset = i + 1;
 
     if(i == 0) {
-        fprintf(stderr, "[ERR] Empty string in question content\n");
+        fprintf(stderr, "[ERROR] Empty string in question content\n");
         return false;
     }
 
@@ -73,7 +73,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     if(!DeserializeQuestionId(serializedQuestion, question, &i)) 
     {
-        fprintf(stderr, "Failed to deserialize question id: \"%s\"\n", serializedQuestion);
+        fprintf(stderr, "[ERROR] Failed to deserialize question id: \"%s\"\n", serializedQuestion);
         DestroyQuestion(question);
         return NULL;
     }
@@ -81,7 +81,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     if(!DeserializeString(serializedQuestion, &question->Content, &i)) 
     {
-        fprintf(stderr, "Failed to deserialize question content: \"%s\"\n", serializedQuestion);
+        fprintf(stderr, "[ERROR] Failed to deserialize question content: \"%s\"\n", serializedQuestion);
         DestroyQuestion(question);
         return NULL;
     }   
@@ -93,7 +93,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     {
         if(!DeserializeString(serializedQuestion, &question->Answer[j], &i)) 
         {
-            fprintf(stderr, "Failed to deserialize question answer[%d]: \"%s\"\n", j, serializedQuestion);
+            fprintf(stderr, "[ERROR] Failed to deserialize question answer[%d]: \"%s\"\n", j, serializedQuestion);
             DestroyQuestion(question);
             return NULL;
         }

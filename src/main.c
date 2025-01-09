@@ -29,6 +29,7 @@ int main() {
     LoadQuestions();
 
     if(GetQuestionList() == NULL) {
+        ExitAppWithErrorMessage(EXIT_FAILURE, "Failed to load questions");
     }
 
     IOLoop();

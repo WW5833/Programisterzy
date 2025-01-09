@@ -65,8 +65,7 @@ int* GetOptionColor(int selected) {
             return &LoadedSettings->SupportColor;
 
         default:
-            fprintf(stderr, "Invalid option index: %d\n", selected);
-            ExitApp(EXIT_FAILURE);
+            ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] Invalid option index: %d\n", selected);
     }
 }
 
