@@ -13,6 +13,7 @@
 #include "InstructionPage.h"
 #include "QuizQuestionPage.h"
 #include "QuestionListPage.h"
+#include "IOHelper.h"
 
 #include "Utf8Symbols.h"
 
@@ -123,6 +124,7 @@ void OnEnterPressed(MainMenuPageData* data) {
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
+void OnMainMenuPageReset(int width, int height, void* data);
 
 void PageEnter_MainMenu()
 {
@@ -135,6 +137,7 @@ void PageEnter_MainMenu()
 
     PrintMainMenu(&data);
 
+    SetResizeHandler(OnMainMenuPageReset, &data);
 
     while (true)
     {
@@ -143,7 +146,20 @@ void PageEnter_MainMenu()
             OnArrowKeysPressed(&data, key == KEY_ARROW_DOWN);
         }
         else if (key == KEY_ENTER) {
+            UnsetResizeHandler();
+            
             OnEnterPressed(&data);
+
+            SetResizeHandler(OnMainMenuPageReset, &data);
         }
     }
+
+    UnsetResizeHandler();
+}
+
+void OnMainMenuPageReset(int width, int height, void* data) {
+    MainMenuPageData* mainMenuData = (MainMenuPageData*)data;
+    mainMenuData->terminalWidth = width;
+    mainMenuData->terminalHeight = height;
+    PrintMainMenu(mainMenuData);
 }
