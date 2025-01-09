@@ -10,7 +10,6 @@ char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
 
 #define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
 
-extern bool IOHelper_LoopLock;
 extern bool internal_IOHelper_LoopLock;
 
 int getch()

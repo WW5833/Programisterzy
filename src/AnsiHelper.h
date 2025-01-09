@@ -3,8 +3,6 @@
 
 #include "AnsiDefinitions.h"
 
-void GetCursorPosition(int* x, int* y);
-void SetCursorPosition(int x, int y);
 void ClearScreen();
 void ClearLine();
 void ResetColor();

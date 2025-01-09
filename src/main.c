@@ -35,7 +35,7 @@ int main() {
     IOLoop();
 
     if(LatestTerminalHeight == -1) {
-        GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
+        UpdateTerminalSize();
     }
 
     if(LoadedSettings->TutorialShown == 0) {

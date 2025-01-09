@@ -9,7 +9,6 @@
 #include "IOHelper.Window.h"
 #include "IOHelper.Keyboard.h"
 
-bool IOHelper_LoopLock = false;
 bool internal_IOHelper_LoopLock = false;
 
 HANDLE stdinHandle;

@@ -54,7 +54,8 @@ bool CheckForAnsiSupport();
 void EnableAlternativeBuffer();
 void DisableAlternativeBuffer();
 void ClearScreenManual();
-void GetTerminalSize(int* x, int* y);
+void GetCursorPosition(int* x, int* y);
+void SetCursorPosition(int x, int y);
 // This is here so that we can use it in the IOHelper, otherwise windows.h conflicts with ShowCursor/HideCursor
 
 #endif // _INC_ANSIDEFINITIONS_H

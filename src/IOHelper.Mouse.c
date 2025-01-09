@@ -7,7 +7,6 @@ int merQueueReadPtr = 0;
 int merQueueWritePtr = 0;
 #define MerBufferPtrInc(ptr) ptr++; if(ptr >= MER_QUEUE_SIZE) ptr = 0
 
-extern bool IOHelper_LoopLock;
 extern bool internal_IOHelper_LoopLock;
 
 void (*mouseClickHandler)(int, int, int, void *) = NULL;

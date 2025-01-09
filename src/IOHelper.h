@@ -25,6 +25,8 @@ void SetThisConsoleTitle(const char* title);
 
 void EnableMouseInput(bool enable);
 
+void UpdateTerminalSize();
+
 #define MOUSE_LEFT_BUTTON 1
 #define MOUSE_RIGHT_BUTTON 2
 

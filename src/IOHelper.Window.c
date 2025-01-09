@@ -3,7 +3,6 @@
 #include <time.h>
 #include "AnsiDefinitions.h"
 
-extern bool IOHelper_LoopLock;
 extern bool internal_IOHelper_LoopLock;
 
 #define MAX_Y_SIZE_CONSOLE 150
@@ -29,7 +28,7 @@ time_t lastResizeEvent = 0;
 bool resizeCallPending = false;
 void CallResizeHandler(int width, int height)
 {
-    if(IOHelper_LoopLock || internal_IOHelper_LoopLock) return;
+    if(internal_IOHelper_LoopLock) return;
 
     if(resizeHandler == NULL || !resizeCallPending) return;
 
@@ -41,6 +40,19 @@ void CallResizeHandler(int width, int height)
     internal_IOHelper_LoopLock = true;
     resizeHandler(width, height, resizeHandlerData);
     internal_IOHelper_LoopLock = false;
+}
+
+void GetTerminalSize(int *x, int *y)
+{
+    internal_IOHelper_LoopLock = true;
+    SetCursorPosition(999, 999);
+    GetCursorPosition(x, y);
+    internal_IOHelper_LoopLock = false;
+}
+
+void UpdateTerminalSize()
+{
+    GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
 }
 
 void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)

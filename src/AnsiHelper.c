@@ -12,7 +12,6 @@
 char _tmp_buffer[BUFFER_SIZE];
 
 extern Settings* LoadedSettings;
-extern bool IOHelper_LoopLock;
 
 void GetCursorPosition(int* x, int* y)
 {
@@ -55,14 +54,6 @@ void GetCursorPosition(int* x, int* y)
 void SetCursorPosition(int x, int y)
 {
     printf(ESC_SEQ "%d;%dH", y, x);
-}
-
-void GetTerminalSize(int *x, int *y)
-{
-    IOHelper_LoopLock = true;
-    SetCursorPosition(999, 999);
-    GetCursorPosition(x, y);
-    IOHelper_LoopLock = false;
 }
 
 bool CheckForAnsiSupport() {
