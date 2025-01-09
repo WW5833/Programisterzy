@@ -1,11 +1,11 @@
 #include "IOHelper.Keyboard.h"
 #include <stdio.h>
 
-#define TEXT_INPUT_BUFFER_SIZE 256
+#define TEXT_INPUT_BUFFER_SIZE 128
 #define CTRL_C '\03'
 
-int textInputBufferReadPtr = 0;
-int textInputBufferWritePtr = 0;
+int textInputBufferReadPtr = TEXT_INPUT_BUFFER_SIZE;
+int textInputBufferWritePtr = TEXT_INPUT_BUFFER_SIZE;
 char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
 
 #define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
@@ -25,7 +25,7 @@ int getch()
 
 int kbhit()
 {
-    if(!(IOHelper_LoopLock || internal_IOHelper_LoopLock)) IOLoop();
+    IOLoop();
     return textInputBufferReadPtr != textInputBufferWritePtr;
 }
 
