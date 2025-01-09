@@ -7,6 +7,7 @@
 #include "QuizQuestionPage.h"
 #include "AnsiHelper.h"
 #include "Settings.h"
+#include "RGBColors.h"
 
 extern Settings* LoadedSettings;
 extern int LatestTerminalWidth, LatestTerminalHeight;
@@ -50,18 +51,18 @@ void PageEnter_Quiz()
     switch (correct)
     {
         case QQR_Correct:
-            SetColor(LoadedSettings->CorrectAnswerColor);
+            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
             printf("Gratulacje! Wygrałeś 1 000 000zł\n");
             break;
 
         case QQR_Wrong:
-            SetColor(LoadedSettings->WrongAnswerColor);
+            SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
             sprintf(textBuffer, "Niestety, nie udało Ci się wygrać głównej nagrody ale dostajesz %s, ostatnią bezpieczną nagrodę.\n", GetRewardText(safe));
             PrintWrappedLine(textBuffer, LatestTerminalWidth, 0, false);
             break;
 
         case QQR_Forfeit:
-            SetColor(LoadedSettings->SupportColor);
+            SetColorRGBPreset(LoadedSettings->SupportColor, false);
             printf("Zrezygnowałeś z gry i wygrałeś %s\n", GetRewardText(i - 1));
             break;
     }

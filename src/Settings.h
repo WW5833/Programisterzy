@@ -11,6 +11,7 @@ typedef struct {
     int TutorialShown;
     int ShowCorrectWhenWrong;
     int EnableMouseSupport;
+    int DarkMode;
 } Settings;
 
 Settings* LoadSettings();

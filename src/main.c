@@ -17,6 +17,8 @@ int main() {
 
     InitializeIO();
 
+    LoadedSettings = LoadSettings();
+
     GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
 
     ClearScreenManual();
@@ -31,8 +33,6 @@ int main() {
         fprintf(stderr, "Failed to load questions\n");
         ExitApp(EXIT_FAILURE);
     }
-
-    LoadedSettings = LoadSettings();
 
     if(LoadedSettings->TutorialShown == 0) {
         PageEnter_Welcome();

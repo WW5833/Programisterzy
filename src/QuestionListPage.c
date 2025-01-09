@@ -4,6 +4,7 @@
 #include "AnsiHelper.h"
 #include "QuizQuestionPage.h"
 #include "IOHelper.h"
+#include "RGBColors.h"
 
 #include <string.h>
 
@@ -121,7 +122,8 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
     AddScrollBar(data);
     
     // Set new selected
-    SetColors(COLOR_FG_WHITE, COLOR_BG_BLUE);
+    SetColorRGBPreset(RGB_ID_WHITE, false);
+    SetColorRGBPreset(RGB_ID_BLUE, true);
     SetCursorPosition(0, 2 + data->selected - data->drawQuestionStartIndex);
     PrintQuestionLine(ListGetAt(data->list, data->selected), widthLimit, data->blockWidth);
     ResetColor();
@@ -176,8 +178,8 @@ void DrawVisibleQuestions(QuestionListPageData* data) {
         }
 
         if(i == data->selected) {
-            SetColor(COLOR_FG_WHITE);
-            SetColor(COLOR_BG_BLUE);
+            SetColorRGBPreset(RGB_ID_WHITE, false);
+            SetColorRGBPreset(RGB_ID_BLUE, true);
         }
 
         PrintQuestionLine(current->data, widthLimit, data->blockWidth);
