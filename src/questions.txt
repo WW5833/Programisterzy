@@ -40,7 +40,7 @@
 40;Z którego angielskiego miasta pochodził zespół "The Beatles":;z Liverpoolu;z Londynu;z Newcastle;z Southamptonu;
 41;Pomnik Abrahama Lincolna znajduje się na banknocie o nominale:;5 dolarów;1 dolara;10 dolarów;2 dolarów;
 42;Stolicą Naddniestrza jest miasto oficjalnie położone:;w Mołdawii;w Rosji;na Ukrainie;w Rumunii;
-43;Ktróry z cudów dokonanych przez Jezusa Chrystusa opisano we szystkich czterech Ewangeliach Nowego Testamentu?;pierwsze rozmnożenie chleba;uciszenie burzy;zamianę wody w wino;chodzenie po wodzie;
+43;Który z cudów dokonanych przez Jezusa Chrystusa opisano we wszystkich czterech Ewangeliach Nowego Testamentu?;pierwsze rozmnożenie chleba;uciszenie burzy;zamianę wody w wino;chodzenie po wodzie;
 44;Przeciwnik Piotrusia Pana to Kapitan:;Hak;Planeta;Bomba;Żbik;
 45;Lęk przed wychodzeniem na otwartą przestrzeń to:;agorafobia;aerofobia;arachnofobia;akrofobia;
 46;Wilczyca karmiąca dwóch braci to symbol:;Rzymu;Moskwy;Sztokholmu;Madrytu;

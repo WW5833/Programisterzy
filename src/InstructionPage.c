@@ -131,7 +131,7 @@ void DrawUIPageTwo(InstructionPageData* data) {
         width, offset, false);
 
     printf("\n  *) [    Esc    ] - ");
-    lineCount += PrintWrappedLine("Wróć do poprzedniego okna / Zakońć podejście w teleturnieju",
+    lineCount += PrintWrappedLine("Wróć do poprzedniego okna / Zakończ podejście w teleturnieju",
         width, offset, false);
 
     printf("\n  *) [   ENTER   ] - ");
@@ -143,7 +143,7 @@ void DrawUIPageTwo(InstructionPageData* data) {
         width, offset, false);
     
     printf("\n  *) [     2     ] - ");
-    lineCount += PrintWrappedLine("Wybierz / Potwierdź 2 koło ratunkowe (50/50 - ukazuje 2 z 4 odpowiedzi które są nieprawidłowe)",
+    lineCount += PrintWrappedLine("Wybierz / Potwierdź 2 koło ratunkowe (50/50 - zaznacza 2 z 4 odpowiedzi które są nieprawidłowe)",
         width, offset, false);
     
     printf("\n  *) [     3     ] - ");
@@ -151,7 +151,7 @@ void DrawUIPageTwo(InstructionPageData* data) {
         width, offset, false);
     
     printf("\n  *) [ SHIFT + R ] - ");
-    lineCount += PrintWrappedLine("Odświerz wyświetlany obraz konsoli (działa jedynie podczas pytań teleturnieju!)",
+    lineCount += PrintWrappedLine("Odśwież wyświetlany obraz konsoli (działa jedynie podczas pytań teleturnieju!)",
         width, offset, false);
 
     printf("\n\n");
@@ -182,13 +182,13 @@ void DrawUIPageThree(InstructionPageData* data) {
         width, offset2, false);
 
     printf("\n  *) [  Rezygnacja / wyjście ] - ");
-    lineCount += PrintWrappedLine("Nie znając poprawnej odpowiedzi oraz decydujac się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
-        SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadniej nagrody!" RESET_COLOR,
+    lineCount += PrintWrappedLine("Nie znając poprawnej odpowiedzi oraz decydując się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
+        SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!" RESET_COLOR,
         width, offset2, false);
 
     printf("\n  *) [      Zła odpowiedź    ] - ");
     lineCount += PrintWrappedLine("Popełniając błąd, zaznaczając błędną odpowiedź, kończysz swoje podejście w tym teleturnieju. Zdobywasz jednak nagrodę w postaci ostatniego \"punktu kontrolnego\" na który odpowiedziałeś poprawnie. Punkty te są umiejscowione odpowiednio na 1, 3 i 6 pytaniu. "
-        SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadniej nagrody!" RESET_COLOR,
+        SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!" RESET_COLOR,
         width, offset2, false);
 
     printf("\n\n");
