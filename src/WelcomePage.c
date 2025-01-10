@@ -16,7 +16,7 @@ void PageEnter_Welcome()
     ClearScreen();
 
     printf("Zanim zaczniesz grę ...\n");
-    printf("\nCzy widzisz ten znak [%c%c%c] (trójkąt):", 0xE2, 0x96, 0xB6);
+    printf("\nCzy widzisz ten znak [▶] (trójkąt):");
     printf("\n1. TAK");
     printf("\n2. NIE");
 
