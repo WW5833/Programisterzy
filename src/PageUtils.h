@@ -7,7 +7,8 @@
 
 #define ENTER '\015'
 #define ESC '\033'
-#define ANY_MOUSE_BUTTON '\255'
+#define ANY_MOUSE_BUTTON (char)0xFF
+#define RESIZE_EVENT (char)0xFE
 
 typedef enum {
     KEY_NONE = 0,

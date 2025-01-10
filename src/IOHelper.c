@@ -165,12 +165,18 @@ void ErrorExit(LPSTR lpszMessage)
 }
 
 bool internal_IO_WaitingForMousePress = false;
+bool internal_IO_WaitingResizeEvent = false;
 int WaitForAnyInput() {
     internal_IO_WaitingForMousePress = true;
+    internal_IO_WaitingResizeEvent = true;
     while(true) {
 
         if(!internal_IO_WaitingForMousePress) {
             return INT_MAX;
+        }
+
+        if(!internal_IO_WaitingResizeEvent) {
+            return INT_MAX - 1;
         }
 
         if(kbhit()) {

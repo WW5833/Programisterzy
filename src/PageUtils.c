@@ -63,6 +63,9 @@ char _internal_WaitForKeys(int count, char* keys)
             if(keys[i] == ANY_MOUSE_BUTTON && c == INT_MAX) {
                 return ANY_MOUSE_BUTTON;
             }
+            else if(keys[i] == RESIZE_EVENT && c == INT_MAX - 1) {
+                return RESIZE_EVENT;
+            }
             else if(c == keys[i]) {
                 return (char)c;
             }
