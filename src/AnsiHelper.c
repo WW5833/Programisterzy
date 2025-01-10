@@ -101,6 +101,16 @@ void ResetCursor()
     SetCursorPosition(0, 0);
 }
 
+void SaveCursorPosition()
+{
+    printf(ESC_SEQ "s");
+}
+
+void RestoreCursorPosition()
+{
+    printf(ESC_SEQ "u");
+}
+
 void HideCursor()
 {
     printf(ESC_SEQ "?25l");

@@ -9,5 +9,7 @@ void ResetColor();
 void ResetCursor();
 void HideCursor();
 void ShowCursor();
+void SaveCursorPosition();
+void RestoreCursorPosition();
 
 #endif // _INC_ANSIHELPER_H
