@@ -56,7 +56,7 @@ bool ShowConfirmationPopup(const char* message, const char* confirmText, const c
 
     SetCursorPosition(beginX + 2, beginY + 1);
     PrintWrappedLine(message, popUpWidth - 4, beginX + 2, true);
-    SetCursorPosition(beginX + 2, beginY + 3);
+    SetCursorPosition(beginX + 2, beginY + popUpHeight - 2);
     printf("[ENTER] %s", confirmText);
     if(split) printf(CSR_MOVE_DOWN_1);
     printf("\r" CSR_MOVE_RIGHT(beginX + 2 + popUpWidth - 4 - cancelTextWidth - 1));
