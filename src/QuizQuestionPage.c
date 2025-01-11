@@ -988,7 +988,7 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
         }        
     }
     
-    char* message;
+    const char* message;
     if(ansIsCorrect) {
         message = PhoneHelpCorrectMessages[rand() % PhoneHelpCorrectMessagesLength];
     } else {
@@ -996,7 +996,9 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     }
 
     char buffor[128];
-    sprintf(buffor, message, 'A' + ((4 + i - data->offset) % 4)); 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+    sprintf(buffor, message, 'A' + ((4 + i - data->offset) % 4));
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
 
     const int popUpWidth = 44;
     int popUpHeight = 3;

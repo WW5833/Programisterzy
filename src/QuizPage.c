@@ -86,7 +86,7 @@ void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
     const int partSplit = width - 32;
     DrawpEndGameUIRightSide(questionNumber, safe, result, beginX, beginY, partSplit);
 
-    char* textPtr;
+    char* textPtr = NULL;
     int lines = 0;
     switch (result)
     {
