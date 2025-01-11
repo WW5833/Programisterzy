@@ -923,7 +923,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
 void Show5050Help(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_5050;
 
-    ShowAlertPopup("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", 48 + 4);
+    ShowAlertPopupKeys("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", 48 + 4, ENTER, '2', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
@@ -931,7 +931,7 @@ void Show5050Help(QuizQuestionPageData* data) {
 void ShowPhoneHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Phone;
 
-    ShowAlertPopup("Niestety twój przyiaciel nie odbiera.", 37 + 4);
+    ShowAlertPopupKeys("Niestety twój przyiaciel nie odbiera.", 37 + 4, ENTER, '3', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
