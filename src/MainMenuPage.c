@@ -4,8 +4,9 @@
 #include <stdio.h>
 
 #include "AnsiHelper.h"
-#include "PageUtils.h"
 #include "IOHelper.h"
+#include "Utf8Symbols.h"
+#include "DebugCheck.h"
 
 #include "QuizPage.h"
 #include "AddQuestionPage.h"
@@ -13,11 +14,6 @@
 #include "InstructionPage.h"
 #include "QuizQuestionPage.h"
 #include "QuestionListPage.h"
-#include "IOHelper.h"
-
-#include "Utf8Symbols.h"
-
-#include "DebugCheck.h"
 
 #define OPTION_COUNT 6
 

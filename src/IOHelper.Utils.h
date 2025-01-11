@@ -1,14 +1,13 @@
-#ifndef _INC_PAGEUTILS_H
-#define _INC_PAGEUTILS_H
+#ifndef _INC_IOHELPER_UTILS_H
+#define _INC_IOHELPER_UTILS_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 #define ENTER '\015'
 #define ESC '\033'
 #define ANY_MOUSE_BUTTON (char)0xFF
 #define RESIZE_EVENT (char)0xFE
+#define ESCAPE_CHAR (char)(224)
 
 typedef enum {
     KEY_NONE = 0,
@@ -26,8 +25,7 @@ typedef enum {
 
 KeyInputType HandleInteractions(bool blocking);
 
-void WaitForEnter();
 char _internal_WaitForKeys(int count, char* keys);
 #define WaitForKeys(...) _internal_WaitForKeys(sizeof((char[]){__VA_ARGS__}), (char[]){__VA_ARGS__})
 
-#endif // _INC_PAGEUTILS_H
+#endif // _INC_IOHELPER_UTILS_H

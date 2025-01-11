@@ -1,6 +1,5 @@
 #include "QuizQuestionPage.h"
 #include "AnsiHelper.h"
-#include "PageUtils.h"
 #include "Settings.h"
 #include "Utf8Symbols.h"
 #include <time.h>

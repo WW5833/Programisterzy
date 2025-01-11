@@ -19,6 +19,7 @@ int main() {
 
     LoadedSettings = LoadSettings();
 
+    UpdateTerminalSize();
     ClearScreenManual();
     EnableAlternativeBuffer();
 

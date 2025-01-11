@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "PageUtils.h"
 #include "IOHelper.h"
 #include "RGBColors.h"
 #include "TextHelper.h"

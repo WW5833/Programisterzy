@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "IOHelper.h"
-#include "PageUtils.h"
-#include "AnsiDefinitions.h"
 #include <conio.h>
 #include "Settings.h"
 #include "RGBColors.h"
@@ -111,12 +109,12 @@ void RestoreCursorPosition()
     printf(ESC_SEQ "u");
 }
 
-void HideCursor()
+void HideConsoleCursor()
 {
     printf(ESC_SEQ "?25l");
 }
 
-void ShowCursor()
+void ShowConsoleCursor()
 {
     printf(ESC_SEQ "?25h");
 }

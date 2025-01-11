@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "AnsiDefinitions.h"
+#include "AnsiHelper.h"
 #include "Settings.h"
 
 #include "IOHelper.Mouse.h"
@@ -129,6 +129,19 @@ void _internal_PreExitApp()
     if(stdOutHandleInitialized) SetConsoleMode(stdoutHandle, fdwStdOutOldMode);
 
     DisableAlternativeBuffer();
+
+    ResetCursor();
+}
+
+void _internal_PostExitApp(int exitCode) __attribute__((noreturn));
+
+void _internal_PostExitApp(int exitCode) {
+    if(exitCode != 0) {
+        printf("Naciśnij ENTER aby kontynuować...");
+        getchar();
+    }
+
+    exit(exitCode);
 }
 
 void ExitAppWithErrorFormat(int exitCode, const char* format, ...)
@@ -142,7 +155,7 @@ void ExitAppWithErrorFormat(int exitCode, const char* format, ...)
 
     va_end(args);
 
-    exit(exitCode);
+    _internal_PostExitApp(exitCode);
 }
 
 void ExitAppWithErrorMessage(int exitCode, const char* message)
@@ -151,12 +164,12 @@ void ExitAppWithErrorMessage(int exitCode, const char* message)
 
     fprintf(stderr, "[ERROR] %s\n", message);
 
-    exit(exitCode);
+    _internal_PostExitApp(exitCode);
 }
 
 void ExitApp(int exitCode) {
     _internal_PreExitApp();
-    exit(exitCode);
+    _internal_PostExitApp(exitCode);
 }
 
 void ErrorExit(LPSTR lpszMessage)

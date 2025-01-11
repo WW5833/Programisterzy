@@ -2,8 +2,9 @@
 #define _INC_IOHELPER_H
 
 #include <stdbool.h>
-
-#define ESCAPE_CHAR (char)(224)
+#include "IOHelper.Utils.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 #undef getch
 #undef kbhit

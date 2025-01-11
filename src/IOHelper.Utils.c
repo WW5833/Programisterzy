@@ -1,5 +1,5 @@
-#include "PageUtils.h"
-#include "AnsiHelper.h"
+#include "IOHelper.Utils.h"
+#include <stdlib.h>
 #include "IOHelper.h"
 
 KeyInputType HandleInteractions(bool blocking) {
@@ -46,10 +46,6 @@ KeyInputType HandleInteractions(bool blocking) {
     }
 
     return KEY_NONE;
-}
-
-void WaitForEnter() {
-    WaitForKeys(ENTER);
 }
 
 char _internal_WaitForKeys(int count, char* keys)

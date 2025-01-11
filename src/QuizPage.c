@@ -3,7 +3,7 @@
 #include "QuizManager.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "PageUtils.h"
+#include "IOHelper.h"
 #include "QuizQuestionPage.h"
 #include "AnsiHelper.h"
 #include "Settings.h"
@@ -156,5 +156,5 @@ void PageEnter_Quiz()
 
     ListDestroy(questions, false);
 
-    WaitForEnter();
+    WaitForKeys(ENTER);
 }
