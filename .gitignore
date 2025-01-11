@@ -52,4 +52,8 @@ Mkfile.old
 dkms.conf
 .vscode/
 *.code-workspace
-src/settings.txt
+settings.txt
+bin/
+obj/
+*.cbp
+*.depend
