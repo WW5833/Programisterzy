@@ -700,10 +700,6 @@ bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int y) {
         goto ret;
     }
 
-    // if(x < 3 || x > 3 + 20) {
-    //     goto ret;
-    // }
-
     int abilityId = y - startY;
 
     if(abilityId == -1) {
@@ -772,8 +768,6 @@ void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
         HandleMouseClickForAnswer(pageData, x, y);
         HandleMouseClickForAbilities(pageData, y);
     }
-
-    // Maybe add option to exit from abilities windows but that whould require awaiting for mouse click in WaitForKeys
 }
 
 void OnQuizQuestionPageDoubleMouseClick(int button, int x, int y, void* data) {
