@@ -1011,20 +1011,7 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     sprintf(buffor, message, 'A' + ((4 + i - data->offset) % 4));
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
-    const int popUpWidth = 44;
-    int popUpHeight = 3;
-    popUpHeight += GetWrappedLineCount(buffor, popUpWidth - 4);
-    int beginX, beginY;
-    DrawEmptyPopup(popUpWidth, popUpHeight + 2, &beginX, &beginY);
-
-    SetCursorPosition(beginX + 2, beginY + 1);
-    PrintWrappedLine("Telefon do Przyjaciela:", popUpWidth - 4, beginX + 2, true);
-
-    SetCursorPosition(beginX + 2, beginY + 3);
-    PrintWrappedLine(buffor, popUpWidth - 4, beginX + 2, true);
-
-    SetCursorToRestingPlace(data);
-    WaitForKeys(ENTER, '3', ESC, ANY_MOUSE_BUTTON);
+    ShowAlertPopupWithTitleKeys("Telefon do Przyjaciela:", buffor, 50 + 4, ENTER, '3', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
