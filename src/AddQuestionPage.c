@@ -55,15 +55,17 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
 
 #define currentMaxLines data->maxLines[data->slotNumber]
 
-static int LoadText(AddQuestionPageData* data, char** output, int* outputLength) {
+static int LoadText(AddQuestionPageData* data, char** output) {
     int y;
+    int outputLength;
     TextEditorResult result = TextEditorResult_Cancelled;
     while(result != TextEditorResult_Completed) {
         y = 5;
         for (int i = 0; i < data->slotNumber; i++)
             y += data->maxLines[i] + 1;
         
-        result = OpenTextEditor(output, outputLength, data->textStartX + 1, y, currentMaxLines, " " SINGLE_VERTICAL_LINE);
+        outputLength = (int)strlen(*output);
+        result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, currentMaxLines, " " SINGLE_VERTICAL_LINE);
         if(result == TextEditorResult_Cancelled) {
             HideCursor();
             if(ShowConfirmationPopup("Czy na pewno chcesz anulować dodawanie pytania?", "Tak", "Nie", 40)) {
@@ -98,7 +100,7 @@ static int LoadText(AddQuestionPageData* data, char** output, int* outputLength)
             return 1;
         }
 
-        if(*outputLength == 0) {
+        if(outputLength == 0) {
             HideCursor();
             ShowAlertPopup("To pole jest wymagane !!", 30);
             result = false;
@@ -248,7 +250,6 @@ static void DrawUI(AddQuestionPageData* data) {
 }
 
 bool InputLoop(AddQuestionPageData* data) {
-    bool movedOnly = false;
     while(true) {
         DrawUI(data);
 
@@ -257,17 +258,14 @@ bool InputLoop(AddQuestionPageData* data) {
             DrawOnOnlyMoved(data);
 
             char** output;
-            int* outputLength;
 
             if(data->slotNumber == 0) {
                 output = &data->question->Content;
-                outputLength = &data->question->ContentLength;
             } else {
                 output = &data->question->Answer[data->slotNumber - 1];
-                outputLength = &data->question->AnswerLength[data->slotNumber - 1];
             }
 
-            switch(LoadText(data, output, outputLength))
+            switch(LoadText(data, output))
             {
                 case 0:
                     return false;
@@ -284,7 +282,7 @@ bool InputLoop(AddQuestionPageData* data) {
         }
 
         HideCursor();
-        if(data->question->ContentLength == 0) {
+        if(data->question->Content[0] == '\0') {
             ShowAlertPopup("Treść pytania nie może być pusta!", 41);
             data->slotNumber = 0;
             continue;
@@ -293,7 +291,7 @@ bool InputLoop(AddQuestionPageData* data) {
         bool allPasss = true;
         for (int i = 0; i < 4; i++)
         {
-            if(data->question->AnswerLength[i] == 0) {
+            if(data->question->Answer[i][0] == '\0') {
                 allPasss = false;
                 if(i == 0) {
                     ShowAlertPopup("Poprawna odpowiedź nie może być pusta!", 42);
@@ -381,6 +379,20 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
+Question* GetEmptyQuestion() {
+    Question* question = malloc(sizeof(Question));
+    question->Id = GetMaxQuestionId() + 1;
+    question->Content = malloc(1 * sizeof(char));
+    question->Content[0] = '\0';
+    for (int i = 0; i < 4; i++)
+    {
+        question->Answer[i] = malloc(1 * sizeof(char));
+        question->Answer[i][0] = '\0';
+    }
+
+    return question;
+}
+
 Question* PageEnter_AddQuestion()
 {
     ClearScreen();
@@ -390,17 +402,7 @@ Question* PageEnter_AddQuestion()
     data.terminalHeight = LatestTerminalHeight;
     data.slotNumber = 0;
 
-    data.question = malloc(sizeof(Question));
-    data.question->Id = GetMaxQuestionId() + 1;
-    data.question->Content = malloc(1 * sizeof(char));
-    data.question->Content[0] = '\0';
-    data.question->ContentLength = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        data.question->Answer[i] = malloc(1 * sizeof(char));
-        data.question->Answer[i][0] = '\0';
-        data.question->AnswerLength[i] = 0;
-    }
+    data.question = GetEmptyQuestion();
 
     CalculateValues(&data);
 

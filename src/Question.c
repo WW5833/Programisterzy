@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
-#include "PageUtils.h"
 #include "IOHelper.h"
-#include "TextHelper.h"
 
 bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;
@@ -85,7 +83,6 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         DestroyQuestion(question);
         return NULL;
     }   
-    question->ContentLength = GetStringCharCount(question->Content);
 
     serializedQuestion = &serializedQuestion[i];
 
@@ -98,7 +95,6 @@ Question* DeserializeQuestion(char* serializedQuestion) {
             return NULL;
         }
         serializedQuestion = &serializedQuestion[i];
-        question->AnswerLength[j] = GetStringCharCount(question->Answer[j]);
     }
 
     return question;

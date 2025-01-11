@@ -6,12 +6,8 @@
 typedef struct
 {
     int Id;
-
     char* Content;
-    int ContentLength;
-
     char* Answer[4];
-    int AnswerLength[4];
 } Question;
 
 Question* DeserializeQuestion(char* serializedQuestion);
