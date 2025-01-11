@@ -38,10 +38,16 @@ typedef struct
     int selected;
 } MainMenuPageData;
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 static const int LineTable[] = {4, 5, 6, 7, 8, 10, 11, 12};
 
 void PrintMainMenu(MainMenuPageData* data)
 {
+    // Set them here so that when exiting other page to here it will auto resize if size changed
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
+
     ResetColor();
     ClearScreen();
 
@@ -126,7 +132,6 @@ void OnEnterPressed(MainMenuPageData* data) {
     PrintMainMenu(data);
 }
 
-extern int LatestTerminalWidth, LatestTerminalHeight;
 void OnMainMenuPageReset(int width, int height, void* data);
 
 void PageEnter_MainMenu()
@@ -134,8 +139,6 @@ void PageEnter_MainMenu()
     HideCursor();
 
     MainMenuPageData data;
-    data.terminalWidth = LatestTerminalWidth;
-    data.terminalHeight = LatestTerminalHeight;
     data.selected = 0;
 
     PrintMainMenu(&data);
