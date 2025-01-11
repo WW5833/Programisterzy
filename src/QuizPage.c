@@ -13,8 +13,12 @@
 #include <string.h>
 #include "TextHelper.h"
 
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 extern Settings* LoadedSettings;
 extern int LatestTerminalWidth, LatestTerminalHeight;
+
+static void CalculateQuizPageSizeRequirements();
 
 bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result) {
     if(result == QQR_Correct) {
@@ -78,8 +82,8 @@ void DrawpEndGameUIRightSide(int questionNumber, int safe, QuizQuestionResult re
 void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
     const int width = 60;
     const int height = 13;
-    int beginX, beginY;
 
+    int beginX, beginY;
     DrawEmptyPopup(width, height, &beginX, &beginY);
 
     const int partSplit = width - 32;
@@ -121,6 +125,8 @@ void PageEnter_Quiz()
 
     ClearScreen();
 
+    CalculateQuizPageSizeRequirements();
+
     QuestionListHeader* questions = GenerateQuiz();
     if(questions == NULL) return;
 
@@ -157,4 +163,86 @@ void PageEnter_Quiz()
     ListDestroy(questions, false);
 
     WaitForKeys(ENTER);
+}
+
+int QuizPageMinimumWidth = -1;
+int QuizPageMinimumHeight = -1;
+
+static int GetMaxWordLength(const char* line)
+{
+    int max = 0;
+    const char* lastSpace = line;
+    while (*line != '\0')
+    {
+        if (*line == ' ')
+        {
+            max = MAX(max, GetCharCount(lastSpace, line));
+            lastSpace = line;
+        }
+
+        line++;
+    }
+
+    max = MAX(max, GetCharCount(lastSpace, line));
+
+    return max;
+}
+
+void CalculateQuizPageSizeRequirements() {
+    const int rewardBoxWidth = 18 + 1;
+    const int rewardBoxHeight = 10;
+    const int staticWidthContent = 14 + 2;
+    const int staticWidthAnswer = 4 + 5 + 3 + rewardBoxWidth + 1;
+    const int staticHeightAnswer = (1 + 1 + 1 + 1)*2;
+    const int staticHeight = 1 + 1 + 1 + 3 + 1;
+
+    const int absMinWidth = 57;
+
+    int maxLengthWordAnswer = 0;
+    int maxLengthWordContent = 0;
+
+    int maxLineCountAnswer = 0;
+    int maxLineCountContent = 0;
+
+    QuestionListHeader* list = GetQuestionList();
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        int lengthWordContent = GetMaxWordLength(current->data->Content);
+        maxLengthWordContent = MAX(maxLengthWordContent, lengthWordContent);
+
+        for (int i = 0; i < 4; i++)
+        {
+            int lengthWordAnswer = GetMaxWordLength(current->data->Answer[i]);
+            maxLengthWordAnswer = MAX(maxLengthWordAnswer, lengthWordAnswer);
+        }
+
+        current = current->next;
+    }
+
+
+    const int width = MAX(absMinWidth, MAX(staticWidthContent + maxLengthWordContent, staticWidthAnswer + maxLengthWordAnswer*2));
+    const int minContentWidth = width - staticWidthContent;
+    const int minAnswerWidth = (width - staticWidthAnswer)/2;
+
+    current = list->head;
+    while (current != NULL)
+    {
+        int lineCountContent = GetWrappedLineCount(current->data->Content, minContentWidth);
+        maxLineCountContent = MAX(maxLineCountContent, lineCountContent);
+
+        for (int i = 0; i < 4; i++)
+        {
+            int lineCountAnswer = GetWrappedLineCount(current->data->Answer[i], minAnswerWidth);
+            maxLineCountAnswer = MAX(maxLineCountAnswer, lineCountAnswer);
+        }
+
+        current = current->next;
+    }
+
+    int height = staticHeight + maxLineCountContent + MAX((staticHeightAnswer + maxLineCountAnswer*2), rewardBoxHeight);
+
+    QuizPageMinimumWidth = width;
+    QuizPageMinimumHeight = height;
 }

@@ -3,11 +3,17 @@
 #include "Utf8Symbols.h"
 #include "IOHelper.h"
 #include "TextHelper.h"
+#include "Popup.h"
 
 #define SET_COLOR_RED ESC_SEQ "38;2;139;0;0m"
 #define SET_COLOR_BRIGHT_RED ESC_SEQ "38;2;255;36;0m"
 
 #define RESET_COLOR ESC_SEQ "39;40m"
+
+#define TERMINAL_MIN_WIDTH 80
+#define TERMINAL_MIN_HEIGHT 26
+
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 typedef struct {
     int terminalWidth;
@@ -192,8 +198,8 @@ void DrawUIPageThree(InstructionPageData* data) {
         width, offset2, false);
     ResetColor();
 
-    printf("\n\n");
-    lineCount += 2;
+    printf("\n");
+    lineCount += 1;
 
     PrintBorderEdges(data, lineCount);
 
@@ -217,6 +223,19 @@ void OnInstructionPageResize(int width, int height, void* data) {
 }
 
 void DrawUI(InstructionPageData* data){
+    char buffer[256];
+    while(data->terminalWidth < TERMINAL_MIN_WIDTH || data->terminalHeight < TERMINAL_MIN_HEIGHT) {
+        UnsetResizeHandler();
+
+        sprintf(buffer, "Terminal jest zbyt mały aby wyświetlić instrukcję. Minimalne wymagania to: %d x %d", TERMINAL_MIN_WIDTH, TERMINAL_MIN_HEIGHT);
+        ShowAlertPopupWithTitleKeys("Błąd", buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
+
+        data->terminalWidth = LatestTerminalWidth;
+        data->terminalHeight = LatestTerminalHeight;
+
+        SetResizeHandler(OnInstructionPageResize, data);
+    }
+
     ClearScreenManual();
     switch (data->pageNumber)
     {

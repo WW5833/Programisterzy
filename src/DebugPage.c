@@ -6,6 +6,18 @@
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
+#define MAIN_MENU_MIN_WIDTH 48
+#define MAIN_MENU_MIN_HEIGHT 13
+
+#define SETTINGS_MIN_WIDTH 48
+#define SETTINGS_MIN_HEIGHT 20
+
+#define QUIZ_MIN_WIDTH 60
+#define QUIZ_MIN_HEIGHT 13
+
+#define MIN_TERMINAL_WIDTH 80
+#define MIN_TERMINAL_HEIGHT 26
+
 int GetMaxWordLength(const char* line)
 {
     int max = 0;
@@ -73,7 +85,7 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
     }
 
 
-    const int width = MAX(absMinWidth, MAX(staticWidthContent + maxLengthWordContent, staticWidthAnswer + maxLengthWordAnswer*2));
+    int width = MAX(absMinWidth, MAX(staticWidthContent + maxLengthWordContent, staticWidthAnswer + maxLengthWordAnswer*2));
     const int minContentWidth = width - staticWidthContent;
     const int minAnswerWidth = (width - staticWidthAnswer)/2;
 
@@ -100,6 +112,9 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
 
     int height = staticHeight + maxLineCountContent + MAX((staticHeightAnswer + maxLineCountAnswer*2), rewardBoxHeight);
 
+    width = MAX(width, MIN_TERMINAL_WIDTH);
+    height = MAX(height, MIN_TERMINAL_HEIGHT);
+
     printf("Terminal size: %d x %d\n", terminalWidth, terminalHeight);
     printf("Required size: %d x %d\n", width, height);
     printf("\n");
@@ -112,10 +127,8 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
 }
 
 void PrintSymbols() {
-    printf("\nSymbols\n");
-    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤┃━┏┓┗┛┫┣┃▁▂▃▄▅▆▇█▶╌");
-    printf("\n←↑→↓⇐⇑⇒⇓⇦⇧⇨⇩");
-    printf("\n┄╌│─┌┐└┘┤├");
+    printf("\nSymbols");
+    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤▁▂▃▄▅▆▇█▶│─┌┐└┘┤├");
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;

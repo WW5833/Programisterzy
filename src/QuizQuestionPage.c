@@ -9,6 +9,7 @@
 #include "TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 #define REWARD_BOX_WIDTH 18
 #define REWARD_BOX_WIDTH_PLUS_BORDER (REWARD_BOX_WIDTH + 2)
@@ -71,6 +72,8 @@ void ShowAudienceHelp(QuizQuestionPageData* data);
 void Show5050Help(QuizQuestionPageData* data);
 void ShowPhoneHelp(QuizQuestionPageData* data);
 bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
+
+void OnConsoleResize(int newWidth, int newHeight, void* data);
 
 void SetCursorToRestingPlace(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY + 5);
@@ -170,12 +173,27 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
+extern int QuizPageMinimumWidth, QuizPageMinimumHeight;
 
 // Calculate the amount of lines needed to wrap the text
 void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTerminalSize) {
     if(calculateTerminalSize) {
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;
+    }
+
+    // Minimum size is determined by the worst case scenario
+    while(data->terminalWidth < QuizPageMinimumWidth || data->terminalHeight < QuizPageMinimumHeight) {
+        UnsetResizeHandler();
+
+        char buffer[256];
+        sprintf(buffer, "Terminal jest zbyt mały aby wyświetlić to okno. Minimalne wymagania to: %d x %d", QuizPageMinimumWidth, QuizPageMinimumHeight);
+        ShowAlertPopupWithTitleKeys("Błąd", buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
+
+        data->terminalWidth = LatestTerminalWidth;
+        data->terminalHeight = LatestTerminalHeight;
+
+        SetResizeHandler(OnConsoleResize, data);
     }
 
     if(data->terminalWidth % 2 == 0) data->terminalWidth--;
