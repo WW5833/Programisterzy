@@ -30,6 +30,8 @@
 #define SINGLE_BREAK_TOP "┴"
 #define SINGLE_BREAK_BOTTOM "┬"
 
+#define SINGLE_CROSS "┼"
+
 #define BLOCK_x_8(x) "%c%c%c", 0xE2, 0x96, (0x80+x)
 #define BLOCK_1_8 "▁" /* Does not work on all terminals */
 #define BLOCK_2_8 "▂" /* Does not work on all terminals */

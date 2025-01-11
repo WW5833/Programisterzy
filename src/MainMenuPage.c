@@ -38,12 +38,20 @@ typedef struct
     int selected;
 } MainMenuPageData;
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
+static const int LineTable[] = {4, 5, 6, 7, 8, 10, 11, 12};
+
 void PrintMainMenu(MainMenuPageData* data)
 {
+    // Set them here so that when exiting other page to here it will auto resize if size changed
+    data->terminalWidth = LatestTerminalWidth;
+    data->terminalHeight = LatestTerminalHeight;
+
     ResetColor();
     ClearScreen();
 
-    int height = TOTAL_OPTION_COUNT + 2;
+    int height = TOTAL_OPTION_COUNT + 3;
     for (int i = 0; i < height; i++)
     {
         PrintGenericBorderEdges(0, data->terminalWidth, i + 2, SINGLE_VERTICAL_LINE, false);
@@ -61,7 +69,8 @@ void PrintMainMenu(MainMenuPageData* data)
     printf("[ ] Dodaj pytanie\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Podgląd pytań (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Podgląd pytań\n" CSR_MOVE_RIGHT(2));
+    printf("    (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
     printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
@@ -72,12 +81,12 @@ void PrintMainMenu(MainMenuPageData* data)
     
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
-    SetCursorPosition(4, 4 + data->selected);
+    SetCursorPosition(4, LineTable[data->selected]);
     printf("*");
 }
 
 void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
-    SetCursorPosition(4, 4 + data->selected);
+    SetCursorPosition(4, LineTable[data->selected]);
     printf(" ");
 
     if(down) {
@@ -86,7 +95,7 @@ void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
         data->selected = (data->selected - 1 + TOTAL_OPTION_COUNT) % TOTAL_OPTION_COUNT;
     }
     
-    SetCursorPosition(4, 4 + data->selected);
+    SetCursorPosition(4, LineTable[data->selected]);
     printf("*");
 }
 
@@ -123,7 +132,6 @@ void OnEnterPressed(MainMenuPageData* data) {
     PrintMainMenu(data);
 }
 
-extern int LatestTerminalWidth, LatestTerminalHeight;
 void OnMainMenuPageReset(int width, int height, void* data);
 
 void PageEnter_MainMenu()
@@ -131,8 +139,6 @@ void PageEnter_MainMenu()
     HideCursor();
 
     MainMenuPageData data;
-    data.terminalWidth = LatestTerminalWidth;
-    data.terminalHeight = LatestTerminalHeight;
     data.selected = 0;
 
     PrintMainMenu(&data);
