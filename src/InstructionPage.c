@@ -183,13 +183,15 @@ void DrawUIPageThree(InstructionPageData* data) {
 
     printf("\n  *) [  Rezygnacja / wyjście ] - ");
     lineCount += PrintWrappedLine("Nie znając poprawnej odpowiedzi oraz decydując się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
-        SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!" RESET_COLOR,
+        SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
+    ResetColor();
 
     printf("\n  *) [      Zła odpowiedź    ] - ");
     lineCount += PrintWrappedLine("Popełniając błąd, zaznaczając błędną odpowiedź, kończysz swoje podejście w tym teleturnieju. Zdobywasz jednak nagrodę w postaci ostatniego \"punktu kontrolnego\" na który odpowiedziałeś poprawnie. Punkty te są umiejscowione odpowiednio na 1, 3 i 6 pytaniu. "
-        SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!" RESET_COLOR,
+        SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
+    ResetColor();
 
     printf("\n\n");
     lineCount += 2;
