@@ -353,7 +353,7 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
             if(color == 0) SetColorRGBPreset(LoadedSettings->SupportColor, false);
             else SetColorRGBPreset(color, false);
 
-            printf("%c) %s: Wykorzystano", key, text);
+            printf("%c) %s: Pokaż", key, text);
             break;
 
         case QQAS_Selected:
