@@ -309,6 +309,8 @@ void Scroll(QuestionListPageData* data, bool down) {
     UpdateVisibleQuestions(data, oldSelected);
 }
 
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
 bool delayedEnterQuiz = false;
 void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     if(!mainLoop) {
@@ -326,10 +328,13 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     SetResizeHandler(OnQuestionListPageResize, data);
     SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
-    DrawAll(data);
+    if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight) {
+        OnQuestionListPageResize(LatestTerminalWidth, LatestTerminalHeight, data);
+    }
+    else {
+        DrawAll(data);
+    }
 }
-
-extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_QuestionList()
 {
@@ -342,8 +347,6 @@ void PageEnter_QuestionList()
     data.drawQuestionStartIndex = 0;
     data.selected = 0;
     data.list = GetQuestionList();
-
-    printf(SCREEN_SCROLL_REGION(2, data.terminalHeight - 1)); // Set scrolling region
 
     OnQuestionListPageResize(data.terminalWidth, data.terminalHeight, &data);
 
@@ -401,6 +404,8 @@ void OnQuestionListPageResize(int width, int height, void* data)
     else if(pageData->scrollSize < 1) {
         pageData->scrollSize = 1;
     }
+
+    printf(SCREEN_SCROLL_REGION(2, pageData->terminalHeight - 1)); // Set scrolling region
 
     DrawAll(pageData);
 }
