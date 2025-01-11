@@ -53,6 +53,7 @@ typedef struct
 
     double audienceVotes[4];
     bool blockedOptions[4];
+    int phoneCallVote[4];
 
     QuizQuestionResult* outResult;
     QuizQuestionAbilityStatus* abilities;
@@ -155,6 +156,18 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
         printf("%2.1f%%", data->audienceVotes[ansIndex]);
         ResetColor();
     }
+    if(data->abilities[ABILITY_PHONE] == QQAS_Active && data->phoneCallVote[ansIndex] != 0) {
+        SetCursorPosition(startX, startY + height);
+        if(data->phoneCallVote[ansIndex] == 2) {
+            SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
+            printf("NIEPOPRAWNA");
+        }
+        else {
+            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            printf("POPRAWNA ?");
+        }
+        ResetColor();
+    }
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
@@ -223,6 +236,23 @@ void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, in
         }
         while (data->blockedOptions[randomIndex]);
         data->blockedOptions[randomIndex] = true;
+    }
+
+    data->phoneCallVote[0] = 0;
+    data->phoneCallVote[1] = 0;
+    data->phoneCallVote[2] = 0;
+    data->phoneCallVote[3] = 0;
+
+    int phoneVotePercentage = rand() % 100;
+
+    if(phoneVotePercentage < 30){
+        data->phoneCallVote[phoneVotePercentage / 10 + 1] = 2;
+    }
+    else if(phoneVotePercentage < 40){
+        data->phoneCallVote[rand() % 3 + 1] = 1;
+    }
+    else{
+        data->phoneCallVote[0] = 1;
     }
 
     CalculateQuizQuestionPageData(data, true);
@@ -928,10 +958,60 @@ void Show5050Help(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Question;
 }
 
+static const int PhoneHelpCorrectMessagesLength = 6;
+static const char* PhoneHelpCorrectMessages[] = {
+    "Wydaje mi się, że dpowiedź %c będzie poprawna.",
+    "Jestem dosyć pewien, że odpowiedź %c jest poprawna.",
+    "Jestem prawie pewien, że odpowiedź %c jest poprawna.",
+    "Na twoim miejscu chyba zaznaczyłbym odpowiedź %c.",
+    "Odpowiedź %c wydaje się dosyć prawdopodobna.",
+    "Odpowiedź %c dobrze wygląda."
+};
+
+static const int PhoneHelpCorrectWrongLength = 5;
+static const char* PhoneHelpWrongMessages[] = {
+    "Wiem że odpowiedź %c jest na pewno niepoprawna.",
+    "Moim zdaniem odpowiedź %c jest niepoprawna.",
+    "Odpowiedź %c na pewno tutaj nie pasuje.",
+    "Na twoim miejscu nie zaznaczałbym odpowiedzi %c.",
+    "Odpowiedź %c wygląda dosyć fałszywie."
+};
+
 void ShowPhoneHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Phone;
+    bool ansIsCorrect = true;
+    int i;
+    for (i = 0; i < 4; i++) {
+        if(data->phoneCallVote[i] == 2) {
+            ansIsCorrect = false;
+            break;
+        }        
+    }
+    
+    char* message;
+    if(ansIsCorrect) {
+        message = PhoneHelpCorrectMessages[rand() % PhoneHelpCorrectMessagesLength];
+    } else {
+        message = PhoneHelpWrongMessages[rand() % PhoneHelpCorrectWrongLength];
+    }
 
-    ShowAlertPopupKeys("Niestety twój przyiaciel nie odbiera.", 37 + 4, ENTER, '3', ESC, ANY_MOUSE_BUTTON);
+    char buffor[128];
+    sprintf(buffor, message, 'A' + ((4 + i - data->offset) % 4)); 
+
+    const int popUpWidth = 44;
+    int popUpHeight = 3;
+    popUpHeight += GetWrappedLineCount(buffor, popUpWidth - 4);
+    int beginX, beginY;
+    DrawEmptyPopup(popUpWidth, popUpHeight + 2, &beginX, &beginY);
+
+    SetCursorPosition(beginX + 2, beginY + 1);
+    PrintWrappedLine("Telefon do Przyjaciela:", popUpWidth - 4, beginX + 2, true);
+
+    SetCursorPosition(beginX + 2, beginY + 3);
+    PrintWrappedLine(buffor, popUpWidth - 4, beginX + 2, true);
+
+    SetCursorToRestingPlace(data);
+    WaitForKeys(ENTER, '3', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
