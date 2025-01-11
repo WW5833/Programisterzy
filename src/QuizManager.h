@@ -1,5 +1,5 @@
 #ifndef _INC_QUIZMANAGER_H
-#define _INC_QUIZMANAGER_H 
+#define _INC_QUIZMANAGER_H
 
 #include "Question.h"
 #include <stdbool.h>

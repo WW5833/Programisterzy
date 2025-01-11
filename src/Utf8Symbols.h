@@ -45,9 +45,9 @@
 #define TRIANGLE "▶" /* Does not work on all terminals */
 
 void PrintGenericBorder(
-    int width, 
+    int width,
     const char* leftFormat,
-    const char* middleFormat, 
+    const char* middleFormat,
     const char* rightFormat);
 
 void PrintGenericBorderEdges(

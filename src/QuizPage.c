@@ -58,7 +58,6 @@ void DrawpEndGameUIRightSide(int questionNumber, int safe, QuizQuestionResult re
                 printf(TRIANGLE);
             else
                 printf(">");
-            
         }
         else {
             printf(CSR_MOVE_RIGHT(14));
@@ -140,7 +139,7 @@ void PageEnter_Quiz()
                 abilitiesStatus[j] = QQAS_Unavailable;
             }
         }
-        
+
         PageEnter_QuizQuestion(current->data, i + 1, &abilitiesStatus[0], &correct);
         if(correct != QQR_Correct) break;
         current = current->next;
@@ -150,7 +149,7 @@ void PageEnter_Quiz()
     if(i > 5) safe = 5;
     else if(i > 2) safe = 2;
     else if(i > 0) safe = 0;
-    
+
     DrawEndGameUI(i, safe, correct);
 
     ResetColor();

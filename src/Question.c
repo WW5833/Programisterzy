@@ -31,7 +31,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
         buffer[i] = serializedQuestion[i];
         i++;
     }
-    
+
     *content = malloc((size_t)(i + 1) * sizeof(char));
 
     if(*content == NULL) {
@@ -69,7 +69,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     int i;
 
-    if(!DeserializeQuestionId(serializedQuestion, question, &i)) 
+    if(!DeserializeQuestionId(serializedQuestion, question, &i))
     {
         fprintf(stderr, "[ERROR] Failed to deserialize question id: \"%s\"\n", serializedQuestion);
         DestroyQuestion(question);
@@ -77,18 +77,18 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     }
     serializedQuestion = &serializedQuestion[i];
 
-    if(!DeserializeString(serializedQuestion, &question->Content, &i)) 
+    if(!DeserializeString(serializedQuestion, &question->Content, &i))
     {
         fprintf(stderr, "[ERROR] Failed to deserialize question content: \"%s\"\n", serializedQuestion);
         DestroyQuestion(question);
         return NULL;
-    }   
+    }
 
     serializedQuestion = &serializedQuestion[i];
 
     for (int j = 0; j < 4; j++)
     {
-        if(!DeserializeString(serializedQuestion, &question->Answer[j], &i)) 
+        if(!DeserializeString(serializedQuestion, &question->Answer[j], &i))
         {
             fprintf(stderr, "[ERROR] Failed to deserialize question answer[%d]: \"%s\"\n", j, serializedQuestion);
             DestroyQuestion(question);
@@ -106,8 +106,8 @@ void AppendQuestion(FILE* file, Question* question) {
         question->Id,
         question->Content,
         question->Answer[0],
-        question->Answer[1], 
-        question->Answer[2], 
+        question->Answer[1],
+        question->Answer[2],
         question->Answer[3]);
 }
 

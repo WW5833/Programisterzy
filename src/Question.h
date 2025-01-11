@@ -1,5 +1,5 @@
 #ifndef _INC_QUESTION_H
-#define _INC_QUESTION_H 
+#define _INC_QUESTION_H
 
 #include <stdio.h>
 

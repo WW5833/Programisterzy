@@ -17,9 +17,9 @@ typedef struct CharacterData
         char ascii;
         char utf8[4];
     } data;
-    
+
     int size;
-    
+
     struct CharacterData* next;
     struct CharacterData* prev;
 } CharacterData;
@@ -165,7 +165,7 @@ TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, in
 {
     TextEditorData data;
     data.resized = false;
-    
+
     data.rightFiller = rightFiller;
     data.rightFillerLength = GetStringCharCount(rightFiller);
 
@@ -293,11 +293,11 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
             cursorX = currentWidth - (index + wordLength - data->cursorPosition);
             cursorY = lineCount - 1;
         }
-        
+
         current = current->next;
         index += wordLength;
     }
-    
+
     DestroyWordList(wordList);
 
     SetCursorPosition(data->beginX + currentWidth, data->beginY + lineCount - 1);
@@ -338,7 +338,7 @@ static int BufferToString(char** dest, CharacterData* src) {
         *dest = NULL;
     }
     *dest = malloc((size_t)(length + 1));
-    
+
     node = src;
     int index = 0;
     while (node->size != 0)
@@ -356,7 +356,7 @@ static int BufferToString(char** dest, CharacterData* src) {
 
         node = node->next;
     }
-    
+
 
     (*dest)[length] = '\0';
     return length;
@@ -476,7 +476,7 @@ static ReadTextResult ReadText(TextEditorData* data) {
 
                 case 80: // Down arrow
                     return RTR_ArrowDown;
-                
+
                 default:
                     return RTR_None;
             }
@@ -502,7 +502,7 @@ static bool InsertCharacter(TextEditorData* data, int index, char c) {
             CharacterData* node = malloc(sizeof(CharacterData));
             node->data.utf8[0] = c;
             node->size = 1;
-            
+
             InsertAt(data, index, node);
             return true;
         }
@@ -518,7 +518,7 @@ static bool InsertCharacter(TextEditorData* data, int index, char c) {
     CharacterData* node = malloc(sizeof(CharacterData));
     node->data.ascii = (char)c;
     node->size = 1;
-    
+
     InsertAt(data, index, node);
     return true;
 }

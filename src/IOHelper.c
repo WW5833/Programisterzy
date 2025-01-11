@@ -65,8 +65,8 @@ void EnableMouseInput(bool enable)
 
 bool CheckForAnsiSupportPost() {
     printf(ESC_SEQ "6n");
-    
-    if(kbhit() && getch() == '\x1B') { 
+
+    if(kbhit() && getch() == '\x1B') {
         while (getch() != 'R'); // Clear the buffer
         return true; // ANSI supported
     }
@@ -112,7 +112,7 @@ void InitializeIO()
     }
 
     SetConsoleModes();
-    
+
     if(!CheckForAnsiSupportPost()) {
         ExitAppWithErrorMessage(EXIT_FAILURE, "ANSI not supported but requied!");
     }
@@ -148,7 +148,7 @@ void ExitAppWithErrorFormat(int exitCode, const char* format, ...)
 void ExitAppWithErrorMessage(int exitCode, const char* message)
 {
     _internal_PreExitApp();
-    
+
     fprintf(stderr, "[ERROR] %s\n", message);
 
     exit(exitCode);

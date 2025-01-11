@@ -16,11 +16,11 @@ extern Settings* LoadedSettings;
 void GetCursorPosition(int* x, int* y)
 {
     while (kbhit()) getch(); // Clear input buffer
-    
+
     printf(ESC_SEQ "6n");
 
     int c = getch();
-    
+
     if(c != '\x1B') {
         while(kbhit()) {
             c = getch();
@@ -58,9 +58,9 @@ void SetCursorPosition(int x, int y)
 
 bool CheckForAnsiSupport() {
     printf(ESC_SEQ "6n");
-    
+
     // Use _getch() instead of custom getch() because this function is called before IOHelper is fully initialized
-    if(_kbhit() && _getch() == '\x1B') { 
+    if(_kbhit() && _getch() == '\x1B') {
         while (_getch() != 'R'); // Clear the buffer
         return true; // ANSI supported
     }
@@ -76,14 +76,14 @@ void ClearScreen()
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
-void ClearScreenManual() 
+void ClearScreenManual()
 {
     for (int i = 1; i <= LatestTerminalWidth; i++)
     {
         SetCursorPosition(0, i);
         ClearLine();
     }
-    ResetCursor();    
+    ResetCursor();
 }
 
 void ClearLine()

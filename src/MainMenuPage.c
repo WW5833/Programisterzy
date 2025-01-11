@@ -61,7 +61,7 @@ void PrintMainMenu(MainMenuPageData* data)
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
     printf(CSR_MOVE_RIGHT(2));
     printf("Witaj w Programisterach!\n");
-    
+
     PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
 
     printf(CSR_MOVE_RIGHT(2));
@@ -78,7 +78,7 @@ void PrintMainMenu(MainMenuPageData* data)
 #endif
 
     printf("\r");
-    
+
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
     SetCursorPosition(4, LineTable[data->selected]);
@@ -94,7 +94,7 @@ void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
     } else {
         data->selected = (data->selected - 1 + TOTAL_OPTION_COUNT) % TOTAL_OPTION_COUNT;
     }
-    
+
     SetCursorPosition(4, LineTable[data->selected]);
     printf("*");
 }
@@ -115,7 +115,7 @@ void OnEnterPressed(MainMenuPageData* data) {
             PageEnter_Instruction();
             break;
         case 4:
-            PageEnter_QuestionList();  
+            PageEnter_QuestionList();
             break;
         case 5:
             ExitApp(EXIT_SUCCESS);
@@ -124,7 +124,7 @@ void OnEnterPressed(MainMenuPageData* data) {
             PageEnter_Debug();
             break;
         case OPTION_COUNT + 1:
-            PageEnter_Welcome();  
+            PageEnter_Welcome();
             break;
 #endif
     }
@@ -153,7 +153,7 @@ void PageEnter_MainMenu()
         }
         else if (key == KEY_ENTER) {
             UnsetResizeHandler();
-            
+
             OnEnterPressed(&data);
 
             SetResizeHandler(OnMainMenuPageReset, &data);

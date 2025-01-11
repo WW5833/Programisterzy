@@ -87,7 +87,7 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
         }
 
         for (int i = 0; i < 4; i++)
-        { 
+        {
             int lineCountAnswer = GetWrappedLineCount(current->data->Answer[i], minAnswerWidth);
             if(lineCountAnswer > maxLineCountAnswer) {
                 maxLineCountAnswer = lineCountAnswer;

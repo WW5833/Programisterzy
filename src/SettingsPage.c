@@ -91,15 +91,15 @@ void DrawSettingsUI(SettingsPageData* data) {
     printf("\n[ ] ");
     GetCursorPosition(&data->utf8SupportX, &data->utf8SupportY);
     PrintUTF8Support(data, LoadedSettings->FullUTF8Support);
-    
+
     printf("\n[ ] Pokaż poprawną odpowiedź po przegranej: ");
     GetCursorPosition(&data->showCorrectWhenWrongX, &data->showCorrectWhenWrongY);
     printf(LoadedSettings->ShowCorrectWhenWrong ? "TAK" : "NIE");
-    
+
     printf("\n[ ] Włącz wsparcie myszki: ");
     GetCursorPosition(&data->enableMouseSupportX, &data->enableMouseSupportY);
     printf(LoadedSettings->EnableMouseSupport ? "TAK" : "NIE");
-    
+
     printf("\n[ ] Włącz tryb ciemny: ");
     GetCursorPosition(&data->darkModeX, &data->darkModeY);
     printf(LoadedSettings->DarkMode ? "TAK" : "NIE");
@@ -158,7 +158,7 @@ bool HandleEnterKey(SettingsPageData* data) {
             if(!LoadedSettings->EnableMouseSupport) {
                 EnableMouseInput(false);
             }
-            
+
             break;
         case 8:
             LoadedSettings->DarkMode = !LoadedSettings->DarkMode;
@@ -176,7 +176,7 @@ bool HandleEnterKey(SettingsPageData* data) {
             LoadedSettings = LoadSettings(); // Reload settings
             return true;
     }
-    
+
     return false;
 }
 
@@ -231,22 +231,22 @@ void PageEnter_Settings()
             case KEY_ARROW_DOWN:
                 HandleArrowUpDownKeys(&data, 1);
                 break;
-                
+
             case KEY_ENTER:
                 if(HandleEnterKey(&data)) {
                     continueLoop = false; // Exit page
                 }
                 break;
-                
+
             case KEY_ARROW_LEFT:
                 HandleArrowLeftRightKeys(&data, -1);
                 break;
-                
-            case KEY_ARROW_RIGHT: 
+
+            case KEY_ARROW_RIGHT:
                 HandleArrowLeftRightKeys(&data, 1);
                 break;
 
-            case KEY_ESCAPE: 
+            case KEY_ESCAPE:
                 LoadedSettings = LoadSettings(); // Reload settings
                 continueLoop = false; // Exit page
                 break;

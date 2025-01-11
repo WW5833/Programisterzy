@@ -14,7 +14,7 @@ typedef struct {
     int terminalWidth;
     int terminalHeight;
     int pageNumber;
-} InstructionPageData; 
+} InstructionPageData;
 
 void DrawUIPageOne(InstructionPageData* data);
 void DrawUIPageTwo(InstructionPageData* data);
@@ -43,14 +43,14 @@ void PageEnter_Instruction()
         {
             case KEY_ENTER:
                 break;
-                
+
             case KEY_ARROW_LEFT: {
                 data.pageNumber--;
                 if(data.pageNumber < 1) data.pageNumber = 1;
                 else DrawUI(&data);
                 break;
             }
-                
+
             case KEY_ARROW_RIGHT: {
                 data.pageNumber++;
                 if(data.pageNumber > 3) data.pageNumber = 3;
@@ -58,10 +58,10 @@ void PageEnter_Instruction()
                 break;
             }
 
-            case KEY_ESCAPE: 
+            case KEY_ESCAPE:
                 UnsetResizeHandler();
                 return;
-            
+
             default:
                 break;
         }
@@ -88,9 +88,9 @@ void DrawUIPageOne(InstructionPageData* data) {
     PrintGenericBorderEdges(0, data->terminalWidth, 3, SINGLE_VERTICAL_LINE, false);
 
     PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
-    
+
     printf("  Opis: ");
-    int lineCount = PrintWrappedLine("W naszej aplikacji będziesz miał możliwość sprawdzenia się w popularnym teleturnieju jakim są Milionerzy!" 
+    int lineCount = PrintWrappedLine("W naszej aplikacji będziesz miał możliwość sprawdzenia się w popularnym teleturnieju jakim są Milionerzy!"
         " W tej aplikacji będziesz w stanie sprawdzić swoją wiedzę w najróżniejszych dziedzinach, bądź swoich znajomych dzięki możliwości dodawania "
         "własnych pytań! Czytaj uważnie pytania i niech nie zwiedzie ciebie pewność siebie. Powodzenia!",
         widthWithoutBorders - 6, 7, false);
@@ -103,13 +103,13 @@ void DrawUIPageOne(InstructionPageData* data) {
         "potwierdzenie (ponowne wciśnięcie danego klawisza)."
         "Wraz z kolejnymi pytaniami kwota pieniężna o którą grasz będzie wzrastać ( im dalej tym większa szansa na znaczną wygraną ). ",
         widthWithoutBorders - 8, 9, false) + 2;
-        
+
     printf("\n");
-    
+
     PrintBorderEdges(data, lineCount);
 
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
-    
+
     PrintWrappedLine("Strona: 1/3", data->terminalWidth, 0, true);
 }
 
@@ -141,15 +141,15 @@ void DrawUIPageTwo(InstructionPageData* data) {
     printf("\n  *) [     1     ] - ");
     lineCount += PrintWrappedLine("Wybierz / Potwierdź 1 koło ratunkowe (pytanie do publiczności - publiczność głosuje za poprawną odpowiedzią)",
         width, offset, false);
-    
+
     printf("\n  *) [     2     ] - ");
     lineCount += PrintWrappedLine("Wybierz / Potwierdź 2 koło ratunkowe (50/50 - zaznacza 2 z 4 odpowiedzi które są nieprawidłowe)",
         width, offset, false);
-    
+
     printf("\n  *) [     3     ] - ");
     lineCount += PrintWrappedLine("Wybierz / Potwierdź 3 koło ratunkowe (telefon do przyjaciela - twój przyjaciel sugeruje poprawną według niego odpowiedź)",
         width, offset, false);
-    
+
     printf("\n  *) [ SHIFT + R ] - ");
     lineCount += PrintWrappedLine("Odśwież wyświetlany obraz konsoli (działa jedynie podczas pytań teleturnieju!)",
         width, offset, false);

@@ -63,7 +63,7 @@ static int LoadText(AddQuestionPageData* data, char** output) {
         y = 5;
         for (int i = 0; i < data->slotNumber; i++)
             y += data->maxLines[i] + 1;
-        
+
         outputLength = (int)strlen(*output);
         result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, currentMaxLines, " " SINGLE_VERTICAL_LINE);
         if(result == TextEditorResult_Cancelled) {
@@ -82,7 +82,7 @@ static int LoadText(AddQuestionPageData* data, char** output) {
             if(!EnforceSizeRequirements(data)) {
                 DrawUI(data);
             }
-            
+
             continue;
         }
 
@@ -155,7 +155,7 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
         printf(SELECTOR_MARKER);
         printf("\r" CSR_MOVE_DOWN((lineCount / 2) + 2));
     }
-    
+
     printf(CSR_MOVE_UP(lineCount / 2 + 2));
     printf(CSR_MOVE_RIGHT(data->textOffset));
 
@@ -173,7 +173,7 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
 
     if(lineCount / 2 > 0) printf(CSR_MOVE_DOWN((lineCount / 2)));
     PrintLine(lineCount, data->textStartX - 2, top ? SINGLE_BREAK_BOTTOM : SINGLE_CROSS, bottom ? SINGLE_BREAK_TOP : SINGLE_CROSS);
-    
+
     printf(CSR_MOVE_UP(lineCount + 1));
     printf("\r" CSR_MOVE_RIGHT(data->textStartX));
 
@@ -199,11 +199,11 @@ static void DrawOnOnlyMoved(AddQuestionPageData* data) {
         }
 
         lineCountHalf--;
-        
+
         printf(CSR_MOVE_RIGHT(data->selectorOffset));
         if(i == data->slotNumber) printf(SELECTOR_MARKER);
         else printf(" ");
-        printf("\r" CSR_MOVE_DOWN(data->maxLines[i] - lineCountHalf + 1)); 
+        printf("\r" CSR_MOVE_DOWN(data->maxLines[i] - lineCountHalf + 1));
     }
 
     RestoreCursorPosition();

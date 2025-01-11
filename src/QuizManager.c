@@ -137,7 +137,7 @@ int LoadQuestions() {
 
     int lineId = 0;
 
-    while (!feof(file)) { 
+    while (!feof(file)) {
         if (buffer != fgets(buffer, BUFFER_SIZE, file))
             break;
 
@@ -164,7 +164,7 @@ int LoadQuestions() {
 
             current = current->next;
         }
-        
+
         ListAdd(QuestionList, q);
     }
 
@@ -223,7 +223,7 @@ QuestionListHeader* GenerateQuiz() {
                 break;
             }
         }
-        
+
         if(q == NULL) continue;
         ListAdd(questions, q);
         questionIds[i] = q->Id;

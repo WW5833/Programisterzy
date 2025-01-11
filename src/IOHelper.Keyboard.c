@@ -16,7 +16,7 @@ int getch()
 {
     while(textInputBufferReadPtr == textInputBufferWritePtr)
         IOLoop();
-    
+
     BufferPtrInc(textInputBufferReadPtr);
 
     return textInputBuffer[textInputBufferReadPtr];

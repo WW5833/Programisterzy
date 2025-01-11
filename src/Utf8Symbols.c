@@ -3,10 +3,10 @@
 #include "AnsiHelper.h"
 
 void PrintGenericBorder(
-    int width, 
+    int width,
     const char* leftFormat,
     const char* middleFormat,
-    const char* rightFormat) 
+    const char* rightFormat)
 {
     printf("%s", leftFormat);
     for (int _i = 0; _i < width - 2; _i++)
@@ -18,7 +18,7 @@ void PrintGenericBorder(
 void PrintGenericBorderEdges(
     int startX, int width, int y,
     const char* format,
-    bool clearInside) 
+    bool clearInside)
 {
     SetCursorPosition(startX, y);
     printf("%s", format);
@@ -31,7 +31,7 @@ void PrintGenericBorderEdges(
 
 void PrintGenericBorderEdgesHere(
     int startX, int width,
-    const char* format) 
+    const char* format)
 {
     printf("\r");
     if(startX > 0) printf(CSR_MOVE_RIGHT(startX));

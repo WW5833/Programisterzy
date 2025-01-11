@@ -117,23 +117,23 @@ void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount,
 
 void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
     if(selected == oldSelected) return;
-    
+
     bool forceUpdate = oldSelected == INT_MIN;
 
     int beginX = 3;
     int beginY = data->questionContentEndY;
     int beginXOffset = data->ansWidth + 1;
 
-    if(forceUpdate || selected == 0 || oldSelected == 0) 
+    if(forceUpdate || selected == 0 || oldSelected == 0)
         PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
-    if(forceUpdate || selected == 1 || oldSelected == 1) 
+    if(forceUpdate || selected == 1 || oldSelected == 1)
         PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
 
     beginY += data->ansLineCountMaxAB + 4;
 
-    if(forceUpdate || selected == 2 || oldSelected == 2) 
+    if(forceUpdate || selected == 2 || oldSelected == 2)
         PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
-    if(forceUpdate || selected == 3 || oldSelected == 3) 
+    if(forceUpdate || selected == 3 || oldSelected == 3)
         PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
 }
 
@@ -187,7 +187,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
     const int marginsBetweenAnsers = 13;
     data->ansWidthLimit = (data->terminalWidth - marginsBetweenAnsers - REWARD_BOX_WIDTH_PLUS_BORDER) / 2;
     data->ansWidth = data->ansWidthLimit + 4;
-    
+
     int ansLineCountA = GetWrappedLineCount(data->question->Answer[(0 + data->offset) % 4], data->ansWidthLimit);
     int ansLineCountB = GetWrappedLineCount(data->question->Answer[(1 + data->offset) % 4], data->ansWidthLimit);
     data->ansLineCountMaxAB = MAX(ansLineCountA, ansLineCountB);
@@ -213,7 +213,7 @@ void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, in
     // Generate random audience votes
     int votes[4] = {0, 0, 0, 0};
     int ansCount = 1000;
-    
+
     votes[0] = (rand() % 200) + 400;
     votes[1] = (rand() % (1000 - votes[0]));
     votes[2] = (rand() % (1000 - votes[0] - votes[1]));
@@ -292,7 +292,7 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
     // Question Content | Answers splitter
     SetCursorPosition(0, data->questionContentEndY - 1);
     PRINT_TJUNCTION_BORDER(data->terminalWidth);
-    
+
     // Answers | Abilities spliter
     SetCursorPosition(0, data->answersEndY);
     PRINT_TJUNCTION_BORDER(data->terminalWidth);
@@ -307,7 +307,7 @@ const char* GetRewardText(int rewardId) {
         case 1:  return "1 000 zł";
         case 2:  return "4 000 zł";
         case 3:  return "10 000 zł";
-        case 4:  return "25 000 zł"; 
+        case 4:  return "25 000 zł";
         case 5:  return "50 000 zł";
         case 6:  return "100 000 zł";
         case 7:  return "250 000 zł";
@@ -341,7 +341,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
         int color = GetRewardColor(data, rewardId);
         if(!data->previewMode && color != 0) SetColorRGBPreset(color, false);
-        
+
         printf("%2d ", questionCount - i);
 
         if (LoadedSettings->FullUTF8Support)
@@ -378,7 +378,7 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
             SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
             printf("%c) %s: Wykorzystano", key, text);
             break;
-        
+
         case QQAS_Active:
             if(color == 0) SetColorRGBPreset(LoadedSettings->SupportColor, false);
             else SetColorRGBPreset(color, false);
@@ -404,7 +404,7 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
 
 void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
     SetCursorPosition(3, data->answersEndY + 1);
-    
+
     PrintAbilityText(data, ABILITY_AUDIENCE, "Głos publiczności", '1');
 
     printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
@@ -412,7 +412,7 @@ void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
 
     printf(CSR_MOVE_LEFT_0_DOWN1 CSR_MOVE_RIGHT(2));
     PrintAbilityText(data, ABILITY_PHONE, "Telefon do przyjaciela", '3');
-    
+
     ResetColor();
 
     SetCursorToRestingPlace(data);
@@ -577,7 +577,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
                 UpdateAnswersBlocks(data, oldSel);
             }
             break;
-        
+
         case KEY_ENTER:
             if(!HandleAnswerConfirmation(data, false)) {
                 break;
@@ -780,7 +780,7 @@ void OnQuizQuestionPageDoubleMouseClick(int button, int x, int y, void* data) {
     OnQuizQuestionPageMouseClick(button, x, y, data);
 }
 
-void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) { 
+void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
     int offset = rand() % 4;
 
     QuizQuestionPageData data;
@@ -799,8 +799,8 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
             data.pendingAction = PMA_None;
             HandleAnswerConfirmation(&data, false);
             break;
-        } else if(data.pendingAction == PMA_AbilityActivation) {  
-            data.pendingAction = PMA_None; 
+        } else if(data.pendingAction == PMA_AbilityActivation) {
+            data.pendingAction = PMA_None;
             switch (data.mouseSelectedAbility)
             {
                 case ABILITY_AUDIENCE:
@@ -826,7 +826,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     RemoveMouseHandlers();
 }
 
-void PageEnter_QuizQuestionPreview(Question* question) { 
+void PageEnter_QuizQuestionPreview(Question* question) {
     int offset = rand() % 4;
 
     QuizQuestionAbilityStatus abilities[3] = {QQAS_Unavailable, QQAS_Unavailable, QQAS_Unavailable};
@@ -912,7 +912,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
         drawnVotes[i] = data->audienceVotes[i] / 100.0;
         if(drawnVotes[i] > 0.6) drawnVotes[i] = 0.6; // Cap graph at 60%
     }
-    
+
     for (int i = 0; i < segmentCount; i++)
     {
         for (int id = 0; id < 4; id++)
@@ -985,9 +985,9 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
         if(data->phoneCallVote[i] == 2) {
             ansIsCorrect = false;
             break;
-        }        
+        }
     }
-    
+
     const char* message;
     if(ansIsCorrect) {
         message = PhoneHelpCorrectMessages[rand() % PhoneHelpCorrectMessagesLength];

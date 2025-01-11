@@ -71,7 +71,7 @@ void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
 
             currentChar = next;
         }
-        
+
         printf("...");
     }
     else {
@@ -121,7 +121,7 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
 
     // Draw scrollBarHandle
     AddScrollBar(data);
-    
+
     // Set new selected
     SetColorRGBPreset(RGB_ID_WHITE, false);
     SetColorRGBPreset(RGB_ID_BLUE, true);
@@ -237,8 +237,8 @@ void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
     }
 
     free(updated);
-    
-    ResetCursor();  
+
+    ResetCursor();
 }
 
 void RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
@@ -257,8 +257,8 @@ void RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
         SetCursorPosition(data->terminalWidth - 1, 2 + scrollPosition + i);
         printf(SCROLL_BAR_LINE);
     }
-    
-    ResetCursor();  
+
+    ResetCursor();
 }
 
 void AddScrollBar(QuestionListPageData* data) {
@@ -277,8 +277,8 @@ void AddScrollBar(QuestionListPageData* data) {
         SetCursorPosition(data->terminalWidth - 1, 2 + scrollPosition + i);
         printf(SCROLL_BAR_HANDLE);
     }
-    
-    ResetCursor();  
+
+    ResetCursor();
 }
 
 void DrawAll(QuestionListPageData* data) {
@@ -297,7 +297,7 @@ void Scroll(QuestionListPageData* data, bool down) {
 
     if(down) {
         if(data->selected >= data->list->count - 1) return;
-                
+
         oldSelected = data->selected++;
     }
     else {
