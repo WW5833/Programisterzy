@@ -232,6 +232,28 @@ int LoadQuestions() {
     return QuestionList->count;
 }
 
+void SaveQuestions(QuestionListHeader *list)
+{
+    FILE* file = fopen(QUESTIONS_FILE, "w");
+
+    if(file == NULL) {
+        perror("Failed to open questions file");
+        ExitApp(EXIT_FAILURE);
+    }
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        AppendQuestion(file, current->data);
+        current = current->next;
+    }
+
+    if(fclose(file) != 0) {
+        perror("Failed to close file");
+        ExitApp(EXIT_FAILURE);
+    }
+}
+
 Question* GetRandomQuestion() {
     if(QuestionList->count == 0) return NULL;
 
