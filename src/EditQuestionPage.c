@@ -225,10 +225,10 @@ static void DrawUI(AddQuestionPageData* data) {
     ClearScreen();
 
     if(data->newQuestion) {
-        printf("Edytuj pytanie:\n");
+        printf("Dodaj pytanie:\n");
     }
     else {
-        printf("Dodaj pytanie:\n");
+        printf("Edytuj pytanie:\n");
     }
 
     char buffer[4];
