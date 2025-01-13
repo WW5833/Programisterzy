@@ -456,6 +456,11 @@ static ReadTextResult ReadText(TextEditorData* data) {
             return RTR_Update;
         }
 
+        case '\t':
+            return RTR_ArrowDown;
+        case SHIFT_TAB:
+            return RTR_ArrowUp;
+
         case ESCAPE_CHAR: {
             switch (getch())
             {

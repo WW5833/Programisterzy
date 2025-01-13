@@ -36,6 +36,12 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
             ExitApp(EXIT_SUCCESS);
         }
 
+        if(ker.uChar.AsciiChar == '\t' && ker.dwControlKeyState & SHIFT_PRESSED) {
+            BufferPtrInc(textInputBufferWritePtr);
+            textInputBuffer[textInputBufferWritePtr] = SHIFT_TAB; // Use VT (Vertical Tab) as a Shift + Tab
+            return;
+        }
+
         if(ker.uChar.AsciiChar != 0) {
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = ker.uChar.AsciiChar;
