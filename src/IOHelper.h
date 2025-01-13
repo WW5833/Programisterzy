@@ -31,6 +31,17 @@ void UpdateTerminalSize();
 #define MOUSE_LEFT_BUTTON 1
 #define MOUSE_RIGHT_BUTTON 2
 
+#define VK_END 0x23
+#define VK_HOME 0x24
+#define VK_LEFT 0x25
+#define VK_UP 0x26
+#define VK_RIGHT 0x27
+#define VK_DOWN 0x28
+#define VK_INSERT 0x2D
+#define VK_DELETE 0x2E
+
+#define VK_SHIFT_MOD 0x40
+
 void SetMouseHandler(
     void (*clickHandler)(int, int, int, void *),
     void (*doubleClickHandler)(int, int, int, void *),

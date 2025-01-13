@@ -27,13 +27,13 @@ KeyInputType HandleInteractions(bool blocking) {
         case ESCAPE_CHAR:
             switch (getch())
             {
-                case 72: // Arrow Up
+                case VK_UP: // Arrow Up
                     return KEY_ARROW_UP;
-                case 80: // Arrow Down
+                case VK_DOWN: // Arrow Down
                     return KEY_ARROW_DOWN;
-                case 77: // Arrow Right
+                case VK_RIGHT: // Arrow Right
                     return KEY_ARROW_RIGHT;
-                case 75: // Arrow Left
+                case VK_LEFT: // Arrow Left
                     return KEY_ARROW_LEFT;
 
                 default:

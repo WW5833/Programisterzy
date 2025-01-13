@@ -455,26 +455,34 @@ static ReadTextResult ReadText(TextEditorData* data) {
         case ESCAPE_CHAR: {
             switch (getch())
             {
-                case 75: // Left arrow
+                case VK_LEFT: // Left arrow
                     if(data->cursorPosition == 0) return RTR_None;
                     data->cursorPosition--;
                     return RTR_Update;
 
-                case 77: // Right arrow
+                case VK_RIGHT: // Right arrow
                     if(data->cursorPosition == data->bufferLength) return RTR_None;
                     data->cursorPosition++;
                     return RTR_Update;
 
-                case 83: // Delete
+                case VK_DELETE: // Delete
                     if(data->cursorPosition == data->bufferLength) return RTR_None;
                     RemoveAt(data, data->cursorPosition);
                     return RTR_Update;
 
-                case 72: // Up arrow
+                case VK_UP: // Up arrow
                     return RTR_ArrowUp;
 
-                case 80: // Down arrow
+                case VK_DOWN: // Down arrow
                     return RTR_ArrowDown;
+
+                case VK_HOME: // Home
+                    data->cursorPosition = 0;
+                    return RTR_Update;
+
+                case VK_END: // End
+                    data->cursorPosition = data->bufferLength;
+                    return RTR_Update;
 
                 default:
                     return RTR_None;

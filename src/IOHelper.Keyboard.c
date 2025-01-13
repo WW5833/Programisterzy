@@ -43,11 +43,15 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
         }
 
         if((ker.dwControlKeyState & ENHANCED_KEY) != 0) {
-            if((ker.wVirtualScanCode & 0x40) == 0) return; // Ignore non arrows
+            if(ker.wVirtualKeyCode < VK_END) return; // Ignore not supported keys
+            if(ker.wVirtualKeyCode > VK_DELETE) return; // Ignore not supported keys
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = ESCAPE_CHAR;
             BufferPtrInc(textInputBufferWritePtr);
-            textInputBuffer[textInputBufferWritePtr] = (char)ker.wVirtualScanCode;
+            textInputBuffer[textInputBufferWritePtr] = (char)ker.wVirtualKeyCode;
+            if((ker.dwControlKeyState & SHIFT_PRESSED) != 0) {
+                textInputBuffer[textInputBufferWritePtr] |= VK_SHIFT_MOD;
+            }
             return;
         }
     }
