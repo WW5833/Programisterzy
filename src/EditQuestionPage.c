@@ -158,14 +158,16 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
     printf(CSR_MOVE_UP(2));
     PrintLine(lineCount, data->selectorOffset + 1, top ? SINGLE_BREAK_BOTTOM : SINGLE_CROSS, bottom ? SINGLE_BREAK_TOP : SINGLE_CROSS);
 
+    printf(CSR_MOVE_UP(lineCount + 1));
+    int offset = (lineCount - 1) / 2;
+    int inverseOffset = lineCount - offset - 1;
+    if(offset > 0) printf(CSR_MOVE_DOWN(offset));
     if(selected) {
-        printf(CSR_MOVE_UP((lineCount / 2) + 2));
         printf(CSR_MOVE_RIGHT(data->selectorOffset));
         printf(SELECTOR_MARKER);
-        printf("\r" CSR_MOVE_DOWN((lineCount / 2) + 2));
+        printf("\r");
     }
 
-    printf(CSR_MOVE_UP(lineCount / 2 + 2));
     printf(CSR_MOVE_RIGHT(data->textOffset));
 
     if(slotNumber == -1) {
@@ -180,7 +182,7 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
         printf("Podaj odpowiedź %c:", 'A' + (slotNumber - 1));
     }
 
-    if(lineCount / 2 > 0) printf(CSR_MOVE_DOWN((lineCount / 2)));
+    if(inverseOffset > 0) printf(CSR_MOVE_DOWN(inverseOffset));
     PrintLine(lineCount, data->textStartX - 2, top ? SINGLE_BREAK_BOTTOM : SINGLE_CROSS, bottom ? SINGLE_BREAK_TOP : SINGLE_CROSS);
 
     printf(CSR_MOVE_UP(lineCount + 1));
@@ -201,18 +203,14 @@ static void DrawOnOnlyMoved(AddQuestionPageData* data) {
     for (int i = 0; i < 5; i++)
     {
         if(i == data->slotNumber) SaveCursorPosition();
-        int lineCountHalf;
-        for (lineCountHalf = 1; lineCountHalf < ((data->maxLines[i] - 1) / 2.0); lineCountHalf++)
-        {
-            printf(CSR_MOVE_DOWN(1));
-        }
-
-        lineCountHalf--;
+        int offset = (data->maxLines[i] - 1) / 2;
+        int inverseOffset = data->maxLines[i] - offset;
+        if(offset > 0) printf(CSR_MOVE_DOWN(offset));
 
         printf(CSR_MOVE_RIGHT(data->selectorOffset));
         if(i == data->slotNumber) printf(SELECTOR_MARKER);
         else printf(" ");
-        printf("\r" CSR_MOVE_DOWN(data->maxLines[i] - lineCountHalf + 1));
+        printf("\r" CSR_MOVE_DOWN(inverseOffset + 1));
     }
 
     RestoreCursorPosition();
