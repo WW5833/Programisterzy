@@ -57,7 +57,13 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     return false;
 }
 
-static int LoadText(AddQuestionPageData* data, char** output) {
+typedef enum {
+    LoadTextResult_Cancelled = 0,
+    LoadTextResult_ArrowDown = 1,
+    LoadTextResult_ArrowUp = 2
+} LoadTextResult;
+
+static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
     int y;
     int outputLength;
     TextEditorResult result = TextEditorResult_Cancelled;
@@ -71,9 +77,9 @@ static int LoadText(AddQuestionPageData* data, char** output) {
         
         switch (result) {
             case TextEditorResult_ArrowUp:
-                return 2;
+                return LoadTextResult_ArrowUp;
             case TextEditorResult_ArrowDown:
-                return 1;
+                return LoadTextResult_ArrowDown;
 
             case TextEditorResult_OutOfLines:
                 data->maxLines[data->slotNumber]++;
@@ -93,7 +99,7 @@ static int LoadText(AddQuestionPageData* data, char** output) {
                 HideCursor();
                 const char* message = data->newQuestion ? "Czy na pewno chcesz anulować dodawanie pytania?" : "Czy na pewno chcesz anulować modyfikowanie pytania?";
                 if(ShowConfirmationPopup(message, "Tak", "Nie", 41)) {
-                    return 0;
+                    return LoadTextResult_Cancelled;
                 }
 
                 DrawUI(data);
@@ -114,7 +120,7 @@ static int LoadText(AddQuestionPageData* data, char** output) {
 
     SetResizeHandler(OnResize, data);
 
-    return 1;
+    return LoadTextResult_ArrowDown;
 }
 
 static void PrintLine(int lineCount, int offset, const char* top, const char* bottom) {
@@ -276,23 +282,17 @@ bool InputLoop(AddQuestionPageData* data) {
 
             switch(LoadText(data, output))
             {
-                case 0:
+                case LoadTextResult_Cancelled:
                     return false;
-                case 1:
+                case LoadTextResult_ArrowDown:
                     data->slotNumber++;
                     break;
-                case 2:
+                case LoadTextResult_ArrowUp:
                     data->slotNumber--;
                     if(data->slotNumber < 0) {
                         data->slotNumber = 0;
                     }
                     break;
-                case 3:
-                    ListRemove(GetQuestionList(), data->question);
-                    DestroyQuestion(data->question);
-                    data->question = NULL;
-                    // Todo: Remove from file
-                    return false;
             }
         }
 
