@@ -1,4 +1,4 @@
-#include "AddQuestionPage.h"
+#include "EditQuestionPage.h"
 
 #include "AnsiHelper.h"
 #include <string.h>
@@ -11,6 +11,9 @@
 #include <math.h>
 
 #define SELECTOR_MARKER ">"
+
+#define SET_COLOR_RED           ESC_SEQ "38;2;139;0;0m"
+#define SET_COLOR_BRIGHT_RED    ESC_SEQ "38;2;255;36;0m"
 
 typedef struct {
     int terminalWidth;
@@ -52,8 +55,6 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     return false;
 }
 
-#define currentMaxLines data->maxLines[data->slotNumber]
-
 static int LoadText(AddQuestionPageData* data, char** output) {
     int y;
     int outputLength;
@@ -64,39 +65,39 @@ static int LoadText(AddQuestionPageData* data, char** output) {
             y += data->maxLines[i] + 1;
 
         outputLength = (int)strlen(*output);
-        result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, currentMaxLines, " " SINGLE_VERTICAL_LINE);
-        if(result == TextEditorResult_Cancelled) {
-            HideCursor();
-            if(ShowConfirmationPopup("Czy na pewno chcesz anulować dodawanie pytania?", "Tak", "Nie", 40)) {
-                return 0;
-            }
+        result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, data->maxLines[data->slotNumber], " " SINGLE_VERTICAL_LINE);
+        
+        switch (result) {
+            case TextEditorResult_ArrowUp:
+                return 2;
+            case TextEditorResult_ArrowDown:
+                return 1;
 
-            DrawUI(data);
-            continue;
-        }
+            case TextEditorResult_OutOfLines:
+                data->maxLines[data->slotNumber]++;
 
-        if(result == TextEditorResult_OutOfLines) {
-            currentMaxLines++;
+                if(!EnforceSizeRequirements(data)) {
+                    DrawUI(data);
+                }
 
-            if(!EnforceSizeRequirements(data)) {
+                continue;
+
+            case TextEditorResult_WindowResized:
+                SetResizeHandler(OnResize, data);
+                OnResize(-1, -1, data);
+                continue;
+
+            case TextEditorResult_Cancelled:
+                HideCursor();
+                if(ShowConfirmationPopup("Czy na pewno chcesz anulować dodawanie pytania?", "Tak", "Nie", 40)) {
+                    return 0;
+                }
+
                 DrawUI(data);
-            }
+                continue;
 
-            continue;
-        }
-
-        if(result == TextEditorResult_WindowResized) {
-            SetResizeHandler(OnResize, data);
-            OnResize(-1, -1, data);
-            continue;
-        }
-
-        if(result == TextEditorResult_ArrowUp) {
-            return 2;
-        }
-
-        if(result == TextEditorResult_ArrowDown) {
-            return 1;
+            case TextEditorResult_Completed:
+                break;
         }
 
         if(outputLength == 0) {
@@ -277,6 +278,12 @@ bool InputLoop(AddQuestionPageData* data) {
                         data->slotNumber = 0;
                     }
                     break;
+                case 3:
+                    ListRemove(GetQuestionList(), data->question);
+                    DestroyQuestion(data->question);
+                    data->question = NULL;
+                    // Todo: Remove from file
+                    return false;
             }
         }
 
@@ -378,21 +385,7 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
-Question* GetEmptyQuestion() {
-    Question* question = malloc(sizeof(Question));
-    question->Id = GetMaxQuestionId() + 1;
-    question->Content = malloc(1 * sizeof(char));
-    question->Content[0] = '\0';
-    for (int i = 0; i < 4; i++)
-    {
-        question->Answer[i] = malloc(1 * sizeof(char));
-        question->Answer[i][0] = '\0';
-    }
-
-    return question;
-}
-
-Question* PageEnter_AddQuestion()
+bool PageEnter_EditQuestion(Question* question, bool newQuestion)
 {
     ClearScreen();
 
@@ -401,7 +394,8 @@ Question* PageEnter_AddQuestion()
     data.terminalHeight = LatestTerminalHeight;
     data.slotNumber = 0;
 
-    data.question = GetEmptyQuestion();
+    // data.question = GetEmptyQuestion();
+    data.question = question;
 
     CalculateValues(&data);
 
@@ -409,17 +403,20 @@ Question* PageEnter_AddQuestion()
 
     if(!InputLoop(&data)) {
         UnsetResizeHandler();
-        DestroyQuestion(data.question);
-        return NULL;
+        return false;
     }
 
     HideCursor();
 
-    AddQuestion(&data);
-
     UnsetResizeHandler();
 
-    ShowAlertPopup("Pytanie dodane pomyślnie", 30);
+    if(newQuestion) {
+        AddQuestion(&data);
+        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
+    }
+    else {
+        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
+    }
 
-    return data.question;
+    return true;
 }

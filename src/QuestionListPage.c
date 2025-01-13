@@ -1,12 +1,15 @@
 #include "QuestionListPage.h"
 
 #include "AnsiHelper.h"
-#include "QuizQuestionPage.h"
+#include "QuestionDetailsPage.h"
+#include "EditQuestionPage.h"
 #include "IOHelper.h"
 #include "RGBColors.h"
 #include "TextHelper.h"
 
 #include <string.h>
+
+#define ADD_QUESTION_ID -1
 
 #define SCROLL_BAR_HANDLE "█"
 #define SCROLL_BAR_LINE "│"
@@ -20,6 +23,8 @@ typedef struct {
 
     int drawQuestionStartIndex;
     int scrollSize;
+
+    bool questionListModified;
 } QuestionListPageData;
 
 void EnterPreview(QuestionListPageData* data, bool mainLoop);
@@ -58,7 +63,14 @@ void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
     int length = GetStringCharCount(question->Content);
 
     printf(CSR_MOVE_CURSOR_X(blockWidth));
-    printf(CLR_LINE_START "\r" "%d. ", question->Id);
+    printf(CLR_LINE_START "\r");
+
+    if(question->Id == ADD_QUESTION_ID) {
+        printf("     Dodaj nowe pytanie");
+        return;
+    }
+
+    printf("%3d. ", question->Id);
 
     if(widthLimit < length) {
         const char* currentChar = question->Content;
@@ -310,6 +322,8 @@ void Scroll(QuestionListPageData* data, bool down) {
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
+static Question AddQuestionQuestion = {ADD_QUESTION_ID, "", { "", "", "", "" }};
+
 bool delayedEnterQuiz = false;
 void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     if(!mainLoop) {
@@ -320,7 +334,27 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     UnsetResizeHandler();
     UnsetMouseHandler();
 
-    PageEnter_QuizQuestionPreview(ListGetAt(data->list, data->selected));
+    Question* question = ListGetAt(data->list, data->selected);
+    if(question->Id == ADD_QUESTION_ID) {
+        Question* newQuestion = malloc(sizeof(Question));
+        newQuestion->Id = GetMaxQuestionId() + 1;
+        newQuestion->Content = malloc(1 * sizeof(char));
+        newQuestion->Content[0] = '\0';
+        for (int i = 0; i < 4; i++)
+        {
+            newQuestion->Answer[i] = malloc(1 * sizeof(char));
+            newQuestion->Answer[i][0] = '\0';
+        }
+
+        if(PageEnter_EditQuestion(newQuestion, true)) {
+            data->questionListModified = true;
+        }
+    }
+    else {
+        data->questionListModified = false;
+        PageEnter_QuestionDetails(question, &data->questionListModified);
+    }
+    
 
     delayedEnterQuiz = false;
 
@@ -330,7 +364,15 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight) {
         OnQuestionListPageResize(LatestTerminalWidth, LatestTerminalHeight, data);
     }
-    else {
+    else if(!data->questionListModified) {
+        DrawAll(data);
+    }
+
+    if(data->questionListModified) {
+        data->questionListModified = false;
+        ListDestroy(data->list, false);
+        data->list = GetQuestionListCopy();
+        ListInsert(data->list, 0, &AddQuestionQuestion);
         DrawAll(data);
     }
 }
@@ -345,7 +387,9 @@ void PageEnter_QuestionList()
 
     data.drawQuestionStartIndex = 0;
     data.selected = 0;
-    data.list = GetQuestionList();
+    data.questionListModified = false;
+    data.list = GetQuestionListCopy();
+    ListInsert(data.list, 0, &AddQuestionQuestion);
 
     OnQuestionListPageResize(data.terminalWidth, data.terminalHeight, &data);
 
@@ -379,6 +423,7 @@ void PageEnter_QuestionList()
             case KEY_ESCAPE:
                 UnsetResizeHandler();
                 UnsetMouseHandler();
+                ListDestroy(data.list, false);
                 printf(SCREEN_SCROLL_REGION_RESET);
                 return;
 
