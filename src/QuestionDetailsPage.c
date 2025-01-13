@@ -30,6 +30,8 @@ bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
     DestroyQuestion(data->question);
     SaveQuestions(GetQuestionList());
     data->question = NULL;
+
+    ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
     return true;
 }
 
