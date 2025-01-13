@@ -333,19 +333,11 @@ bool InputLoop(AddQuestionPageData* data) {
 }
 
 void AddQuestion(AddQuestionPageData* data) {
-    FILE *file = fopen(QUESTIONS_FILE, "a");
-    if (file == NULL)
-    {
-        perror("Failed to open file");
-        ExitApp(EXIT_FAILURE);
-    }
+    OpenFileChecked(file, QUESTIONS_FILE, "a");
 
     AppendQuestion(file, data->question);
 
-    if(fclose(file)) {
-        perror("Failed to close file");
-        ExitApp(EXIT_FAILURE);
-    }
+    CloseFileChecked(file);
 
     QuestionListHeader *list = GetQuestionList();
 

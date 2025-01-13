@@ -27,7 +27,7 @@ void GetCursorPosition(int* x, int* y)
             }
         }
 
-        ExitAppWithErrorMessage(EXIT_FAILURE, "Failed to get cursor position, ANSI not supported?");
+        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
     }
     esc_seq_found:
 

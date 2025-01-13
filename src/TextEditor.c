@@ -49,6 +49,7 @@ typedef struct WordData
 
 static WordData* GenerateWordList(CharacterData* buffer) {
     WordData* head = malloc(sizeof(WordData));
+    mallocCheck(head);
     head->length = 0;
     head->next = NULL;
     head->prev = NULL;
@@ -62,6 +63,7 @@ static WordData* GenerateWordList(CharacterData* buffer) {
     while(node->size != 0) {
         if(node->size == 1 && node->data.ascii == ' ') {
             WordData* word = malloc(sizeof(WordData));
+            mallocCheck(word);
             word->data.space = ' ';
             word->length = 0;
             word->next = NULL;
@@ -72,6 +74,7 @@ static WordData* GenerateWordList(CharacterData* buffer) {
         }
         else if(current->length == 0) {
             WordData* word = malloc(sizeof(WordData));
+            mallocCheck(word);
             word->data.word = node;
             word->length = 1;
             word->next = NULL;
@@ -87,7 +90,7 @@ static WordData* GenerateWordList(CharacterData* buffer) {
         node = node->next;
 
         if(node == NULL) {
-            ExitAppWithErrorFormat(EXIT_FAILURE, "Unexpected end of buffer, null terminator not found");
+            ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_UNEXPEDTED_END_OF_STRING);
         }
     }
 
@@ -165,6 +168,7 @@ void LoadDefaultBuffer(TextEditorData* data) {
     data->cursorPosition = 0;
 
     data->buffer = malloc(sizeof(CharacterData));
+    mallocCheck(data->buffer);
     data->buffer->data.ascii = '\0';
     data->buffer->size = 0;
 
@@ -341,6 +345,7 @@ static int BufferToString(char** dest, CharacterData* src) {
         *dest = NULL;
     }
     *dest = malloc((size_t)(length + 1));
+    mallocCheck(*dest);
 
     node = src;
     int index = 0;
@@ -521,6 +526,7 @@ static bool InsertCharacter(TextEditorData* data, int index, char c) {
     if(c & 0x80) {
         if((c & 0xC0) == 0xC0) {
             CharacterData* node = malloc(sizeof(CharacterData));
+            mallocCheck(node);
             node->data.utf8[0] = c;
             node->size = 1;
 
@@ -537,6 +543,7 @@ static bool InsertCharacter(TextEditorData* data, int index, char c) {
     }
 
     CharacterData* node = malloc(sizeof(CharacterData));
+    mallocCheck(node);
     node->data.ascii = (char)c;
     node->size = 1;
 

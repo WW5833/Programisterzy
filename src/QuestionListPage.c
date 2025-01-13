@@ -235,6 +235,7 @@ void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
     }
 
     bool* updated = malloc((size_t)scrollHeight * sizeof(bool));
+    mallocCheck(updated);
     for (int i = 0; i < scrollHeight; i++)
     {
         updated[i] = false;
@@ -353,12 +354,15 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     }
     else if(question->Id == ADD_QUESTION_ID) {
         Question* newQuestion = malloc(sizeof(Question));
+        mallocCheck(newQuestion);
         newQuestion->Id = GetMaxQuestionId() + 1;
         newQuestion->Content = malloc(1 * sizeof(char));
+        mallocCheck(newQuestion->Content);
         newQuestion->Content[0] = '\0';
         for (int i = 0; i < 4; i++)
         {
             newQuestion->Answer[i] = malloc(1 * sizeof(char));
+            mallocCheck(newQuestion->Answer[i]);
             newQuestion->Answer[i][0] = '\0';
         }
 

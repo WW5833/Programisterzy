@@ -79,7 +79,7 @@ void PrintSettingValue(SettingsPageData* data, int index) {
             break;
 
         default:
-            ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] Invalid option index: %d\n", data->selected);
+            ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_INVALID_OPTION_INDEX(data->selected));
     }
 
     SetColorRGBPreset(value ? LoadedSettings.CorrectAnswerColor : LoadedSettings.WrongAnswerColor, false);
@@ -102,7 +102,7 @@ int* GetOptionColor(int selected) {
             return &LoadedSettings.SupportColor;
 
         default:
-            ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] Invalid option index: %d\n", selected);
+            ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_INVALID_OPTION_INDEX(selected));
     }
 }
 
@@ -214,7 +214,7 @@ void UpdateSettingDescription(SettingsPageData* data) {
     bool onTop = false;
 
     if(data->selected >= OPTION_COUNT) {
-        ExitAppWithErrorFormat(EXIT_FAILURE, "Invalid option index: %d", data->selected);
+        ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_INVALID_OPTION_INDEX(data->selected));
     }
 
     if(data->selected < 5) {
@@ -225,10 +225,6 @@ void UpdateSettingDescription(SettingsPageData* data) {
     const int width = data->terminalWidth - 4;
     const char* text = Descriptions[data->selected];
     int lineCount = GetWrappedLineCount(text, width);
-
-    if(lineCount > maxTextLines) {
-        ExitAppWithErrorFormat(EXIT_FAILURE, "Description is too long: %d", lineCount);
-    }
 
     double centerOffset = (double)(maxTextLines - lineCount) / 2.0;
     const int top = data->terminalHeight - maxTextLines;

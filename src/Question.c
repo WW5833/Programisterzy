@@ -12,12 +12,12 @@ bool DeserializeQuestionId(const char* serializedQuestion, Question* question, i
 
     if(serializedQuestion == end) {
         question->Id = -1;
-        fprintf(stderr, "[ERR] Invalid questionId in question: \"%s\"\n", serializedQuestion);
+        fprintf(stderr, ERRMSG_QUESTION_INVALID_QUESTION_ID(serializedQuestion));
         return false;
     }
 
     if(errno == ERANGE) {
-        perror("Invalid questionId while deserializing question");
+        perror(ERRMSG_QUESTION_INVALID_QUESTION_ID_PERRNO);
         return false;
     }
 
@@ -33,11 +33,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
     }
 
     *content = malloc((size_t)(i + 1) * sizeof(char));
-
-    if(*content == NULL) {
-        perror("Failed to allocate memory for question text content");
-        ExitApp(EXIT_FAILURE);
-    }
+    mallocCheck(*content);
 
     for (int j = 0; j < i; j++)
         (*content)[j] = buffer[j];
@@ -45,7 +41,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
     *offset = i + 1;
 
     if(i == 0) {
-        fprintf(stderr, "[ERROR] Empty string in question content\n");
+        fprintf(stderr, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT_EMPTY);
         return false;
     }
 
@@ -56,11 +52,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     if(serializedQuestion == NULL) return NULL;
 
     Question* question = malloc(sizeof(Question));
-
-    if(question == NULL) {
-        perror("Failed to allocate memory for question");
-        ExitApp(EXIT_FAILURE);
-    }
+    mallocCheck(question);
 
     question->Id = -1;
     question->Content = NULL;
@@ -71,7 +63,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     if(!DeserializeQuestionId(serializedQuestion, question, &i))
     {
-        fprintf(stderr, "[ERROR] Failed to deserialize question id: \"%s\"\n", serializedQuestion);
+        fprintf(stderr,ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_ID(serializedQuestion));
         DestroyQuestion(question);
         return NULL;
     }
@@ -79,7 +71,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
 
     if(!DeserializeString(serializedQuestion, &question->Content, &i))
     {
-        fprintf(stderr, "[ERROR] Failed to deserialize question content: \"%s\"\n", serializedQuestion);
+        fprintf(stderr, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT(serializedQuestion));
         DestroyQuestion(question);
         return NULL;
     }
@@ -90,7 +82,7 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     {
         if(!DeserializeString(serializedQuestion, &question->Answer[j], &i))
         {
-            fprintf(stderr, "[ERROR] Failed to deserialize question answer[%d]: \"%s\"\n", j, serializedQuestion);
+            fprintf(stderr,  ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_ANSWER(j, serializedQuestion));
             DestroyQuestion(question);
             return NULL;
         }

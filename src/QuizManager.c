@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "IOHelper.h"
+#include "Popup.h"
 
 #define BUFFER_SIZE 1024
 
@@ -27,10 +28,7 @@ QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index) {
 
 QuestionListHeader* ListCreate() {
     QuestionListHeader* list = malloc(sizeof(QuestionListHeader));
-    if(list == NULL) {
-        perror("Failed to allocate memory for list");
-        ExitApp(EXIT_FAILURE);
-    }
+    mallocCheck(list);
 
     list->head = NULL;
     list->tail = NULL;
@@ -68,10 +66,7 @@ void ListDestroy(QuestionListHeader* list, bool destoryData) {
 
 void ListAdd(QuestionListHeader* list, Question* data) {
     QuestionListItem* node = malloc(sizeof(QuestionListItem));
-    if(node == NULL) {
-        perror("Failed to allocate memory for list node");
-        ExitApp(EXIT_FAILURE);
-    }
+    mallocCheck(node);
 
     node->data = data;
     node->next = NULL;
@@ -98,10 +93,7 @@ void ListInsert(QuestionListHeader* list, int index, Question* data) {
     }
 
     QuestionListItem* node = malloc(sizeof(QuestionListItem));
-    if(node == NULL) {
-        perror("Failed to allocate memory for list node");
-        ExitApp(EXIT_FAILURE);
-    }
+    mallocCheck(node);
     
     node->data = data;
     node->next = next;
@@ -175,7 +167,14 @@ QuestionListHeader* GetQuestionListCopy() {
     return list;
 }
 
+void EnsureQuestionsFileExists() {
+    OpenFileChecked(file, QUESTIONS_FILE, "a");
+    CloseFileChecked(file);
+}
+
 int LoadQuestions() {
+    EnsureQuestionsFileExists();
+
     if(QuestionList == NULL) {
         QuestionList = ListCreate();
     }
@@ -184,12 +183,7 @@ int LoadQuestions() {
     }
 
     char buffer[BUFFER_SIZE];
-    FILE* file = fopen(QUESTIONS_FILE, "r");
-
-    if(file == NULL) {
-        perror("Failed to open questions file");
-        ExitApp(EXIT_FAILURE);
-    }
+    OpenFileChecked(file, QUESTIONS_FILE, "r");
 
     int lineId = 0;
 
@@ -208,14 +202,18 @@ int LoadQuestions() {
         Question* q = DeserializeQuestion(buffer);
 
         if(q == NULL) {
-            ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] %s:%d | Failed to deserialize question: \"%s\"\n", QUESTIONS_FILE, lineId, buffer);
+            ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE(QUESTIONS_FILE, lineId, buffer));
+        }
+
+        if(q->Id <= 0) {
+            ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_INVALID_OUT_OF_RANGE_QUESTION_ID(QUESTIONS_FILE, lineId, q->Id));
         }
 
         QuestionListItem* current = QuestionList->head;
         while (current != NULL)
         {
             if(current->data->Id == q->Id) {
-                ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] %s:%d | Question with id %d already exists\n", QUESTIONS_FILE, lineId, q->Id);
+                ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_DUPLICATE_QUESTION_ID(QUESTIONS_FILE, lineId, q->Id));
             }
 
             current = current->next;
@@ -224,23 +222,14 @@ int LoadQuestions() {
         ListAdd(QuestionList, q);
     }
 
-    if(fclose(file) != 0) {
-        perror("Failed to close file");
-        ExitApp(EXIT_FAILURE);
-    }
+    CloseFileChecked(file);
 
     return QuestionList->count;
 }
 
 void SaveQuestions(QuestionListHeader *list)
 {
-    FILE* file = fopen(QUESTIONS_FILE, "w");
-
-    if(file == NULL) {
-        perror("Failed to open questions file");
-        ExitApp(EXIT_FAILURE);
-    }
-
+    OpenFileChecked(file, QUESTIONS_FILE, "w");
     QuestionListItem* current = list->head;
     while (current != NULL)
     {
@@ -248,10 +237,7 @@ void SaveQuestions(QuestionListHeader *list)
         current = current->next;
     }
 
-    if(fclose(file) != 0) {
-        perror("Failed to close file");
-        ExitApp(EXIT_FAILURE);
-    }
+    CloseFileChecked(file);
 }
 
 Question* GetRandomQuestion() {
@@ -280,12 +266,13 @@ QuestionListHeader* GenerateQuiz() {
         LoadQuestions();
 
         if(QuestionList == NULL) {
-            ExitAppWithErrorMessage(EXIT_FAILURE, "Failed to load questions");
+            ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);
         }
     }
 
     if(QuestionList->count < 10) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, "Minimum of 10 questions are requied");
+        ShowAlertPopup("Aby rozpocząć quiz, potrzebujesz minimum 10 pytań.", 40);
+        return NULL;
     }
 
     int questionIds[10];

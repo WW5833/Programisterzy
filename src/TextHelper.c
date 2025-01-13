@@ -29,7 +29,7 @@ int GetUTF8CharSize(const char* start) {
         }
     }
 
-    ExitAppWithErrorFormat(EXIT_FAILURE, "Invalid UTF-8 character: %c (%d)", start, start);
+    ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_UTF8_INVALID(start));
 }
 
 const char* _internal_GetNextChar(const char* c) {
@@ -42,7 +42,7 @@ const char* _internal_GetNextChar(const char* c) {
     }
 
     if((*c & 0xC0) == 0x80) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, "Invalid UTF-8 character (Continuation byte received first)");
+        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_UTF8_CONTINUATION);
     }
 
     return c + GetUTF8CharSize(c);
@@ -51,7 +51,7 @@ const char* _internal_GetNextChar(const char* c) {
 const char* GetNextChar(const char* c) {
     const char* value = _internal_GetNextChar(c);
     if(value == NULL) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, "Invalid UTF-8 character (NULL received)");
+        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_UTF8_NULL);
     }
 
     if(value[0] == ESC_SEQ_CHAR) {

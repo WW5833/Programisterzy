@@ -114,19 +114,25 @@ void InitializeIO()
     SetConsoleModes();
 
     if(!CheckForAnsiSupportPost()) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, "ANSI not supported but requied!");
+        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CHECK_FAILED);
     }
 
     internal_IOHelper_LoopLock = false;
 }
 
+static bool preExitRun = false;
 void _internal_PreExitApp()
 {
+    if(preExitRun) return;
+    preExitRun = true;
+
     // Restore input mode on exit.
     if(stdInHandleInitialized) SetConsoleMode(stdinHandle, fdwStdInOldMode);
+    stdInHandleInitialized = false;
 
     // Restore output mode on exit.
     if(stdOutHandleInitialized) SetConsoleMode(stdoutHandle, fdwStdOutOldMode);
+    stdOutHandleInitialized = false;
 
     DisableAlternativeBuffer();
 
@@ -137,7 +143,7 @@ void _internal_PostExitApp(int exitCode) __attribute__((noreturn));
 
 void _internal_PostExitApp(int exitCode) {
     if(exitCode != 0) {
-        printf("Naciśnij ENTER aby kontynuować...");
+        fprintf(stderr, "\nNaciśnij ENTER aby kontynuować...\n");
         getchar();
     }
 
@@ -151,6 +157,7 @@ void ExitAppWithErrorFormat(int exitCode, const char* format, ...)
     va_list args;
     va_start(args, format);
 
+    fprintf(stderr, "\n");
     vfprintf(stderr, format, args);
 
     va_end(args);
@@ -162,7 +169,7 @@ void ExitAppWithErrorMessage(int exitCode, const char* message)
 {
     _internal_PreExitApp();
 
-    fprintf(stderr, "[ERROR] %s\n", message);
+    fprintf(stderr, "\n%s", message);
 
     _internal_PostExitApp(exitCode);
 }
@@ -174,7 +181,7 @@ void ExitApp(int exitCode) {
 
 void ErrorExit(LPSTR lpszMessage)
 {
-    ExitAppWithErrorFormat(EXIT_FAILURE, "[IO] %s\n", lpszMessage);
+    ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_PREFIX "[IO] %s\n", lpszMessage);
 }
 
 bool internal_IO_WaitingForMousePress = false;

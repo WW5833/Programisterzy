@@ -66,8 +66,8 @@ void PrintMainMenu(MainMenuPageData* data)
     printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
-    printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Strona powitalna\n"  CSR_MOVE_RIGHT(2));
+    printf("[ ] DEBUG (DEBUG)\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Strona powitalna (DEBUG)\n"  CSR_MOVE_RIGHT(2));
 #endif
 
     printf("\r");

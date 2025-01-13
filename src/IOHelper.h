@@ -5,6 +5,7 @@
 #include "IOHelper.Utils.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "Errors.h"
 
 #undef getch
 #undef kbhit
@@ -21,6 +22,9 @@ void InitializeIO();
 void ExitApp(int exitCode) __attribute__((noreturn));
 void ExitAppWithErrorMessage(int exitCode, const char* message) __attribute__((noreturn));
 void ExitAppWithErrorFormat(int exitCode, const char* format, ...) __attribute__((noreturn));
+
+void _internal_PreExitApp();
+void _internal_PostExitApp(int exitCode);
 
 void SetThisConsoleTitle(const char* title);
 
