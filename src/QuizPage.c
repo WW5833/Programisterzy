@@ -15,7 +15,7 @@
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static void CalculateQuizPageSizeRequirements();
@@ -23,19 +23,19 @@ static void CalculateQuizPageSizeRequirements();
 bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result) {
     if(result == QQR_Correct) {
         if(rewardId == 9) {
-            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
     }
     else if(result == QQR_Wrong) {
         if(rewardId == safe) {
-            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
     }
     else if(result == QQR_Forfeit) {
         if(rewardId == questionNumber - 1) {
-            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
     }
@@ -58,7 +58,7 @@ void DrawpEndGameUIRightSide(int questionNumber, int safe, QuizQuestionResult re
 
         if(SetRewardColor(j, questionNumber, safe, result)) {
             printf("Twoja wygrana ");
-            if (LoadedSettings->FullUTF8Support)
+            if (LoadedSettings.FullUTF8Support)
                 printf(TRIANGLE);
             else
                 printf(">");
@@ -94,7 +94,7 @@ void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
     switch (result)
     {
         case QQR_Correct:
-            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
 
             SetCursorPosition(beginX + 2, beginY + 1 + ((height - 2 - 2) / 2) - 1);
             PrintWrappedLine("Gratulacje!", partSplit - 3, beginX + 1, true);
@@ -104,12 +104,12 @@ void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
             break;
 
         case QQR_Wrong:
-            SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.WrongAnswerColor, false);
             textPtr = "Niestety, nie udało Ci się wygrać głównej nagrody";
             break;
 
         case QQR_Forfeit:
-            SetColorRGBPreset(LoadedSettings->SupportColor, false);
+            SetColorRGBPreset(LoadedSettings.SupportColor, false);
             textPtr = "Zrezygnowałeś z gry";
             break;
     }

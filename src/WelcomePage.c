@@ -5,7 +5,7 @@
 #include "SettingsPage.h"
 #include "InstructionPage.h"
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -23,8 +23,8 @@ void PageEnter_Welcome()
     char c = WaitForKeys('1', '2');
 
     if(c == '2') {
-        LoadedSettings->FullUTF8Support = 0;
-        SaveSettings(LoadedSettings);
+        LoadedSettings.FullUTF8Support = 0;
+        SaveSettings();
         printf("\n\nWyłączono pełne wsparcie UTF-8.");
     }
 
@@ -34,8 +34,8 @@ void PageEnter_Welcome()
 
     c = WaitForKeys('1', '2');
 
-    LoadedSettings->TutorialShown = 1;
-    SaveSettings(LoadedSettings);
+    LoadedSettings.TutorialShown = 1;
+    SaveSettings();
 
     if(c == '1') {
         PageEnter_Instruction();

@@ -9,7 +9,7 @@
 #include "Utf8Symbols.h"
 #include <math.h>
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 #define COLOR_PALET_WIDTH (RGB_COLOR_COUNT * 2 + 1)
 
@@ -52,12 +52,12 @@ void PrintSettingValue(SettingsPageData* data, int index) {
     switch(index) {
         case 5:
             SetCursorPosition(data->utf8SupportX, data->utf8SupportY);
-            value = LoadedSettings->FullUTF8Support;
+            value = LoadedSettings.FullUTF8Support;
             break;
         case 6:
             SetCursorPosition(data->showCorrectWhenWrongX, data->showCorrectWhenWrongY);
-            value = LoadedSettings->ShowCorrectWhenWrong;
-            SetColorRGBPreset(value ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor, false);
+            value = LoadedSettings.ShowCorrectWhenWrong;
+            SetColorRGBPreset(value ? LoadedSettings.CorrectAnswerColor : LoadedSettings.WrongAnswerColor, false);
             if(data->terminalWidth - data->showCorrectWhenWrongX < 4) {
                 if(data->terminalWidth - data->showCorrectWhenWrongX < 2) {
                     printf(CSR_MOVE_LEFT(1));
@@ -71,18 +71,18 @@ void PrintSettingValue(SettingsPageData* data, int index) {
             return;
         case 7:
             SetCursorPosition(data->enableMouseSupportX, data->enableMouseSupportY);
-            value = LoadedSettings->EnableMouseSupport;
+            value = LoadedSettings.EnableMouseSupport;
             break;
         case 8:
             SetCursorPosition(data->darkModeX, data->darkModeY);
-            value = LoadedSettings->DarkMode;
+            value = LoadedSettings.DarkMode;
             break;
 
         default:
             ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] Invalid option index: %d\n", data->selected);
     }
 
-    SetColorRGBPreset(value ? LoadedSettings->CorrectAnswerColor : LoadedSettings->WrongAnswerColor, false);
+    SetColorRGBPreset(value ? LoadedSettings.CorrectAnswerColor : LoadedSettings.WrongAnswerColor, false);
     printf(value ? "TAK" : "NIE");
     ResetColor();
 }
@@ -91,15 +91,15 @@ int* GetOptionColor(int selected) {
     switch (selected)
     {
         case 0:
-            return &(LoadedSettings->CorrectAnswerColor);
+            return &(LoadedSettings.CorrectAnswerColor);
         case 1:
-            return &LoadedSettings->WrongAnswerColor;
+            return &LoadedSettings.WrongAnswerColor;
         case 2:
-            return &LoadedSettings->SelectedAnswerColor;
+            return &LoadedSettings.SelectedAnswerColor;
         case 3:
-            return &LoadedSettings->ConfirmedAnswerColor;
+            return &LoadedSettings.ConfirmedAnswerColor;
         case 4:
-            return &LoadedSettings->SupportColor;
+            return &LoadedSettings.SupportColor;
 
         default:
             ExitAppWithErrorFormat(EXIT_FAILURE, "[ERROR] Invalid option index: %d\n", selected);
@@ -264,15 +264,15 @@ void DrawSettingsUI(SettingsPageData* data) {
 
     data->slimMode = (data->terminalWidth - data->colorsX) < COLOR_PALET_WIDTH;
 
-    PrintColors(data, LoadedSettings->CorrectAnswerColor);
+    PrintColors(data, LoadedSettings.CorrectAnswerColor);
     printf("\n  [ ] Kolor błędnej odpowiedzi       ");
-    PrintColors(data, LoadedSettings->WrongAnswerColor);
+    PrintColors(data, LoadedSettings.WrongAnswerColor);
     printf("\n  [ ] Kolor zaznaczonej odpowiedzi   ");
-    PrintColors(data, LoadedSettings->SelectedAnswerColor);
+    PrintColors(data, LoadedSettings.SelectedAnswerColor);
     printf("\n  [ ] Kolor potwierdzonej odpowiedzi ");
-    PrintColors(data, LoadedSettings->ConfirmedAnswerColor);
+    PrintColors(data, LoadedSettings.ConfirmedAnswerColor);
     printf("\n  [ ] Kolor wsparcia                 ");
-    PrintColors(data, LoadedSettings->SupportColor);
+    PrintColors(data, LoadedSettings.SupportColor);
 
     printf("\n  [ ] ");
     PrintWrappedLine("Pełne wsparcie UTF-8 | Jeśli ten znak [▶] (trójkąt) nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: ___",
@@ -346,31 +346,31 @@ void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
 bool HandleEnterKey(SettingsPageData* data) {
     switch(data->selected) {
         case 5:
-            LoadedSettings->FullUTF8Support = !LoadedSettings->FullUTF8Support;
+            LoadedSettings.FullUTF8Support = !LoadedSettings.FullUTF8Support;
             break;
         case 6:
-            LoadedSettings->ShowCorrectWhenWrong = !LoadedSettings->ShowCorrectWhenWrong;
+            LoadedSettings.ShowCorrectWhenWrong = !LoadedSettings.ShowCorrectWhenWrong;
             break;
         case 7:
-            LoadedSettings->EnableMouseSupport = !LoadedSettings->EnableMouseSupport;
+            LoadedSettings.EnableMouseSupport = !LoadedSettings.EnableMouseSupport;
 
-            if(!LoadedSettings->EnableMouseSupport) {
+            if(!LoadedSettings.EnableMouseSupport) {
                 EnableMouseInput(false);
             }
 
             break;
         case 8:
-            LoadedSettings->DarkMode = !LoadedSettings->DarkMode;
+            LoadedSettings.DarkMode = !LoadedSettings.DarkMode;
 
             DrawSettingsUI(data);
             break;
 
         case OPTION_COUNT - 2:
-            SaveSettings(LoadedSettings);
+            SaveSettings();
             return true;
 
         case OPTION_COUNT - 1:
-            LoadedSettings = LoadSettings(); // Reload settings
+            LoadSettings(); // Reload settings
             return true;
     }
 
@@ -454,7 +454,7 @@ void PageEnter_Settings()
                 break;
 
             case KEY_ESCAPE:
-                LoadedSettings = LoadSettings(); // Reload settings
+                LoadSettings(); // Reload settings
                 continueLoop = false; // Exit page
                 break;
 

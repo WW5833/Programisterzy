@@ -26,7 +26,7 @@
 
 #define SET_RGB_COLOR(mode, color) ESC_SEQ "%d;2;%d;%d;%dm", mode, color
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 void SetTextColorToComplementBackground(int color) {
     bool darkText = false;
@@ -56,7 +56,7 @@ void SetTextColorToComplementBackground(int color) {
             break;
     }
 
-    if(!noSwap && !LoadedSettings->DarkMode) {
+    if(!noSwap && !LoadedSettings.DarkMode) {
         darkText = !darkText;
     }
 
@@ -144,7 +144,7 @@ void SetColorRGBPreset(int color, bool background)
 
     int mode = background ? COLOR_BG : COLOR_FG;
 
-    if(LoadedSettings->DarkMode) {
+    if(LoadedSettings.DarkMode) {
         internalSetColorRGBPreset(color, mode);
     }
     else {
@@ -153,7 +153,7 @@ void SetColorRGBPreset(int color, bool background)
 }
 
 void SetResetColor() {
-    if(LoadedSettings->DarkMode) {
+    if(LoadedSettings.DarkMode) {
         printf(SET_RGB_COLOR(COLOR_FG, RGB_GREY));
         printf(SET_RGB_COLOR(COLOR_BG, RGB_BLACK));
     }

@@ -38,7 +38,7 @@ typedef enum {
     PMT_WithoutCorrect,
 } PreviewModeType;
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 typedef struct
 {
@@ -117,7 +117,7 @@ void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount,
     // Print text
     SetCursorPosition(beginX + startText + 2, beginY);
 
-    SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
+    SetColorRGBPreset(LoadedSettings.ConfirmedAnswerColor, false);
     printf("Odpowiedź: %c", letter);
 
     ResetColor();
@@ -154,24 +154,24 @@ void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int 
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
     if(data->abilities[ABILITY_5050] == QQAS_Active && data->blockedOptions[ansIndex]) {
         SetCursorPosition(startX + data->ansWidthLimit - 11, startY + height);
-        SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
+        SetColorRGBPreset(LoadedSettings.WrongAnswerColor, false);
         printf("NIEPOPRAWNA");
         ResetColor();
     }
     else if(data->abilities[ABILITY_AUDIENCE] == QQAS_Active) { // Print Audience help
         SetCursorPosition(startX + data->ansWidthLimit - 4, startY + height);
-        SetColorRGBPreset(LoadedSettings->SupportColor, false);
+        SetColorRGBPreset(LoadedSettings.SupportColor, false);
         printf("%2.1f%%", data->audienceVotes[ansIndex]);
         ResetColor();
     }
     if(data->abilities[ABILITY_PHONE] == QQAS_Active && data->phoneCallVote[ansIndex] != 0) {
         SetCursorPosition(startX, startY + height);
         if(data->phoneCallVote[ansIndex] == 2) {
-            SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.ConfirmedAnswerColor, false);
             printf("NIEPOPRAWNA");
         }
         else {
-            SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             printf("POPRAWNA ?");
         }
         ResetColor();
@@ -343,15 +343,15 @@ const char* GetRewardText(int rewardId) {
 int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
     int questionNum = data->questionNumer - 1;
     if(rewardId == questionNum) {
-        return LoadedSettings->SelectedAnswerColor;
+        return LoadedSettings.SelectedAnswerColor;
     }
 
     if(rewardId == 0 || rewardId == 2 || rewardId == 5) {
         if(rewardId < questionNum) {
-            return LoadedSettings->CorrectAnswerColor;
+            return LoadedSettings.CorrectAnswerColor;
         }
 
-        return LoadedSettings->SupportColor;
+        return LoadedSettings.SupportColor;
     }
 
     return 0;
@@ -367,7 +367,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
 
         printf("%2d ", questionCount - i);
 
-        if (LoadedSettings->FullUTF8Support)
+        if (LoadedSettings.FullUTF8Support)
             printf(TRIANGLE);
         else
             printf(">");
@@ -392,32 +392,32 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
     int color = 0;
 
     if(data->mouseSelectedAbility == abilityId) {
-        color = LoadedSettings->SelectedAnswerColor;
+        color = LoadedSettings.SelectedAnswerColor;
     }
 
     switch (status)
     {
         case QQAS_Unavailable:
-            SetColorRGBPreset(LoadedSettings->WrongAnswerColor, false);
+            SetColorRGBPreset(LoadedSettings.WrongAnswerColor, false);
             printf("%c) %s: Wykorzystano", key, text);
             break;
 
         case QQAS_Active:
-            if(color == 0) SetColorRGBPreset(LoadedSettings->SupportColor, false);
+            if(color == 0) SetColorRGBPreset(LoadedSettings.SupportColor, false);
             else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Pokaż", key, text);
             break;
 
         case QQAS_Selected:
-            if(color == 0) SetColorRGBPreset(LoadedSettings->ConfirmedAnswerColor, false);
+            if(color == 0) SetColorRGBPreset(LoadedSettings.ConfirmedAnswerColor, false);
             else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Potwierdź wykorzystanie (%c)", key, text, key);
             break;
 
         case QQAS_Avaialable:
-            if(color == 0) SetColorRGBPreset(LoadedSettings->CorrectAnswerColor, false);
+            if(color == 0) SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             else SetColorRGBPreset(color, false);
 
             printf("%c) %s: Dostępny", key, text);
@@ -445,10 +445,10 @@ void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     ResetCursor();
 
     if(data->previewMode == PMT_Disabled) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.SelectedAnswerColor);
     }
     else if(data->previewMode == PMT_WithoutCorrect) {
-        PrintAnswersBlocksForce(data, -1, LoadedSettings->SelectedAnswerColor);
+        PrintAnswersBlocksForce(data, -1, LoadedSettings.SelectedAnswerColor);
     }
 
     const int ansTextLeftPadding = 5;
@@ -470,10 +470,10 @@ void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (3 + data->offset) % 4, data->ansLineCountMaxCD);
 
     if(data->previewMode == PMT_WithCorrect) {
-        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
-        PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
-        PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
-        PrintAnswersBlocks(data, (3 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
+        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
+        PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
+        PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
+        PrintAnswersBlocks(data, (3 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
     }
 }
 
@@ -494,7 +494,7 @@ void DrawStaticUI(QuizQuestionPageData* data) {
 
 void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
     data->confirmed = false;
-    PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings->SelectedAnswerColor);
+    PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings.SelectedAnswerColor);
 }
 
 void ResetAbilityConfirm(QuizQuestionPageData* data, int selectedAbilityId) {
@@ -535,7 +535,7 @@ void RemoveMouseHandlers() {
 
 bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     if(!data->confirmed) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->ConfirmedAnswerColor);
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.ConfirmedAnswerColor);
         data->confirmed = true;
         return false;
     }
@@ -555,12 +555,12 @@ bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     }
 
     if(*data->outResult == QQR_Correct) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->CorrectAnswerColor);
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.CorrectAnswerColor);
     }
     else {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->WrongAnswerColor);
-        if(LoadedSettings->ShowCorrectWhenWrong) {
-            PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
+        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.WrongAnswerColor);
+        if(LoadedSettings.ShowCorrectWhenWrong) {
+            PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
         }
     }
 
@@ -899,7 +899,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
     for (int j = 0; j < 4; j++)
     {
         SetCursorPosition(beginX + 2, beginY + windowHeight - 2 - (segmentCount / 3)*j);
-        SetColorRGBPreset(LoadedSettings->SupportColor, false);
+        SetColorRGBPreset(LoadedSettings.SupportColor, false);
 
         printf(UNDERLINE_ON "%2d%%", 20*j);
 
@@ -946,7 +946,7 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
                 continue;
             }
 
-            if(!LoadedSettings->FullUTF8Support) {
+            if(!LoadedSettings.FullUTF8Support) {
                 continue;
             }
 

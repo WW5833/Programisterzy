@@ -8,7 +8,7 @@
 #include "IOHelper.h"
 #include "WelcomePage.h"
 
-Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -17,7 +17,7 @@ int main() {
 
     InitializeIO();
 
-    LoadedSettings = LoadSettings();
+    LoadSettings();
 
     UpdateTerminalSize();
     ClearScreenManual();
@@ -39,12 +39,11 @@ int main() {
         UpdateTerminalSize();
     }
 
-    if(LoadedSettings->TutorialShown == 0) {
+    if(LoadedSettings.TutorialShown == 0) {
         PageEnter_Welcome();
     }
 
     PageEnter_MainMenu();
 
-    free(LoadedSettings);
     ExitApp(EXIT_SUCCESS);
 }

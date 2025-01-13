@@ -8,81 +8,63 @@
 
 #define SETTINGS_FILE "./settings.txt"
 
-void LoadDefaultSettings(Settings* settings) {
-    settings->CorrectAnswerColor = RGB_ID_GREEN;
-    settings->WrongAnswerColor = RGB_ID_RED;
-    settings->SelectedAnswerColor = RGB_ID_YELLOW;
-    settings->ConfirmedAnswerColor = RGB_ID_CYAN;
-    settings->SupportColor = RGB_ID_MAGENTA;
-    settings->FullUTF8Support = 1;
-    settings->TutorialShown = 0;
-    settings->ShowCorrectWhenWrong = 1;
-    settings->EnableMouseSupport = 1;
-    settings->DarkMode = 1;
+Settings LoadedSettings;
+
+void LoadDefaultSettings() {
+    LoadedSettings.CorrectAnswerColor = RGB_ID_GREEN;
+    LoadedSettings.WrongAnswerColor = RGB_ID_RED;
+    LoadedSettings.SelectedAnswerColor = RGB_ID_YELLOW;
+    LoadedSettings.ConfirmedAnswerColor = RGB_ID_CYAN;
+    LoadedSettings.SupportColor = RGB_ID_MAGENTA;
+    LoadedSettings.FullUTF8Support = 1;
+    LoadedSettings.TutorialShown = 0;
+    LoadedSettings.ShowCorrectWhenWrong = 1;
+    LoadedSettings.EnableMouseSupport = 1;
+    LoadedSettings.DarkMode = 1;
 }
 
-Settings* LoadSettings()
+void LoadSettings()
 {
     FILE* file = fopen(SETTINGS_FILE, "r");
 
-    Settings* settings = malloc(sizeof(Settings));
-
     if(file == NULL) {
-        LoadDefaultSettings(settings);
+        LoadDefaultSettings();
 
-        SaveSettings(settings);
+        SaveSettings();
 
-        return settings;
+        return;
     }
 
     fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
-        &settings->CorrectAnswerColor,
-        &settings->WrongAnswerColor,
-        &settings->SelectedAnswerColor,
-        &settings->ConfirmedAnswerColor,
-        &settings->SupportColor,
-        &settings->FullUTF8Support,
-        &settings->TutorialShown,
-        &settings->ShowCorrectWhenWrong,
-        &settings->EnableMouseSupport,
-        &settings->DarkMode);
+        &LoadedSettings.CorrectAnswerColor,
+        &LoadedSettings.WrongAnswerColor,
+        &LoadedSettings.SelectedAnswerColor,
+        &LoadedSettings.ConfirmedAnswerColor,
+        &LoadedSettings.SupportColor,
+        &LoadedSettings.FullUTF8Support,
+        &LoadedSettings.TutorialShown,
+        &LoadedSettings.ShowCorrectWhenWrong,
+        &LoadedSettings.EnableMouseSupport,
+        &LoadedSettings.DarkMode);
 
-    if(fclose(file) != 0) {
-        perror("Failed to close file");
-        ExitApp(EXIT_FAILURE);
-    }
-
-    return settings;
+    CloseFileChecked(file);
 }
 
-void SaveSettings(Settings *settings)
+void SaveSettings()
 {
-    FILE* file = fopen(SETTINGS_FILE, "w");
-
-    if(file == NULL) {
-        perror("Failed to open file");
-        ExitApp(EXIT_FAILURE);
-    }
+    OpenFileChecked(file, SETTINGS_FILE, "w");
 
     fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
-        settings->CorrectAnswerColor,
-        settings->WrongAnswerColor,
-        settings->SelectedAnswerColor,
-        settings->ConfirmedAnswerColor,
-        settings->SupportColor,
-        settings->FullUTF8Support,
-        settings->TutorialShown,
-        settings->ShowCorrectWhenWrong,
-        settings->EnableMouseSupport,
-        settings->DarkMode);
+        LoadedSettings.CorrectAnswerColor,
+        LoadedSettings.WrongAnswerColor,
+        LoadedSettings.SelectedAnswerColor,
+        LoadedSettings.ConfirmedAnswerColor,
+        LoadedSettings.SupportColor,
+        LoadedSettings.FullUTF8Support,
+        LoadedSettings.TutorialShown,
+        LoadedSettings.ShowCorrectWhenWrong,
+        LoadedSettings.EnableMouseSupport,
+        LoadedSettings.DarkMode);
 
-    if(fclose(file) != 0) {
-        perror("Failed to close file");
-        ExitApp(EXIT_FAILURE);
-    }
-}
-
-void DestroySettings(Settings *settings)
-{
-    free(settings);
+    CloseFileChecked(file);
 }
