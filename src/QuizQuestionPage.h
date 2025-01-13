@@ -5,7 +5,7 @@
 #include "QuizPage.h"
 
 void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outCorrect);
-void PageEnter_QuizQuestionPreview(Question* question);
+void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer);
 
 const char* GetRewardText(int rewardId);
 

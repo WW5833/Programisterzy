@@ -32,6 +32,12 @@ typedef enum {
     PMA_AbilityActivation,
 } PendingMouseAction;
 
+typedef enum {
+    PMT_Disabled,
+    PMT_WithCorrect,
+    PMT_WithoutCorrect,
+} PreviewModeType;
+
 extern Settings* LoadedSettings;
 
 typedef struct
@@ -65,7 +71,7 @@ typedef struct
     bool confirmed;
     PendingMouseAction pendingAction;
 
-    bool previewMode;
+    PreviewModeType previewMode;
 } QuizQuestionPageData;
 
 void ShowAudienceHelp(QuizQuestionPageData* data);
@@ -223,7 +229,7 @@ void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, in
     data->selectedQuestion = 0;
     data->confirmed = false;
     data->pendingAction = PMA_None;
-    data->previewMode = false;
+    data->previewMode = PMT_Disabled;
     data->mouseSelectedAbility = -1;
     data->focusedWindow = CFW_Question;
 
@@ -357,7 +363,7 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
         int rewardId = questionCount - (i + 1);
         SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH, data->questionContentEndY + i);
         int color = GetRewardColor(data, rewardId);
-        if(!data->previewMode && color != 0) SetColorRGBPreset(color, false);
+        if(data->previewMode == PMT_Disabled && color != 0) SetColorRGBPreset(color, false);
 
         printf("%2d ", questionCount - i);
 
@@ -438,8 +444,11 @@ void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
 void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     ResetCursor();
 
-    if(!data->previewMode) {
+    if(data->previewMode == PMT_Disabled) {
         PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings->SelectedAnswerColor);
+    }
+    else if(data->previewMode == PMT_WithoutCorrect) {
+        PrintAnswersBlocksForce(data, -1, LoadedSettings->SelectedAnswerColor);
     }
 
     const int ansTextLeftPadding = 5;
@@ -460,7 +469,7 @@ void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     // Print Answer 4
     PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (3 + data->offset) % 4, data->ansLineCountMaxCD);
 
-    if(data->previewMode) {
+    if(data->previewMode == PMT_WithCorrect) {
         PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings->CorrectAnswerColor);
         PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
         PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings->WrongAnswerColor);
@@ -837,7 +846,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     RemoveMouseHandlers();
 }
 
-void PageEnter_QuizQuestionPreview(Question* question) {
+void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer) {
     int offset = rand() % 4;
 
     QuizQuestionAbilityStatus abilities[3] = {QQAS_Unavailable, QQAS_Unavailable, QQAS_Unavailable};
@@ -845,7 +854,7 @@ void PageEnter_QuizQuestionPreview(Question* question) {
 
     QuizQuestionPageData data;
     ini_QuizQuestionPageData(&data, question, question->Id, offset, abilities, &result);
-    data.previewMode = true;
+    data.previewMode = showCorrectAnswer ? PMT_WithCorrect : PMT_WithoutCorrect;
 
     DrawStaticUI(&data);
 
