@@ -2,26 +2,41 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "AnsiHelper.h"
 #include "IOHelper.h"
 
-int GetUTF8CharSize(char start) {
-    if((start & 0x80) == 0) { // ASCII character
+int GetUTF8CharSize(const char* start) {
+    if(start[0] == ESC_SEQ_CHAR) { // Skip ANSI
+        int i = 2;
+        start++;
+        while(start[0] != '\0' && !isalpha(start[0])) {
+            start++;
+            i++;
+        }
+        return i;
+    }
+
+    if((start[0] & 0x80) == 0) { // ASCII character
         return 1;
     }
 
     // Determine the number of bytes in the UTF-8 character
     for (int j = 6; j >= 0; j--)
     {
-        if((start & (1 << j)) == 0) {
+        if((start[0] & (1 << j)) == 0) {
             return 7 - j;
         }
     }
 
-    ExitAppWithErrorMessage(EXIT_FAILURE, "Invalid UTF-8 character 0xFF");
+    ExitAppWithErrorFormat(EXIT_FAILURE, "Invalid UTF-8 character: %c (%d)", start, start);
 }
 
-const char* GetNextChar(const char* c) {
+const char* _internal_GetNextChar(const char* c) {
+    if(*c == ESC_SEQ_CHAR) {
+        return c + GetUTF8CharSize(c);
+    }
+
     if((*c & 0x80) == 0x00) {
         return c + 1;
     }
@@ -30,13 +45,26 @@ const char* GetNextChar(const char* c) {
         ExitAppWithErrorMessage(EXIT_FAILURE, "Invalid UTF-8 character (Continuation byte received first)");
     }
 
-    return c + GetUTF8CharSize(c[0]);
+    return c + GetUTF8CharSize(c);
+}
+
+const char* GetNextChar(const char* c) {
+    const char* value = _internal_GetNextChar(c);
+    if(value == NULL) {
+        ExitAppWithErrorMessage(EXIT_FAILURE, "Invalid UTF-8 character (NULL received)");
+    }
+
+    if(value[0] == ESC_SEQ_CHAR) {
+        return GetNextChar(value);
+    }
+
+    return value;
 }
 
 int GetCurrentCharSize(const char* stringStart, const char* c) {
     const char* start = GetCurrentChar(stringStart, c);
 
-    return GetUTF8CharSize(start[0]);
+    return GetUTF8CharSize(start);
 }
 
 const char* GetCurrentChar(const char* stringStart, const char* c) {
@@ -82,17 +110,6 @@ int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset,
 {
     int byteLineLength;
     int lineLength = GetStringCharCount(line);
-    if(lineLength <= width) {
-        if(print) {
-            if(centerText) {
-                int leftSpaces = (width - lineLength) / 2;
-                if(leftSpaces > 0) printf(CSR_MOVE_RIGHT(leftSpaces));
-            }
-
-            printf("%s", line);
-        }
-        return 1;
-    }
 
     int lineCount = 1;
     int currentWidth = 0;
@@ -104,9 +121,19 @@ int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset,
     while (*current != '\0') {
         const char* next = GetNextChar(current);
 
-        if (*current == ' ' || *next == '\0') {
+        if (*current == ' ' || *next == '\0' || *current == '\n') {
             int wordLength = GetCharCount(wordStart, current) + (*next == '\0' ? 1 : 0);
-            if (currentWidth + wordLength > width) {
+            if (currentWidth + wordLength > width || *current == '\n') {
+                if(currentWidth + wordLength > width && *current == '\n') {
+                    // Run new line again as this current new line will be because of text wrapping, not new line character
+                    next = current;
+                }
+                else if(*current == '\n') {
+                    wordStart = next;
+                    currentWidth += wordLength + 1;
+                    wordLength = 0;
+                }
+
                 lineLength = GetCharCount(lineStart, wordStart) - 1;
 
                 if(print) {

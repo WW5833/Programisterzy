@@ -1,4 +1,4 @@
-#include "AddQuestionPage.h"
+#include "EditQuestionPage.h"
 
 #include "AnsiHelper.h"
 #include <string.h>
@@ -12,10 +12,14 @@
 
 #define SELECTOR_MARKER ">"
 
+#define SET_COLOR_RED           ESC_SEQ "38;2;139;0;0m"
+#define SET_COLOR_BRIGHT_RED    ESC_SEQ "38;2;255;36;0m"
+
 typedef struct {
     int terminalWidth;
     int terminalHeight;
 
+    bool newQuestion;
     Question* question;
     int slotNumber;
 
@@ -27,7 +31,8 @@ typedef struct {
     int textFieldWidth;
 } AddQuestionPageData;
 
-const char ConfirmButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -52,9 +57,13 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     return false;
 }
 
-#define currentMaxLines data->maxLines[data->slotNumber]
+typedef enum {
+    LoadTextResult_Cancelled = 0,
+    LoadTextResult_ArrowDown = 1,
+    LoadTextResult_ArrowUp = 2
+} LoadTextResult;
 
-static int LoadText(AddQuestionPageData* data, char** output) {
+static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
     int y;
     int outputLength;
     TextEditorResult result = TextEditorResult_Cancelled;
@@ -64,39 +73,40 @@ static int LoadText(AddQuestionPageData* data, char** output) {
             y += data->maxLines[i] + 1;
 
         outputLength = (int)strlen(*output);
-        result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, currentMaxLines, " " SINGLE_VERTICAL_LINE);
-        if(result == TextEditorResult_Cancelled) {
-            HideCursor();
-            if(ShowConfirmationPopup("Czy na pewno chcesz anulować dodawanie pytania?", "Tak", "Nie", 40)) {
-                return 0;
-            }
+        result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, data->maxLines[data->slotNumber], " " SINGLE_VERTICAL_LINE);
+        
+        switch (result) {
+            case TextEditorResult_ArrowUp:
+                return LoadTextResult_ArrowUp;
+            case TextEditorResult_ArrowDown:
+                return LoadTextResult_ArrowDown;
 
-            DrawUI(data);
-            continue;
-        }
+            case TextEditorResult_OutOfLines:
+                data->maxLines[data->slotNumber]++;
 
-        if(result == TextEditorResult_OutOfLines) {
-            currentMaxLines++;
+                if(!EnforceSizeRequirements(data)) {
+                    DrawUI(data);
+                }
 
-            if(!EnforceSizeRequirements(data)) {
+                continue;
+
+            case TextEditorResult_WindowResized:
+                SetResizeHandler(OnResize, data);
+                OnResize(-1, -1, data);
+                continue;
+
+            case TextEditorResult_Cancelled:
+                HideCursor();
+                const char* message = data->newQuestion ? "Czy na pewno chcesz anulować dodawanie pytania?" : "Czy na pewno chcesz anulować modyfikowanie pytania?";
+                if(ShowConfirmationPopup(message, "Tak", "Nie", 41)) {
+                    return LoadTextResult_Cancelled;
+                }
+
                 DrawUI(data);
-            }
+                continue;
 
-            continue;
-        }
-
-        if(result == TextEditorResult_WindowResized) {
-            SetResizeHandler(OnResize, data);
-            OnResize(-1, -1, data);
-            continue;
-        }
-
-        if(result == TextEditorResult_ArrowUp) {
-            return 2;
-        }
-
-        if(result == TextEditorResult_ArrowDown) {
-            return 1;
+            case TextEditorResult_Completed:
+                break;
         }
 
         if(outputLength == 0) {
@@ -110,7 +120,7 @@ static int LoadText(AddQuestionPageData* data, char** output) {
 
     SetResizeHandler(OnResize, data);
 
-    return 1;
+    return LoadTextResult_ArrowDown;
 }
 
 static void PrintLine(int lineCount, int offset, const char* top, const char* bottom) {
@@ -177,7 +187,7 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
     printf("\r" CSR_MOVE_RIGHT(data->textStartX));
 
     if(content != NULL) {
-        int lines = PrintWrappedLine(content, data->textFieldWidth, data->textStartX, false);
+        int lines = PrintWrappedLine(content, data->textFieldWidth, data->textStartX, slotNumber == -1);
 
         printf(CSR_MOVE_LEFT_0_DOWN(lineCount - lines + 1));
     }
@@ -214,7 +224,13 @@ static void DrawUI(AddQuestionPageData* data) {
     HideCursor();
     ClearScreen();
 
-    printf("Dodaj pytanie:\n");
+    if(data->newQuestion) {
+        printf("Edytuj pytanie:\n");
+    }
+    else {
+        printf("Dodaj pytanie:\n");
+    }
+
     char buffer[4];
     sprintf(buffer, "%3d", data->question->Id);
     DrawUI_Element(data, -1, 1, buffer, false);
@@ -243,7 +259,7 @@ static void DrawUI(AddQuestionPageData* data) {
     }
 
     DrawUI_Element(data, 5, data->maxLines[5], NULL, data->slotNumber == 5);
-    PrintWrappedLine(ConfirmButtonText, data->textFieldWidth, data->textStartX, true);
+    PrintWrappedLine(data->newQuestion ? ConfirmAddButtonText : ConfirmEditButtonText, data->textFieldWidth, data->textStartX, true);
 
     RestoreCursorPosition();
 }
@@ -266,12 +282,12 @@ bool InputLoop(AddQuestionPageData* data) {
 
             switch(LoadText(data, output))
             {
-                case 0:
+                case LoadTextResult_Cancelled:
                     return false;
-                case 1:
+                case LoadTextResult_ArrowDown:
                     data->slotNumber++;
                     break;
-                case 2:
+                case LoadTextResult_ArrowUp:
                     data->slotNumber--;
                     if(data->slotNumber < 0) {
                         data->slotNumber = 0;
@@ -307,7 +323,9 @@ bool InputLoop(AddQuestionPageData* data) {
 
         if(!allPasss) continue;
 
-        if(ShowConfirmationPopup("Czy na pewno chcesz dodać to pytanie?", "Tak", "Nie", 41)) {
+        const char* confirmText = data->newQuestion ? "Czy na pewno chcesz dodać to pytanie?" : "Czy na pewno chcesz zmodyfikować to pytanie?";
+
+        if(ShowConfirmationPopup(confirmText, "Tak", "Nie", 45)) {
             return true;
         }
         data->slotNumber = 4;
@@ -365,7 +383,7 @@ static void CalculateMaxLines(AddQuestionPageData* data) {
         data->maxLines[i + 1] = GetWrappedLineCount(data->question->Answer[i], data->textFieldWidth);
     }
 
-    data->maxLines[5] = GetWrappedLineCount(ConfirmButtonText, data->textFieldWidth);
+    data->maxLines[5] = GetWrappedLineCount(data->newQuestion ? ConfirmAddButtonText : ConfirmEditButtonText, data->textFieldWidth);
 }
 
 static void CalculateValues(AddQuestionPageData* data) {
@@ -378,21 +396,7 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
-Question* GetEmptyQuestion() {
-    Question* question = malloc(sizeof(Question));
-    question->Id = GetMaxQuestionId() + 1;
-    question->Content = malloc(1 * sizeof(char));
-    question->Content[0] = '\0';
-    for (int i = 0; i < 4; i++)
-    {
-        question->Answer[i] = malloc(1 * sizeof(char));
-        question->Answer[i][0] = '\0';
-    }
-
-    return question;
-}
-
-Question* PageEnter_AddQuestion()
+bool PageEnter_EditQuestion(Question* question, bool newQuestion)
 {
     ClearScreen();
 
@@ -401,7 +405,8 @@ Question* PageEnter_AddQuestion()
     data.terminalHeight = LatestTerminalHeight;
     data.slotNumber = 0;
 
-    data.question = GetEmptyQuestion();
+    data.question = question;
+    data.newQuestion = newQuestion;
 
     CalculateValues(&data);
 
@@ -409,17 +414,20 @@ Question* PageEnter_AddQuestion()
 
     if(!InputLoop(&data)) {
         UnsetResizeHandler();
-        DestroyQuestion(data.question);
-        return NULL;
+        return false;
     }
 
     HideCursor();
 
-    AddQuestion(&data);
-
     UnsetResizeHandler();
 
-    ShowAlertPopup("Pytanie dodane pomyślnie", 30);
+    if(newQuestion) {
+        AddQuestion(&data);
+        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
+    }
+    else {
+        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
+    }
 
-    return data.question;
+    return true;
 }

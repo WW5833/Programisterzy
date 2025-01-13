@@ -28,6 +28,7 @@ void ListDestroy(QuestionListHeader* list, bool destoryData);
 QuestionListHeader* GetQuestionListCopy();
 
 int LoadQuestions();
+void SaveQuestions(QuestionListHeader* list);
 QuestionListHeader* GetQuestionList();
 Question* GetRandomQuestion();
 

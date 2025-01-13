@@ -19,10 +19,10 @@ void GetCursorPosition(int* x, int* y)
 
     int c = getch();
 
-    if(c != '\x1B') {
+    if(c != ESC_SEQ_CHAR) {
         while(kbhit()) {
             c = getch();
-            if(c == '\x1B'){
+            if(c == ESC_SEQ_CHAR){
                 goto esc_seq_found;
             }
         }
@@ -58,7 +58,7 @@ bool CheckForAnsiSupport() {
     printf(ESC_SEQ "6n");
 
     // Use _getch() instead of custom getch() because this function is called before IOHelper is fully initialized
-    if(_kbhit() && _getch() == '\x1B') {
+    if(_kbhit() && _getch() == ESC_SEQ_CHAR) {
         while (_getch() != 'R'); // Clear the buffer
         return true; // ANSI supported
     }

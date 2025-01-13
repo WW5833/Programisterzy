@@ -31,6 +31,8 @@ void UpdateTerminalSize();
 #define MOUSE_LEFT_BUTTON 1
 #define MOUSE_RIGHT_BUTTON 2
 
+#define SHIFT_TAB '\xB'
+
 #define VK_END 0x23
 #define VK_HOME 0x24
 #define VK_LEFT 0x25

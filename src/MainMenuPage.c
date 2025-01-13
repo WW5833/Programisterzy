@@ -9,13 +9,12 @@
 #include "DebugCheck.h"
 
 #include "QuizPage.h"
-#include "AddQuestionPage.h"
 #include "SettingsPage.h"
 #include "InstructionPage.h"
 #include "QuizQuestionPage.h"
 #include "QuestionListPage.h"
 
-#define OPTION_COUNT 6
+#define OPTION_COUNT 5
 
 #ifdef PROGRAMISTERZY_DEBUG
     #define DEBUG_OPTION_COUNT 2
@@ -36,7 +35,7 @@ typedef struct
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-static const int LineTable[] = {4, 5, 6, 7, 8, 10, 11, 12};
+static const int LineTable[] = {4, 5, 7, 8, 9, 10, 11};
 
 void PrintMainMenu(MainMenuPageData* data)
 {
@@ -62,11 +61,10 @@ void PrintMainMenu(MainMenuPageData* data)
 
     printf(CSR_MOVE_RIGHT(2));
     printf("[ ] Rozpocznij quiz\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Dodaj pytanie\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Podgląd pytań\n" CSR_MOVE_RIGHT(2));
     printf("    (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
 #ifdef PROGRAMISTERZY_DEBUG
     printf("[ ] DEBUG\n" CSR_MOVE_RIGHT(2));
@@ -102,7 +100,7 @@ void OnEnterPressed(MainMenuPageData* data) {
             PageEnter_Quiz();
             break;
         case 1:
-            PageEnter_AddQuestion();
+            PageEnter_QuestionList();
             break;
         case 2:
             PageEnter_Settings();
@@ -111,9 +109,6 @@ void OnEnterPressed(MainMenuPageData* data) {
             PageEnter_Instruction();
             break;
         case 4:
-            PageEnter_QuestionList();
-            break;
-        case 5:
             ExitApp(EXIT_SUCCESS);
 #ifdef PROGRAMISTERZY_DEBUG
         case OPTION_COUNT:

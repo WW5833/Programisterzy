@@ -160,6 +160,18 @@ static bool InsertCharacter(TextEditorData* data, int index, char c);
 
 extern int LatestTerminalWidth;
 
+void LoadDefaultBuffer(TextEditorData* data) {
+    data->bufferLength = 0;
+    data->cursorPosition = 0;
+
+    data->buffer = malloc(sizeof(CharacterData));
+    data->buffer->data.ascii = '\0';
+    data->buffer->size = 0;
+
+    data->buffer->next = NULL;
+    data->buffer->prev = NULL;
+}
+
 TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, int beginY, int maxLines, const char* rightFiller)
 {
     TextEditorData data;
@@ -173,15 +185,7 @@ TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, in
     data.width = LatestTerminalWidth - (beginX - 1) - data.rightFillerLength;
     data.maxLines = maxLines;
 
-    data.bufferLength = 0;
-    data.buffer = malloc(sizeof(CharacterData));
-    data.buffer->data.ascii = '\0';
-    data.buffer->size = 0;
-
-    data.buffer->next = NULL;
-    data.buffer->prev = NULL;
-
-    data.cursorPosition = 0;
+    LoadDefaultBuffer(&data);
 
     if(buffer != NULL) {
         StringToBuffer(&data, *buffer, *bufferLength);
@@ -452,6 +456,11 @@ static ReadTextResult ReadText(TextEditorData* data) {
             return RTR_Update;
         }
 
+        case '\t':
+            return RTR_ArrowDown;
+        case SHIFT_TAB:
+            return RTR_ArrowUp;
+
         case ESCAPE_CHAR: {
             switch (getch())
             {
@@ -482,6 +491,11 @@ static ReadTextResult ReadText(TextEditorData* data) {
 
                 case VK_END: // End
                     data->cursorPosition = data->bufferLength;
+                    return RTR_Update;
+
+                case VK_DELETE | VK_SHIFT_MOD: // Shift + Delete
+                    RemoveAll(data);
+                    LoadDefaultBuffer(data);
                     return RTR_Update;
 
                 default:
