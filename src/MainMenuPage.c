@@ -61,7 +61,7 @@ void PrintMainMenu(MainMenuPageData* data)
 
     printf(CSR_MOVE_RIGHT(2));
     printf("[ ] Rozpocznij quiz\n" CSR_MOVE_RIGHT(2));
-    printf("[ ] Podgląd pytań\n" CSR_MOVE_RIGHT(2));
+    printf("[ ] Zarządzanie pytaniami\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
