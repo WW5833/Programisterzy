@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#define ESC_SEQ_CHAR '\x1B'
 #define ESC_SEQ "\x1B["
 
 #define CLR_LINE_END ESC_SEQ "0K"   // Clear from cursor to end of line
