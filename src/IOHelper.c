@@ -43,11 +43,11 @@ void SetThisConsoleTitle(const char *title)
     SetConsoleTitle(title);
 }
 
-extern Settings* LoadedSettings;
+extern Settings LoadedSettings;
 
 void EnableMouseInput(bool enable)
 {
-    if(enable && !LoadedSettings->EnableMouseSupport) {
+    if(enable && !LoadedSettings.EnableMouseSupport) {
         return;
     }
 
