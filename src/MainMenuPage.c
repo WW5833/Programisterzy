@@ -35,7 +35,7 @@ typedef struct
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-static const int LineTable[] = {4, 5, 7, 8, 9, 10, 11};
+static const int LineTable[] = {4, 5, 6, 7, 8, 9, 10};
 
 void PrintMainMenu(MainMenuPageData* data)
 {
@@ -62,7 +62,6 @@ void PrintMainMenu(MainMenuPageData* data)
     printf(CSR_MOVE_RIGHT(2));
     printf("[ ] Rozpocznij quiz\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Podgląd pytań\n" CSR_MOVE_RIGHT(2));
-    printf("    (Zawiera zaznaczone odpowiedzi!!)\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Ustawienia\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Instrukcja Obsługi\n" CSR_MOVE_RIGHT(2));
     printf("[ ] Wyjdź\n" CSR_MOVE_RIGHT(2));
