@@ -38,9 +38,9 @@ bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
 void PrintUI(QuestionDetailsPageData* data) {
     ClearScreen();
 
-    printf("Informacje o pytaniu (Id: %3d)\n", data->question->Id);
+    printf("Informacje o pytaniu (Id: %d)\n", data->question->Id);
     printf("Treść pytania: ");
-    data->contentLines = 3 + PrintWrappedLine(data->question->Content, data->terminalWidth - 15, 0, false);
+    data->contentLines = 3 + PrintWrappedLine(data->question->Content, data->terminalWidth - 15, 14, false);
     printf("\n\n");
     printf("[ ] Edytuj pytanie\n");
     printf("[ ] Podgląd pytania\n");
