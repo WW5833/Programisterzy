@@ -19,6 +19,7 @@ typedef struct {
     int terminalWidth;
     int terminalHeight;
 
+    bool newQuestion;
     Question* question;
     int slotNumber;
 
@@ -30,7 +31,8 @@ typedef struct {
     int textFieldWidth;
 } AddQuestionPageData;
 
-const char ConfirmButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -89,7 +91,8 @@ static int LoadText(AddQuestionPageData* data, char** output) {
 
             case TextEditorResult_Cancelled:
                 HideCursor();
-                if(ShowConfirmationPopup("Czy na pewno chcesz anulować dodawanie pytania?", "Tak", "Nie", 40)) {
+                const char* message = data->newQuestion ? "Czy na pewno chcesz anulować dodawanie pytania?" : "Czy na pewno chcesz anulować modyfikowanie pytania?";
+                if(ShowConfirmationPopup(message, "Tak", "Nie", 41)) {
                     return 0;
                 }
 
@@ -178,7 +181,7 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
     printf("\r" CSR_MOVE_RIGHT(data->textStartX));
 
     if(content != NULL) {
-        int lines = PrintWrappedLine(content, data->textFieldWidth, data->textStartX, false);
+        int lines = PrintWrappedLine(content, data->textFieldWidth, data->textStartX, slotNumber == -1);
 
         printf(CSR_MOVE_LEFT_0_DOWN(lineCount - lines + 1));
     }
@@ -215,7 +218,13 @@ static void DrawUI(AddQuestionPageData* data) {
     HideCursor();
     ClearScreen();
 
-    printf("Dodaj pytanie:\n");
+    if(data->newQuestion) {
+        printf("Edytuj pytanie:\n");
+    }
+    else {
+        printf("Dodaj pytanie:\n");
+    }
+
     char buffer[4];
     sprintf(buffer, "%3d", data->question->Id);
     DrawUI_Element(data, -1, 1, buffer, false);
@@ -244,7 +253,7 @@ static void DrawUI(AddQuestionPageData* data) {
     }
 
     DrawUI_Element(data, 5, data->maxLines[5], NULL, data->slotNumber == 5);
-    PrintWrappedLine(ConfirmButtonText, data->textFieldWidth, data->textStartX, true);
+    PrintWrappedLine(data->newQuestion ? ConfirmAddButtonText : ConfirmEditButtonText, data->textFieldWidth, data->textStartX, true);
 
     RestoreCursorPosition();
 }
@@ -314,7 +323,9 @@ bool InputLoop(AddQuestionPageData* data) {
 
         if(!allPasss) continue;
 
-        if(ShowConfirmationPopup("Czy na pewno chcesz dodać to pytanie?", "Tak", "Nie", 41)) {
+        const char* confirmText = data->newQuestion ? "Czy na pewno chcesz dodać to pytanie?" : "Czy na pewno chcesz zmodyfikować to pytanie?";
+
+        if(ShowConfirmationPopup(confirmText, "Tak", "Nie", 45)) {
             return true;
         }
         data->slotNumber = 4;
@@ -372,7 +383,7 @@ static void CalculateMaxLines(AddQuestionPageData* data) {
         data->maxLines[i + 1] = GetWrappedLineCount(data->question->Answer[i], data->textFieldWidth);
     }
 
-    data->maxLines[5] = GetWrappedLineCount(ConfirmButtonText, data->textFieldWidth);
+    data->maxLines[5] = GetWrappedLineCount(data->newQuestion ? ConfirmAddButtonText : ConfirmEditButtonText, data->textFieldWidth);
 }
 
 static void CalculateValues(AddQuestionPageData* data) {
@@ -394,8 +405,8 @@ bool PageEnter_EditQuestion(Question* question, bool newQuestion)
     data.terminalHeight = LatestTerminalHeight;
     data.slotNumber = 0;
 
-    // data.question = GetEmptyQuestion();
     data.question = question;
+    data.newQuestion = newQuestion;
 
     CalculateValues(&data);
 

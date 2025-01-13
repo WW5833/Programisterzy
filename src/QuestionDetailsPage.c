@@ -4,6 +4,7 @@
 #include "EditQuestionPage.h"
 #include "QuizQuestionPage.h"
 #include "Popup.h"
+#include "TextHelper.h"
 
 #define OPTION_COUNT 5 
 
@@ -15,6 +16,7 @@ typedef struct {
 
     Question *question;
     int selectedOption;
+    int contentLines;
 } QuestionDetailsPageData;
 
 bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
@@ -26,6 +28,7 @@ bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
 
     ListRemove(GetQuestionList(), data->question);
     DestroyQuestion(data->question);
+    SaveQuestions(GetQuestionList());
     data->question = NULL;
     return true;
 }
@@ -34,14 +37,16 @@ void PrintUI(QuestionDetailsPageData* data) {
     ClearScreen();
 
     printf("Informacje o pytaniu (Id: %3d)\n", data->question->Id);
-    printf("\n");
+    printf("Treść pytania: ");
+    data->contentLines = 3 + PrintWrappedLine(data->question->Content, data->terminalWidth - 15, 0, false);
+    printf("\n\n");
     printf("[ ] Edytuj pytanie\n");
     printf("[ ] Podgląd pytania\n");
     printf("[ ] Podgląd pytania z odpowiedziami\n");
     printf("[ ] Usuń pytanie\n");
     printf("[ ] Powrót\n");
 
-    SetCursorPosition(2, 3 + data->selectedOption);
+    SetCursorPosition(2, data->contentLines + data->selectedOption);
     printf("*");
 }
 
@@ -65,20 +70,32 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
             case KEY_ARROW_UP:
                 data.selectedOption--;
                 if (data.selectedOption < 0) data.selectedOption = 0;
-                else PrintUI(&data);
+                else {
+                    SetCursorPosition(2, data.contentLines + data.selectedOption + 1);
+                    printf(" ");
+                    SetCursorPosition(2, data.contentLines + data.selectedOption);
+                    printf("*");
+                }
                 break;
 
             case KEY_ARROW_DOWN:
                 data.selectedOption++;
                 if (data.selectedOption >= OPTION_COUNT) data.selectedOption = OPTION_COUNT - 1;
-                else PrintUI(&data);
+                else {
+                    SetCursorPosition(2, data.contentLines + data.selectedOption - 1);
+                    printf(" ");
+                    SetCursorPosition(2, data.contentLines + data.selectedOption);
+                    printf("*");
+                }
                 break;
 
             case KEY_ENTER: {
                 switch (data.selectedOption) {
                     case 0:
                         // Edit question
-                        PageEnter_EditQuestion(data.question, false);
+                        if(PageEnter_EditQuestion(data.question, false)) {
+                            SaveQuestions(GetQuestionList());
+                        }
                         break;
                     case 1:
                         // Preview question
@@ -102,6 +119,9 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                 PrintUI(&data);
                 break;
             }
+
+            case KEY_ESCAPE:
+                return;
             
             default:
                 break;
