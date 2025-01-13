@@ -382,6 +382,10 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
 
     if(data->questionListModified) {
         data->questionListModified = false;
+        if(data->selected == data->list->count - 1) {
+            data->selected--;
+        }
+        
         ListDestroy(data->list, false);
         data->list = GetQuestionListCopy();
         ListInsert(data->list, 0, &AddQuestionQuestion);
