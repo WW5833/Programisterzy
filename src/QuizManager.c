@@ -12,6 +12,19 @@ QuestionListHeader* GetQuestionList() {
     return QuestionList;
 }
 
+QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index) {
+    if(index < 0 || index >= list->count) {
+        fprintf(stderr, "[ERROR] Index out of range");
+        return NULL;
+    }
+
+    QuestionListItem* current = list->head;
+    for(int i = 0; i < index; i++)
+        current = current->next;
+
+    return current;
+}
+
 QuestionListHeader* ListCreate() {
     QuestionListHeader* list = malloc(sizeof(QuestionListHeader));
     if(list == NULL) {
@@ -76,6 +89,36 @@ void ListAdd(QuestionListHeader* list, Question* data) {
     list->count++;
 }
 
+void ListInsert(QuestionListHeader* list, int index, Question* data) {
+    QuestionListItem* next = ListGetAtInternal(list, index);
+
+    if(next == NULL) {
+        ListAdd(list, data);
+        return;
+    }
+
+    QuestionListItem* node = malloc(sizeof(QuestionListItem));
+    if(node == NULL) {
+        perror("Failed to allocate memory for list node");
+        ExitApp(EXIT_FAILURE);
+    }
+    
+    node->data = data;
+    node->next = next;
+    node->prev = next->prev;
+
+    if(next->prev == NULL) {
+        list->head = node;
+    }
+    else {
+        next->prev->next = node;
+    }
+
+    next->prev = node;
+
+    list->count++;
+}
+
 Question* ListGetAt(QuestionListHeader* list, int index) {
     if(index < 0 || index >= list->count) {
         fprintf(stderr, "[ERROR] Index out of range");
@@ -117,6 +160,19 @@ void ListRemove(QuestionListHeader* list, Question* question) {
 
         current = current->next;
     }
+}
+
+QuestionListHeader* GetQuestionListCopy() {
+    QuestionListHeader* list = ListCreate();
+
+    QuestionListItem* current = QuestionList->head;
+    while (current != NULL)
+    {
+        ListAdd(list, current->data);
+        current = current->next;
+    }
+
+    return list;
 }
 
 int LoadQuestions() {

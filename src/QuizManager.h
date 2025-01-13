@@ -22,8 +22,10 @@ typedef struct QuestionListHeader
 
 Question* ListGetAt(QuestionListHeader* list, int index);
 void ListAdd(QuestionListHeader* list, Question* data);
+void ListInsert(QuestionListHeader* list, int index, Question* data);
 void ListRemove(QuestionListHeader* list, Question* question);
 void ListDestroy(QuestionListHeader* list, bool destoryData);
+QuestionListHeader* GetQuestionListCopy();
 
 int LoadQuestions();
 QuestionListHeader* GetQuestionList();
