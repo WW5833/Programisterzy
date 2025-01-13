@@ -177,6 +177,10 @@ void CalculateStartIndex(QuestionListPageData* data) {
     if(data->drawQuestionStartIndex + data->elementLimit > data->list->count) {
         data->drawQuestionStartIndex = data->list->count - data->elementLimit;
     }
+
+    if(data->drawQuestionStartIndex < 0) {
+        data->drawQuestionStartIndex = 0;
+    }
 }
 
 void DrawVisibleQuestions(QuestionListPageData* data) {
