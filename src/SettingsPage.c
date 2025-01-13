@@ -7,6 +7,7 @@
 #include "RGBColors.h"
 #include "TextHelper.h"
 #include "Utf8Symbols.h"
+#include <math.h>
 
 extern Settings* LoadedSettings;
 
@@ -29,6 +30,8 @@ typedef struct {
     int darkModeX, darkModeY;
 
     int lineIndexes[OPTION_COUNT];
+
+    int descriptionHeight;
 } SettingsPageData;
 
 void PrintColors(SettingsPageData* data, int color) {
@@ -103,6 +106,152 @@ int* GetOptionColor(int selected) {
     }
 }
 
+static const char CorrectColorDescription[] = 
+"Ten kolor jest używany do oznaczenia:\n"
+"- poprawnej odpowiedzi oraz sugesti przyjaciela\n"
+"- dostępnych kół ratunkowych\n"
+"- komunikatu o wygranej grze\n"
+"- wartości wygranej w grze\n"
+"- osiągniętych bezpiecznych progów\n"
+"- włączonych opcji";
+
+static const char WrongColorDescription[] =
+"Ten kolor jest używany do oznaczenia:\n"
+"- błędnej odpowiedzi\n"
+"- zużytych kół ratunkowych\n"
+"- błędnych odpowiedzi przy koła ratunkowego 50/50\n"
+"- komunikatu o przegranej grze\n"
+"- wyłączonych opcji";
+
+static const char SelectedColorDescription[] =
+"Ten kolor jest używany do oznaczenia:\n"
+"- zaznaczonej odpowiedzi\n"
+"- zaznaczonego koła ratunkowego przy użyciu myszki\n"
+"- nagrody za obecne pytanie";
+
+static const char ConfirmedColorDescription[] =
+"Ten kolor jest używany do oznaczenia:\n"
+"- zaznaczonej i oczekującej na potwierdzenie odpowiedzi\n"
+"- zaznaczonego i oczekującego na potwierdzenie koła ratunkowego\n"
+"- liter pytań";
+
+static const char SupportColorDescription[] =
+"Ten kolor jest używany do oznaczenia:\n"
+"- aktywnych kół ratunkowych\n"
+"- nieosiągniętych bezpiecznych progów\n"
+"- do wskaźników procentów w kole ratunkowych: Głos publiczności\n"
+"- komunikat o rezygnacji z gry";
+
+static const char Utf8SupportDescription[] =
+"Starsze terminale (np. Cmd, PowerShell na Windows 10) nie wspierają wszystkich znaków UTF-8,"
+" co może prowadzić do nieprawidłowego wyświetlania niektórych znaków."
+" Gdy ta opcja jest wyłączona, program używa znaków ASCII zamiast niedostepnych znaków UTF-8."
+"\nPrecyzyjniej: Znak [>] jest używany zamiast [▶] (trójkąt), a w kole ratunknowym \"Głos publiczności\" wykres jest mniej dokładny.";
+
+static const char ShowCorrectWhenWrongDescription[] =
+"Po udzieleniu błędnej odpowiedzi program zaznaczy poprawną odpowiedź.";
+
+static const char EnableMouseSupportDescription[] =
+"Umożliwia korzystanie z myszki w grze.\n"
+"Kliknięcie na odpowiedź zaznacza ją, a kliknięcie na koło ratunkowe je aktywuje. (Wymagane ponowne kliknięcie aby potwierdzić)\n"
+"Pozwala na nawigację po liście pytań za pomocą myszki.";
+
+static const char DarkModeDescription[] =
+"Włącza tryb ciemny.\n\n"
+"Zmienia kolor tła na czarny, a tekst na biały.\n"
+"Zmienia odcienie kolorów na bardziej przyjazne dla oczu biorąc pod uwagę kolor tła.";
+
+static const char SaveAndExitDescription[] =
+"Zapisuje zmiany i wraca do menu głównego.";
+
+static const char ExitWithoutSaveDescription[] =
+"Anuluje zmiany i wraca do menu głównego.";
+
+static const char* Descriptions[OPTION_COUNT] = {
+    CorrectColorDescription,
+    WrongColorDescription,
+    SelectedColorDescription,
+    ConfirmedColorDescription,
+    SupportColorDescription,
+    Utf8SupportDescription,
+    ShowCorrectWhenWrongDescription,
+    EnableMouseSupportDescription,
+    DarkModeDescription,
+    SaveAndExitDescription,
+    ExitWithoutSaveDescription,
+};
+
+void UpdateDescriptionHeight(SettingsPageData* data) {
+    const int width = data->terminalWidth - 4;
+    int maxLines = 0;
+
+    for (int i = 0; i < OPTION_COUNT; i++)
+    {
+        int lineCount = GetWrappedLineCount(Descriptions[i], width);
+        if(lineCount > maxLines) {
+            maxLines = lineCount;
+        }
+    }
+
+    data->descriptionHeight = maxLines + 1;
+}
+
+void UpdateSettingDescription(SettingsPageData* data) {
+    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
+        return;
+    }
+
+    const int maxTextLines = data->descriptionHeight - 1;
+    for (int i = 0; i < data->descriptionHeight - 1; i++)
+    {
+        SetCursorPosition(2, data->terminalHeight - maxTextLines + i);
+        printf(CLR_LINE_END);
+        printf("\r" CSR_MOVE_RIGHT(data->terminalWidth - 1));
+        printf(SINGLE_VERTICAL_LINE);
+    }
+    
+    bool center = true;
+    bool onTop = false;
+
+    if(data->selected >= OPTION_COUNT) {
+        ExitAppWithErrorFormat(EXIT_FAILURE, "Invalid option index: %d", data->selected);
+    }
+
+    if(data->selected < 5) {
+        onTop = true;
+        center = false;
+    }
+
+    const int width = data->terminalWidth - 4;
+    const char* text = Descriptions[data->selected];
+    int lineCount = GetWrappedLineCount(text, width);
+
+    if(lineCount > maxTextLines) {
+        ExitAppWithErrorFormat(EXIT_FAILURE, "Description is too long: %d", lineCount);
+    }
+
+    double centerOffset = (double)(maxTextLines - lineCount) / 2.0;
+    const int top = data->terminalHeight - maxTextLines;
+    if(onTop) {
+        centerOffset = 0;
+    }
+
+    centerOffset = floor(centerOffset);
+    SetCursorPosition(3, top + (int)centerOffset);
+    PrintWrappedLine(text, width, 2, center);
+}
+
+void DrawSettingDescription(SettingsPageData* data) {
+    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
+        return;
+    }
+
+    SetCursorPosition(0, data->terminalHeight - data->descriptionHeight);
+    PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
+
+    UpdateSettingDescription(data);
+}
+
 void DrawSettingsUI(SettingsPageData* data) {
     ResetColor();
     ClearScreen();
@@ -174,6 +323,10 @@ void DrawSettingsUI(SettingsPageData* data) {
         SetCursorPosition(data->colorsX, i);
         PrintGenericBorderEdges(0, data->terminalWidth, i, SINGLE_VERTICAL_LINE, false);
     }
+
+    UpdateDescriptionHeight(data);
+    
+    DrawSettingDescription(data);
 }
 
 void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
@@ -186,6 +339,8 @@ void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
 
     SetCursorPosition(4, data->lineIndexes[data->selected]);
     printf("*");
+
+    DrawSettingDescription(data);
 }
 
 bool HandleEnterKey(SettingsPageData* data) {
@@ -235,6 +390,13 @@ void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     else if(*option >= RGB_COLOR_COUNT)
         *option = 0;
 
+    if(data->selected == 0 || data->selected == 1) {
+        for (int i = 5; i < 9; i++)
+        {
+            PrintSettingValue(data, i); // Refresh for Yes/No colors
+        }
+    }
+
     SetCursorPosition(data->colorsX, data->lineIndexes[data->selected]);
     PrintColors(data, *option);
 }
@@ -257,6 +419,7 @@ void PageEnter_Settings()
     data.terminalWidth = LatestTerminalWidth;
     data.terminalHeight = LatestTerminalHeight;
     data.selected = 0;
+    data.descriptionHeight = 0;
 
     DrawSettingsUI(&data);
 
