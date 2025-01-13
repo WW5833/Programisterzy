@@ -27,6 +27,8 @@ int main() {
     ClearScreen();
     HideCursor();
 
+    SetThisConsoleTitle("Programisterzy");
+
     LoadQuestions();
 
     if(GetQuestionList() == NULL) {
