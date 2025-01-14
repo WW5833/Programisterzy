@@ -110,8 +110,7 @@ int GetCharCount(const char* start, const char* end) {
 
 int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText, bool print)
 {
-    int byteLineLength;
-    int lineLength = GetStringCharCount(line);
+    int byteLineLength, lineLength;
 
     int lineCount = 1;
     int currentWidth = 0;
@@ -132,7 +131,6 @@ int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset,
                 }
                 else if(*current == '\n') {
                     wordStart = next;
-                    currentWidth += wordLength + 1;
                     wordLength = 0;
                 }
 
