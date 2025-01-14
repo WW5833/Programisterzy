@@ -26,12 +26,15 @@ static bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
         return false;
     }
 
-    ListRemove(GetQuestionList(), data->question);
-    DestroyQuestion(data->question);
-    SaveQuestions(GetQuestionList());
-    data->question = NULL;
+    char* message;
+    if(DeleteQuestion(data->question, &message)) {
+        ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
+        return true;
+    }
 
-    ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
+    char buffer[256];
+    sprintf(buffer, "Nie udało się usunąć pytania!\n\n%s", message);
+    ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
     return true;
 }
 
@@ -106,9 +109,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                 switch (data.selectedOption) {
                     case 0:
                         // Edit question
-                        if(PageEnter_QuestionEdit(data.question, false)) {
-                            SaveQuestions(GetQuestionList());
-                        }
+                        PageEnter_QuestionEdit(data.question, false);
                         SetResizeHandler(OnResize, &data);
                         break;
                     case 1:

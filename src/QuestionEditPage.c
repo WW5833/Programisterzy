@@ -330,18 +330,6 @@ static bool InputLoop(AddQuestionPageData* data) {
     }
 }
 
-void AddQuestion(AddQuestionPageData* data) {
-    OpenFileChecked(file, QUESTIONS_FILE, "a");
-
-    AppendQuestion(file, data->question);
-
-    CloseFileChecked(file);
-
-    QuestionListHeader *list = GetQuestionList();
-
-    ListAdd(list, data->question);
-}
-
 static void CalculateValues(AddQuestionPageData* data);
 
 static void OnResize(void* data) {
@@ -411,11 +399,24 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 
     UnsetResizeHandler();
 
+    char buffer[256];
+    char* message;
     if(newQuestion) {
-        AddQuestion(&data);
+        if(!AddQuestion(data.question, &message)) {
+            sprintf(buffer, "Nie udało się dodać pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+        
         ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
     }
     else {
+        if(!EditQuestion(data.question, &message)) {
+            sprintf(buffer, "Nie udało się edytować pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+
         ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
     }
 

@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <errno.h>
 #include "IOHelper.h"
+#include "QuizManager.h"
 
 static void AppendQuestion(FILE* file, Question* question);
+static void SaveQuestions(QuestionListHeader *list);
 
 static bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;
@@ -90,6 +92,109 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     }
 
     return question;
+}
+
+bool ValidateQuestion(Question* question, char** outMessage) {
+    if(question->Id <= 0) {
+        *outMessage = VLDFAIL_QUESTION_ID_INVALID;
+        return false;
+    }
+
+    if(question->Content == NULL || question->Content[0] == '\0') {
+        *outMessage = VLDFAIL_QUESTION_CONTENT_EMPTY;
+        return false;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if(question->Answer[i] == NULL || question->Answer[i][0] == '\0') {
+            *outMessage = VLDFAIL_QUESTION_ANSWER_EMPTY;
+            return false;
+        }
+    }
+
+    QuestionListHeader* list = GetQuestionList();
+    if(list == NULL) {
+        *outMessage = VLDFAIL_QUESTION_LIST_NULL;
+        return false;
+    }
+
+    QuestionListItem* current = list->head;
+    while(current != NULL) {
+        if(current->data->Id == question->Id) {
+            *outMessage = VLDFAIL_QUESTION_DUPLICATE_ID;
+            return false;
+        }
+
+        current = current->next;
+    }
+
+    return true;
+}
+
+bool AddQuestion(Question* question, char** outMessage) {
+    if(!ValidateQuestion(question, outMessage)) return false;
+
+    QuestionListHeader* list = GetQuestionList();
+
+    if(list == NULL) {
+        *outMessage = VLDFAIL_QUESTION_LIST_NULL;
+        return false;
+    }
+
+    ListAdd(list, question);
+    SaveQuestions(list);
+
+    return true;
+}
+
+bool EditQuestion(Question* question, char** outMessage) {
+    QuestionListHeader* list = GetQuestionList();
+
+    if(list == NULL) {
+        *outMessage = VLDFAIL_QUESTION_LIST_NULL;
+        return false;
+    }
+    
+    if(!ListContains(list, question)) {
+        *outMessage = VLDFAIL_QUESTION_NOT_FOUND;
+        return false;
+    }
+
+    SaveQuestions(list);
+
+    return true;
+}
+
+bool DeleteQuestion(Question* question, char** outMessage) {
+    QuestionListHeader* list = GetQuestionList();
+
+    if(list == NULL) {
+        *outMessage = VLDFAIL_QUESTION_LIST_NULL;
+        return false;
+    }
+
+    if(!ListRemove(list, question)) {
+        *outMessage = VLDFAIL_QUESTION_NOT_FOUND;
+        return false;
+    }
+
+    SaveQuestions(list);
+
+    return true;
+}
+
+static void SaveQuestions(QuestionListHeader *list)
+{
+    OpenFileChecked(file, QUESTIONS_FILE, "w");
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        AppendQuestion(file, current->data);
+        current = current->next;
+    }
+
+    CloseFileChecked(file);
 }
 
 static void AppendQuestion(FILE* file, Question* question) {

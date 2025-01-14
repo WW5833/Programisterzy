@@ -2,6 +2,7 @@
 #define _INC_QUESTION_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -11,7 +12,11 @@ typedef struct
 } Question;
 
 Question* DeserializeQuestion(char* serializedQuestion);
-void AppendQuestion(FILE* file, Question* question);
 void DestroyQuestion(Question* question);
+
+bool ValidateQuestion(Question* question, char** outMessage);
+bool AddQuestion(Question* question, char** outMessage);
+bool EditQuestion(Question* question, char** outMessage);
+bool DeleteQuestion(Question* question, char** outMessage);
 
 #endif // !_INC_QUESTION_H

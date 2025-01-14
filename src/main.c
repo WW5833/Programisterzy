@@ -28,7 +28,7 @@ int main() {
 
     SetThisConsoleTitle("Programisterzy");
 
-    LoadQuestions();
+    LoadQuestionsFromFile();
 
     if(GetQuestionList() == NULL) {
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);

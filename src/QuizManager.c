@@ -190,7 +190,7 @@ void EnsureQuestionsFileExists() {
     CloseFileChecked(file);
 }
 
-int LoadQuestions() {
+int LoadQuestionsFromFile() {
     EnsureQuestionsFileExists();
 
     if(QuestionList == NULL) {
@@ -245,19 +245,6 @@ int LoadQuestions() {
     return QuestionList->count;
 }
 
-void SaveQuestions(QuestionListHeader *list)
-{
-    OpenFileChecked(file, QUESTIONS_FILE, "w");
-    QuestionListItem* current = list->head;
-    while (current != NULL)
-    {
-        AppendQuestion(file, current->data);
-        current = current->next;
-    }
-
-    CloseFileChecked(file);
-}
-
 Question* GetRandomQuestion() {
     if(QuestionList->count == 0) return NULL;
 
@@ -281,7 +268,7 @@ int GetMaxQuestionId()
 
 QuestionListHeader* GenerateQuiz() {
     if(QuestionList == NULL) {
-        LoadQuestions();
+        LoadQuestionsFromFile();
 
         if(QuestionList == NULL) {
             ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);

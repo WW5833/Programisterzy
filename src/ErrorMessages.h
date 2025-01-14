@@ -42,4 +42,12 @@
 #define ERRMSG_ERROR_POPUP_TITLE "Błąd"
 #define ERRMSG_TOO_SMALL_TERMINAL(x, y) "Terminal jest zbyt mały aby wyświetlić to okno. Minimalne wymagania to: %d x %d", x, y
 
+// Validation failure messages
+#define VLDFAIL_QUESTION_ID_INVALID "Niepoprawny identyfikator pytania, musi być dodatni"
+#define VLDFAIL_QUESTION_CONTENT_EMPTY "Treść pytania jest pusta"
+#define VLDFAIL_QUESTION_ANSWER_EMPTY "Odpowiedź jest pusta"
+#define VLDFAIL_QUESTION_LIST_NULL "Błąd wewnętrzny: Lista pytań jest niezaładowana"
+#define VLDFAIL_QUESTION_DUPLICATE_ID "Duplikat identyfikatora pytania"
+#define VLDFAIL_QUESTION_NOT_FOUND "Nie znaleziono pytania"
+
 #endif // _INC_ERRORMESSAGES_H

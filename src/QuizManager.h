@@ -26,11 +26,10 @@ void ListInsert(QuestionListHeader* list, int index, Question* data);
 bool ListRemove(QuestionListHeader* list, Question* question);
 void ListDestroy(QuestionListHeader* list, bool destoryData);
 bool ListContains(QuestionListHeader* list, Question* question);
-QuestionListHeader* GetQuestionListCopy();
 
-int LoadQuestions();
-void SaveQuestions(QuestionListHeader* list);
+int LoadQuestionsFromFile();
 QuestionListHeader* GetQuestionList();
+QuestionListHeader* GetQuestionListCopy();
 Question* GetRandomQuestion();
 
 int GetMaxQuestionId();
