@@ -64,7 +64,7 @@
 64;Farsa to odmiana:;komedii;dramatu właściwego;dramatu naturalistycznego;tragedii;
 65;O której godzinie wskazówki zegara tworzą kąt rozwarty:;17:00:00;13:00:00;15:00:00;22:00:00;
 66;Bandersnatch to interaktywny odcinek serialu:;Czarne lustro;Ozark;Orange Is the New Black;Peaky Blinders;
-67;Według kodeksu morskiego zze statku ostatni schodzi:;kapitan;majtek;hotelowy;maszynowy;
+67;Według kodeksu morskiego ze statku ostatni schodzi:;kapitan;majtek;hotelowy;maszynowy;
 68;W mitologii greckiej Narcyz zakochał się:;we własnym odbiciu;w żonie Odyseusza;w matce Ateny;w córce Zeusa;
 69;Sriracha to sos pochodzący z kuchni:;tajskiej;meksykańskiej;indyjskiej;francuskiej;
 70;Fikcyjna postać kobieca z serii komiksów o Batmanie to:;Kobieta-Kot;Callisto;Elekta;Czarna Wdowa;
@@ -104,7 +104,7 @@
 104;Które ze świąt dzieli najmniejsza liczba dni od Andrzejek?;Boże Narodzenie;Wielkanoc;Zaduszki;Święto Trzech Króli;
 105;Jak to dalej szło? "Opowiem ci bajkę, jak kot palił fajkę, a kocica papierosa ...";upaliła kawał nosa;w fifce, byle dalej nosa;kocięta zaś skręta;te koty zeszły z drogi cnoty;
 106;Znak BHP, na którym w żółtym trójkątnym polu widnieje symbol podkowy, ostrzega przed:;silnym polem magnetycznym;materiałem radioaktywnym;substancjami łatwopalnymi;skażeniem biologicznym;
-107;Jaką budowlę najbardziej przypomina grafika z flagi UNESCO?;Partenon;wieżę Eiffla;Kreml;Rmpire State Building;
+107;Jaką budowlę najbardziej przypomina grafika z flagi UNESCO?;Partenon;wieżę Eiffla;Kreml;Empire State Building;
 108;Patronem internetu jest święty Izydor. A którzy święci patronują telewizji?;św. Klara i św. Łucja;św. Anna i św. Elżbieta;św. Krzysztof i św. Florian;św. Jan i św. Piotr;
 109;Ile nacięć na bułce ma kajzerka?;pięć;sześć;trzy;cztery;
 110;Ryś polski, łabędź rostowski, saksoński bocian i wywrotek smoleński to...;rasy gołębi;rasy kur;chrząszcze;akrobacje na deskorolce;
