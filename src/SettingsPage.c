@@ -397,15 +397,15 @@ void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     PrintColors(data, *option);
 }
 
-void OnSettingsPageResize(int width, int height, void* data) {
+extern int LatestTerminalWidth, LatestTerminalHeight;
+
+void OnSettingsPageResize(void* data) {
     SettingsPageData* pageData = (SettingsPageData*)data;
-    pageData->terminalWidth = width;
-    pageData->terminalHeight = height;
+    pageData->terminalWidth = LatestTerminalWidth;
+    pageData->terminalHeight = LatestTerminalHeight;
 
     DrawSettingsUI(pageData);
 }
-
-extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_Settings()
 {

@@ -25,7 +25,7 @@ void DrawUIPageOne(InstructionPageData* data);
 void DrawUIPageTwo(InstructionPageData* data);
 void DrawUIPageThree(InstructionPageData* data);
 void DrawUI(InstructionPageData* data);
-void OnInstructionPageResize(int width, int height, void* data);
+void OnInstructionPageResize(void* data);
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -215,10 +215,10 @@ void DrawBottomInstructions(InstructionPageData* data) {
     PrintWrappedLine(text, data->terminalWidth, 0, true);
 }
 
-void OnInstructionPageResize(int width, int height, void* data) {
+void OnInstructionPageResize(void* data) {
     InstructionPageData* pageData = (InstructionPageData*)data;
-    pageData->terminalWidth = width;
-    pageData->terminalHeight = height;
+    pageData->terminalWidth = LatestTerminalWidth;
+    pageData->terminalHeight = LatestTerminalHeight;
     DrawUI(pageData);
 }
 

@@ -9,16 +9,16 @@ int merQueueWritePtr = 0;
 
 extern bool internal_IOHelper_LoopLock;
 
-void (*mouseClickHandler)(int, int, int, void *) = NULL;
-void (*mouseDoubleClickHandler)(int, int, int, void *) = NULL;
-void (*mouseScrollHandler)(bool, int, int, void *) = NULL;
-void (*mouseMoveHandler)(int, int, void *) = NULL;
+void (*mouseClickHandler)(int, void *) = NULL;
+void (*mouseDoubleClickHandler)(int, void *) = NULL;
+void (*mouseScrollHandler)(bool, void *) = NULL;
+void (*mouseMoveHandler)(void *) = NULL;
 void *mouseHandlerData = NULL;
 void SetMouseHandler(
-    void (*clickHandler)(int, int, int, void *),
-    void (*doubleClickHandler)(int, int, int, void *),
-    void (*scrollHandler)(bool, int, int, void *),
-    void (*moveHandler)(int, int, void *),
+    void (*clickHandler)(int, void *),
+    void (*doubleClickHandler)(int, void *),
+    void (*scrollHandler)(bool, void *),
+    void (*moveHandler)(void *),
     void *data)
 {
     EnableMouseInput(true);
@@ -45,6 +45,9 @@ void UnsetMouseHandler()
 
 extern bool internal_IO_WaitingForMousePress;
 
+int LatestMouseX = 0;
+int LatestMouseY = 0;
+
 void MouseEventProc(MOUSE_EVENT_RECORD mer)
 {
     if(internal_IOHelper_LoopLock) {
@@ -55,6 +58,10 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
 
     do {
         internal_IOHelper_LoopLock = true;
+
+        LatestMouseX = mer.dwMousePosition.X;
+        LatestMouseY = mer.dwMousePosition.Y;
+
         switch(mer.dwEventFlags)
         {
             case 0:
@@ -63,22 +70,22 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
                     break;
                 }
                 if(mouseClickHandler != NULL) {
-                    mouseClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                    mouseClickHandler((int)mer.dwButtonState, mouseHandlerData);
                 }
                 break;
             case DOUBLE_CLICK:
                 if(mouseDoubleClickHandler != NULL) {
-                    mouseDoubleClickHandler((int)mer.dwButtonState, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                    mouseDoubleClickHandler((int)mer.dwButtonState, mouseHandlerData);
                 }
                 break;
             case MOUSE_WHEELED:
                 if(mouseScrollHandler != NULL) {
-                    mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                    mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mouseHandlerData);
                 }
                 break;
             case MOUSE_MOVED:
                 if(mouseMoveHandler != NULL) {
-                    mouseMoveHandler(mer.dwMousePosition.X, mer.dwMousePosition.Y, mouseHandlerData);
+                    mouseMoveHandler(mouseHandlerData);
                 }
                 break;
         }

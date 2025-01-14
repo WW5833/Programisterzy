@@ -49,14 +49,14 @@ void UpdateTerminalSize();
 #define VK_SHIFT_MOD 0x40
 
 void SetMouseHandler(
-    void (*clickHandler)(int, int, int, void *),
-    void (*doubleClickHandler)(int, int, int, void *),
-    void (*scrollHandler)(bool, int, int, void *),
-    void (*moveHandler)(int, int, void *),
+    void (*clickHandler)(int, void *),
+    void (*doubleClickHandler)(int, void *),
+    void (*scrollHandler)(bool, void *),
+    void (*moveHandler)(void *),
     void *data);
 void UnsetMouseHandler();
 
-void SetResizeHandler(void (*handler)(int, int, void*), void* data);
+void SetResizeHandler(void (*handler)(void*), void* data);
 void UnsetResizeHandler();
 
 #endif // _INC_IOHELPER_H

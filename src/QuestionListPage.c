@@ -33,10 +33,10 @@ typedef struct {
 void EnterPreview(QuestionListPageData* data, bool mainLoop);
 void CalculateStartIndex(QuestionListPageData* data);
 
-void OnQuestionListPageResize(int width, int height, void* data);
-void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data);
-void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data);
-void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data);
+void OnQuestionListPageResize(void* data);
+void OnQuestionListPageScroll(bool down, void* data);
+void OnQuestionListPageMouseClick(int button, void* data);
+void OnQuestionListPageMouseDoubleClick(int button, void* data);
 
 void DrawVisibleQuestions(QuestionListPageData* data);
 void DrawScrollBar(QuestionListPageData* data, int oldSelected);
@@ -382,7 +382,7 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
 
     if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight) {
-        OnQuestionListPageResize(LatestTerminalWidth, LatestTerminalHeight, data);
+        OnQuestionListPageResize(data);
     }
     else if(!data->questionListModified) {
         DrawAll(data);
@@ -418,7 +418,7 @@ void PageEnter_QuestionList()
     ListInsert(data.list, 0, &AddQuestionQuestion);
     ListInsert(data.list, 0, &ReturnQuestion);
 
-    OnQuestionListPageResize(data.terminalWidth, data.terminalHeight, &data);
+    OnQuestionListPageResize(&data);
 
     SetResizeHandler(OnQuestionListPageResize, &data);
     SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, &data);
@@ -462,13 +462,13 @@ void PageEnter_QuestionList()
     printf(SCREEN_SCROLL_REGION_RESET);
 }
 
-void OnQuestionListPageResize(int width, int height, void* data)
+void OnQuestionListPageResize(void* data)
 {
     QuestionListPageData* pageData = (QuestionListPageData*)data;
-    pageData->terminalWidth = width;
-    pageData->terminalHeight = height;
-    pageData->blockWidth = width - 2;
-    pageData->elementLimit = height - 2;
+    pageData->terminalWidth = LatestTerminalWidth;
+    pageData->terminalHeight = LatestTerminalHeight;
+    pageData->blockWidth = pageData->terminalWidth - 2;
+    pageData->elementLimit = pageData->terminalHeight - 2;
 
     pageData->scrollSize = pageData->elementLimit*2 - 1 - pageData->list->count;
     if(pageData->scrollSize > pageData->elementLimit) {
@@ -483,27 +483,27 @@ void OnQuestionListPageResize(int width, int height, void* data)
     DrawAll(pageData);
 }
 
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-void OnQuestionListPageScroll(bool down, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageScroll(bool down, void* data) {
     Scroll((QuestionListPageData*)data, down);
 }
-#pragma GCC diagnostic warning "-Wunused-parameter"
 
-void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data) {
+extern int LatestMouseX, LatestMouseY;
+
+void OnQuestionListPageMouseClick(int button, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
     int oldSelected = pageData->selected;
-    if(mouseX >= pageData->terminalWidth - 3) {
+    if(LatestMouseX >= pageData->terminalWidth - 3) {
 
-        if(mouseY == 0) {
+        if(LatestMouseY == 0) {
             Scroll(pageData, false);
         }
-        else if(mouseY == pageData->terminalHeight - 1) {
+        else if(LatestMouseY == pageData->terminalHeight - 1) {
             Scroll(pageData, true);
         }
         else {
-            int boxLine = mouseY - 1;
+            int boxLine = LatestMouseY - 1;
             float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
             pageData->selected = (int)((float)boxLine * lineWorth);
 
@@ -516,7 +516,7 @@ void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data
         }
     }
     else {
-        int index = mouseY - 1;
+        int index = LatestMouseY - 1;
         if(index < 0 || index >= pageData->elementLimit) return;
 
         pageData->selected = index + pageData->drawQuestionStartIndex;
@@ -530,15 +530,15 @@ void OnQuestionListPageMouseClick(int button, int mouseX, int mouseY, void* data
     UpdateVisibleQuestions(pageData, oldSelected);
 }
 
-void OnQuestionListPageMouseDoubleClick(int button, int mouseX, int mouseY, void* data) {
+void OnQuestionListPageMouseDoubleClick(int button, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
-    if(mouseX >= pageData->terminalWidth - 3) {
+    if(LatestMouseX >= pageData->terminalWidth - 3) {
         return; // Scrollbar
     }
     else {
-        int index = mouseY - 1;
+        int index = LatestMouseY - 1;
         if(index < 0 || index >= pageData->elementLimit) return; // Out of bounds
 
         // In bounds but on mouse click has already selected the item

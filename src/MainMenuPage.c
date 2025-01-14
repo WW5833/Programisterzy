@@ -122,7 +122,7 @@ void OnEnterPressed(MainMenuPageData* data) {
     PrintMainMenu(data);
 }
 
-void OnMainMenuPageReset(int width, int height, void* data);
+void OnMainMenuPageReset(void* data);
 
 void PageEnter_MainMenu()
 {
@@ -153,9 +153,9 @@ void PageEnter_MainMenu()
     UnsetResizeHandler();
 }
 
-void OnMainMenuPageReset(int width, int height, void* data) {
+void OnMainMenuPageReset(void* data) {
     MainMenuPageData* mainMenuData = (MainMenuPageData*)data;
-    mainMenuData->terminalWidth = width;
-    mainMenuData->terminalHeight = height;
+    mainMenuData->terminalWidth = LatestTerminalWidth;
+    mainMenuData->terminalHeight = LatestTerminalHeight;
     PrintMainMenu(mainMenuData);
 }

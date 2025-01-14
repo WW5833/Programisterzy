@@ -7,9 +7,9 @@ extern bool internal_IOHelper_LoopLock;
 
 #define MAX_Y_SIZE_CONSOLE 150
 
-void (*resizeHandler)(int, int, void *) = NULL;
+void (*resizeHandler)(void *) = NULL;
 void *resizeHandlerData = NULL;
-void SetResizeHandler(void (*handler)(int, int, void *), void *data)
+void SetResizeHandler(void (*handler)(void *), void *data)
 {
     resizeHandler = handler;
     resizeHandlerData = data;
@@ -26,7 +26,7 @@ int LatestTerminalHeight = -1;
 
 time_t lastResizeEvent = 0;
 bool resizeCallPending = false;
-void CallResizeHandler(int width, int height)
+void CallResizeHandler()
 {
     if(internal_IOHelper_LoopLock) return;
 
@@ -38,7 +38,7 @@ void CallResizeHandler(int width, int height)
 
     resizeCallPending = false;
     internal_IOHelper_LoopLock = true;
-    resizeHandler(width, height, resizeHandlerData);
+    resizeHandler(resizeHandlerData);
     internal_IOHelper_LoopLock = false;
 }
 
@@ -84,5 +84,5 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
 
 void Window_IOLoop()
 {
-    CallResizeHandler(LatestTerminalWidth, LatestTerminalHeight);
+    CallResizeHandler();
 }

@@ -149,7 +149,7 @@ typedef enum {
     RTR_ArrowDown
 } ReadTextResult;
 
-static void OnResize(int width, int height, void* data);
+static void OnResize(void* data);
 static bool MainLoop(TextEditorData* data, TextEditorResult* result);
 static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result);
 static int BufferToString(char** dest, CharacterData* src);
@@ -218,7 +218,7 @@ TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, in
     return tor;
 }
 
-static void OnResize(int width, int height, void* data) {
+static void OnResize(void* data) {
     TextEditorData* ted = (TextEditorData*)data;
     ted->resized = true;
 }

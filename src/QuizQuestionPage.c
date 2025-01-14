@@ -79,7 +79,7 @@ void Show5050Help(QuizQuestionPageData* data);
 void ShowPhoneHelp(QuizQuestionPageData* data);
 bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
 
-void OnConsoleResize(int newWidth, int newHeight, void* data);
+void OnConsoleResize(void* data);
 
 void SetCursorToRestingPlace(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY + 5);
@@ -665,21 +665,23 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
     return false;
 }
 
-void OnConsoleResize(int newWidth, int newHeight, void* data) {
+void OnConsoleResize(void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
-    pageData->terminalWidth = newWidth;
-    pageData->terminalHeight = newHeight;
+    pageData->terminalWidth = LatestTerminalWidth;
+    pageData->terminalHeight = LatestTerminalHeight;
 
     CalculateQuizQuestionPageData(pageData, false);
     DrawStaticUI(pageData);
 }
 
-bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) {
+extern int LatestMouseX, LatestMouseY;
+
+bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data) {
     const int startX = data->questionContentEndY - 1;
     const int endX = data->answersEndY - 2;
     const int centerY = startX + data->ansLineCountMaxAB + 4;
 
-    if(y < startX || y > endX) {
+    if(LatestMouseY < startX || LatestMouseY > endX) {
         return false;
     }
 
@@ -687,21 +689,21 @@ bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) 
     const int centerX = leftX + data->ansWidth;
     const int rightX = centerX + data->ansWidth;
 
-    if(x < leftX || x > rightX || x == centerX) {
+    if(LatestMouseX < leftX || LatestMouseX > rightX || LatestMouseX == centerX) {
         return false;
     }
 
     int oldSel = data->selectedQuestion;
     int newSel = 0;
 
-    if(y < centerY) {
+    if(LatestMouseY < centerY) {
         newSel = 0;
     }
     else {
         newSel = 2;
     }
 
-    if(x > centerX) {
+    if(LatestMouseX > centerX) {
         newSel++;
     }
 
@@ -714,7 +716,7 @@ bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data, int x, int y) 
     return true;
 }
 
-bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int y) {
+bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data) {
     bool result = false;
     int oldSelected = data->mouseSelectedAbility;
     data->mouseSelectedAbility = -1;
@@ -722,11 +724,11 @@ bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int y) {
     const int startY = data->answersEndY;
     const int endY = startY + 3;
 
-    if(y < startY || y >= endY) {
+    if(LatestMouseY < startY || LatestMouseY >= endY) {
         goto ret;
     }
 
-    int abilityId = y - startY;
+    int abilityId = LatestMouseY - startY;
 
     if(abilityId == -1) {
         goto ret;
@@ -746,27 +748,27 @@ bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data, int y) {
     return result;
 }
 
-void OnQuizQuestionPageMouseMove(int x, int y, void* data) {
+void OnQuizQuestionPageMouseMove(void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
 
     if(pageData->focusedWindow != CFW_Question) {
         return;
     }
 
-    SelectAnswerBasedOnMousePosition(pageData, x, y);
-    SelectAbilityBasedOnMousePosition(data, y);
+    SelectAnswerBasedOnMousePosition(pageData);
+    SelectAbilityBasedOnMousePosition(data);
 }
 
-void HandleMouseClickForAnswer(QuizQuestionPageData* data, int x, int y) {
-    if(!SelectAnswerBasedOnMousePosition(data, x, y)) {
+void HandleMouseClickForAnswer(QuizQuestionPageData* data) {
+    if(!SelectAnswerBasedOnMousePosition(data)) {
         return;
     }
 
     HandleAnswerConfirmation(data, true);
 }
 
-void HandleMouseClickForAbilities(QuizQuestionPageData* data, int y) {
-    if(!SelectAbilityBasedOnMousePosition(data, y)) {
+void HandleMouseClickForAbilities(QuizQuestionPageData* data) {
+    if(!SelectAbilityBasedOnMousePosition(data)) {
         return;
     }
 
@@ -779,7 +781,7 @@ void HandleMouseClickForAbilities(QuizQuestionPageData* data, int y) {
     data->pendingAction = PMA_AbilityActivation;
 }
 
-void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
+void OnQuizQuestionPageMouseClick(int button, void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
 
     if((button & MOUSE_LEFT_BUTTON) == 0) {
@@ -791,13 +793,13 @@ void OnQuizQuestionPageMouseClick(int button, int x, int y, void* data) {
     }
 
     if(pageData->focusedWindow == CFW_Question) {
-        HandleMouseClickForAnswer(pageData, x, y);
-        HandleMouseClickForAbilities(pageData, y);
+        HandleMouseClickForAnswer(pageData);
+        HandleMouseClickForAbilities(pageData);
     }
 }
 
-void OnQuizQuestionPageDoubleMouseClick(int button, int x, int y, void* data) {
-    OnQuizQuestionPageMouseClick(button, x, y, data);
+void OnQuizQuestionPageDoubleMouseClick(int button, void* data) {
+    OnQuizQuestionPageMouseClick(button, data);
 }
 
 void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {

@@ -37,7 +37,7 @@ const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static void DrawUI(AddQuestionPageData* data);
-static void OnResize(int width, int height, void* data);
+static void OnResize(void* data);
 
 static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     int usedHeight = 4 + 2;
@@ -49,7 +49,7 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     if(usedHeight >= data->terminalHeight) {
         UnsetResizeHandler();
         ShowAlertPopupKeys("Brak miejsca na dodanie nowych linii!", 30, RESIZE_EVENT);
-        OnResize(LatestTerminalWidth, LatestTerminalHeight, data);
+        OnResize(data);
         SetResizeHandler(OnResize, data);
         return true;
     }
@@ -92,7 +92,7 @@ static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
 
             case TextEditorResult_WindowResized:
                 SetResizeHandler(OnResize, data);
-                OnResize(-1, -1, data);
+                OnResize(data);
                 continue;
 
             case TextEditorResult_Cancelled:
@@ -344,7 +344,7 @@ void AddQuestion(AddQuestionPageData* data) {
 
 static void CalculateValues(AddQuestionPageData* data);
 
-static void OnResize(int width, int height, void* data) {
+static void OnResize(void* data) {
     AddQuestionPageData* pageData = (AddQuestionPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
