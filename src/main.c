@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "MainMenuPage.h"
+#include "Pages/MainMenuPage.h"
 #include "Settings.h"
 #include "QuizManager.h"
 #include "AnsiHelper.h"
-#include "IOHelper.h"
-#include "WelcomePage.h"
+#include "IOHelper/IOHelper.h"
+#include "Pages/WelcomePage.h"
 
 extern Settings LoadedSettings;
 

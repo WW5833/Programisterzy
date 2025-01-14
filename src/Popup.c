@@ -1,7 +1,7 @@
 #include "Popup.h"
 #include "Utf8Symbols.h"
 #include "AnsiHelper.h"
-#include "IOHelper.h"
+#include "IOHelper/IOHelper.h"
 #include "TextHelper.h"
 
 extern int LatestTerminalWidth, LatestTerminalHeight;

@@ -1,17 +1,17 @@
 #include "QuizPage.h"
 #include <stdbool.h>
-#include "QuizManager.h"
+#include "../QuizManager.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "IOHelper.h"
+#include "../IOHelper/IOHelper.h"
 #include "QuizQuestionPage.h"
-#include "AnsiHelper.h"
-#include "Settings.h"
-#include "RGBColors.h"
-#include "Popup.h"
-#include "Utf8Symbols.h"
+#include "../AnsiHelper.h"
+#include "../Settings.h"
+#include "../RGBColors.h"
+#include "../Popup.h"
+#include "../Utf8Symbols.h"
 #include <string.h>
-#include "TextHelper.h"
+#include "../TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 

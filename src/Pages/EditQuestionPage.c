@@ -1,13 +1,13 @@
 #include "EditQuestionPage.h"
 
-#include "AnsiHelper.h"
+#include "../AnsiHelper.h"
 #include <string.h>
 #include <ctype.h>
-#include "IOHelper.h"
-#include "TextHelper.h"
-#include "Popup.h"
-#include "TextEditor.h"
-#include "Utf8Symbols.h"
+#include "../IOHelper/IOHelper.h"
+#include "../TextHelper.h"
+#include "../Popup.h"
+#include "../TextEditor.h"
+#include "../Utf8Symbols.h"
 #include <math.h>
 
 #define SELECTOR_MARKER ">"

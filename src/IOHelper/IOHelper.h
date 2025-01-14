@@ -5,7 +5,7 @@
 #include "IOHelper.Utils.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "Errors.h"
+#include "../Errors.h"
 
 #undef getch
 #undef kbhit

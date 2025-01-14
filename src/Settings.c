@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "AnsiHelper.h"
-#include "IOHelper.h"
+#include "IOHelper/IOHelper.h"
 #include "RGBColors.h"
 
 #define SETTINGS_FILE "./settings.txt"

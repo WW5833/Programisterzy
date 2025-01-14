@@ -1,10 +1,10 @@
 #include "QuestionDetailsPage.h"
-#include "AnsiHelper.h"
-#include "IOHelper.h"
+#include "../AnsiHelper.h"
+#include "../IOHelper/IOHelper.h"
 #include "EditQuestionPage.h"
 #include "QuizQuestionPage.h"
-#include "Popup.h"
-#include "TextHelper.h"
+#include "../Popup.h"
+#include "../TextHelper.h"
 
 #define OPTION_COUNT 5 
 

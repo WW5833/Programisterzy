@@ -2,8 +2,8 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "AnsiHelper.h"
-#include "Settings.h"
+#include "../AnsiHelper.h"
+#include "../Settings.h"
 
 #include "IOHelper.Mouse.h"
 #include "IOHelper.Window.h"

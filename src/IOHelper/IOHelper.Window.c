@@ -1,7 +1,7 @@
 #include "IOHelper.Window.h"
 #include <stdio.h>
 #include <time.h>
-#include "AnsiHelper.h"
+#include "../AnsiHelper.h"
 
 extern bool internal_IOHelper_LoopLock;
 

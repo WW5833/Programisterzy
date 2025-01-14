@@ -1,8 +1,8 @@
 #include "DebugPage.h"
-#include "IOHelper.h"
-#include "QuizManager.h"
-#include "AnsiHelper.h"
-#include "TextHelper.h"
+#include "../IOHelper/IOHelper.h"
+#include "../QuizManager.h"
+#include "../AnsiHelper.h"
+#include "../TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 

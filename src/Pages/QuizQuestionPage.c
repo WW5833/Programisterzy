@@ -1,12 +1,12 @@
 #include "QuizQuestionPage.h"
-#include "AnsiHelper.h"
-#include "Settings.h"
-#include "Utf8Symbols.h"
+#include "../AnsiHelper.h"
+#include "../Settings.h"
+#include "../Utf8Symbols.h"
 #include <time.h>
-#include "IOHelper.h"
-#include "RGBColors.h"
-#include "Popup.h"
-#include "TextHelper.h"
+#include "../IOHelper/IOHelper.h"
+#include "../RGBColors.h"
+#include "../Popup.h"
+#include "../TextHelper.h"
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))

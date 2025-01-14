@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "AnsiHelper.h"
-#include "IOHelper.h"
+#include "IOHelper/IOHelper.h"
 
 int GetUTF8CharSize(const char* start) {
     if(start[0] == ESC_SEQ_CHAR) { // Skip ANSI

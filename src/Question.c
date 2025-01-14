@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
-#include "IOHelper.h"
+#include "IOHelper/IOHelper.h"
 
 bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;

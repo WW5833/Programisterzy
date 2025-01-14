@@ -1,12 +1,12 @@
 #include "SettingsPage.h"
-#include "AnsiHelper.h"
+#include "../AnsiHelper.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "IOHelper.h"
-#include "RGBColors.h"
-#include "TextHelper.h"
-#include "Utf8Symbols.h"
+#include "../IOHelper/IOHelper.h"
+#include "../RGBColors.h"
+#include "../TextHelper.h"
+#include "../Utf8Symbols.h"
 #include <math.h>
 
 extern Settings LoadedSettings;

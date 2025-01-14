@@ -1,7 +1,7 @@
 #include "WelcomePage.h"
-#include "Settings.h"
-#include "IOHelper.h"
-#include "AnsiHelper.h"
+#include "../Settings.h"
+#include "../IOHelper/IOHelper.h"
+#include "../AnsiHelper.h"
 #include "SettingsPage.h"
 #include "InstructionPage.h"
 

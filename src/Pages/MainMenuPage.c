@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "AnsiHelper.h"
-#include "IOHelper.h"
-#include "Utf8Symbols.h"
-#include "DebugCheck.h"
+#include "../AnsiHelper.h"
+#include "../IOHelper/IOHelper.h"
+#include "../Utf8Symbols.h"
+#include "../DebugCheck.h"
 
 #include "QuizPage.h"
 #include "SettingsPage.h"

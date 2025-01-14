@@ -1,11 +1,11 @@
 #include "QuestionListPage.h"
 
-#include "AnsiHelper.h"
+#include "../AnsiHelper.h"
 #include "QuestionDetailsPage.h"
 #include "EditQuestionPage.h"
-#include "IOHelper.h"
-#include "RGBColors.h"
-#include "TextHelper.h"
+#include "../IOHelper/IOHelper.h"
+#include "../RGBColors.h"
+#include "../TextHelper.h"
 
 #include <string.h>
 
