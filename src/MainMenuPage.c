@@ -7,6 +7,7 @@
 #include "IOHelper.h"
 #include "Utf8Symbols.h"
 #include "DebugCheck.h"
+#include "TextHelper.h"
 
 #include "QuizPage.h"
 #include "SettingsPage.h"
@@ -36,6 +37,12 @@ typedef struct
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static const int LineTable[] = {4, 5, 6, 7, 8, 9, 10};
+
+void PrintBottomInstructions()
+{
+    SetCursorPosition(0, LatestTerminalHeight);
+    PrintWrappedLine("Użyj [ ↑ ] / [ ↓ ] do nawigacji, [ ENTER ] do wyboru opcji.", LatestTerminalWidth, 0, true);
+}
 
 void PrintMainMenu(MainMenuPageData* data)
 {
@@ -76,6 +83,8 @@ void PrintMainMenu(MainMenuPageData* data)
 
     SetCursorPosition(4, LineTable[data->selected]);
     printf("*");
+
+    PrintBottomInstructions();
 }
 
 void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
