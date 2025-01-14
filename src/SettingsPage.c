@@ -368,6 +368,9 @@ bool HandleEnterKey(SettingsPageData* data) {
         case OPTION_COUNT - 1:
             LoadSettings(); // Reload settings
             return true;
+
+        default: // Option does not support enter key
+            return false;
     }
 
     PrintSettingValue(data, data->selected);
