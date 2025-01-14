@@ -11,20 +11,20 @@
 
 bool internal_IOHelper_LoopLock = false;
 
-HANDLE stdinHandle;
-HANDLE stdoutHandle;
-DWORD fdwStdInOldMode;
-DWORD fdwStdOutOldMode;
+static HANDLE stdinHandle;
+static HANDLE stdoutHandle;
+static DWORD fdwStdInOldMode;
+static DWORD fdwStdOutOldMode;
 
-DWORD fdwInMode = ENABLE_WINDOW_INPUT;
-DWORD fdwOutMode = 0;
+static DWORD fdwInMode = ENABLE_WINDOW_INPUT;
+static DWORD fdwOutMode = 0;
 
-bool stdInHandleInitialized = false;
-bool stdOutHandleInitialized = false;
+static bool stdInHandleInitialized = false;
+static bool stdOutHandleInitialized = false;
 
-void ErrorExit(LPSTR);
+static void ErrorExit(LPSTR);
 
-void SetConsoleModes() {
+static void SetConsoleModes() {
     // Enable the window and mouse input events.
     if (!SetConsoleMode(stdinHandle, fdwInMode)) {
         ErrorExit("SetConsoleMode(STDIN)");
@@ -63,7 +63,7 @@ void EnableMouseInput(bool enable)
     SetConsoleModes();
 }
 
-bool CheckForAnsiSupportPost() {
+static bool CheckForAnsiSupportPost() {
     printf(ESC_SEQ "6n");
 
     if(kbhit() && getch() == '\x1B') {
@@ -208,8 +208,8 @@ int WaitForAnyInput() {
 }
 
 #define INPUT_RECORD_BUFFER_SIZE (DWORD)(128)
-INPUT_RECORD irInBuf[INPUT_RECORD_BUFFER_SIZE];
-DWORD cNumRead;
+static INPUT_RECORD irInBuf[INPUT_RECORD_BUFFER_SIZE];
+static DWORD cNumRead;
 
 // Based on https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
 void IOLoop()

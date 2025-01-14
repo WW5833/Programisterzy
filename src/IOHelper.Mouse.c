@@ -2,18 +2,18 @@
 #include <stdio.h>
 
 #define MER_QUEUE_SIZE 64
-MOUSE_EVENT_RECORD merQueue[MER_QUEUE_SIZE];
-int merQueueReadPtr = 0;
-int merQueueWritePtr = 0;
+static MOUSE_EVENT_RECORD merQueue[MER_QUEUE_SIZE];
+static int merQueueReadPtr = 0;
+static int merQueueWritePtr = 0;
 #define MerBufferPtrInc(ptr) ptr++; if(ptr >= MER_QUEUE_SIZE) ptr = 0
 
 extern bool internal_IOHelper_LoopLock;
 
-void (*mouseClickHandler)(int, void *) = NULL;
-void (*mouseDoubleClickHandler)(int, void *) = NULL;
-void (*mouseScrollHandler)(bool, void *) = NULL;
-void (*mouseMoveHandler)(void *) = NULL;
-void *mouseHandlerData = NULL;
+static void (*mouseClickHandler)(int, void *) = NULL;
+static void (*mouseDoubleClickHandler)(int, void *) = NULL;
+static void (*mouseScrollHandler)(bool, void *) = NULL;
+static void (*mouseMoveHandler)(void *) = NULL;
+static void *mouseHandlerData = NULL;
 void SetMouseHandler(
     void (*clickHandler)(int, void *),
     void (*doubleClickHandler)(int, void *),
