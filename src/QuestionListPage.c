@@ -368,6 +368,8 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
 
         if(PageEnter_QuestionEdit(newQuestion, true)) {
             data->questionListModified = true;
+            data->selected = data->list->count;
+            PageEnter_QuestionDetails(newQuestion, &data->questionListModified);
         }
     }
     else {
@@ -390,14 +392,16 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
 
     if(data->questionListModified) {
         data->questionListModified = false;
-        if(data->selected == data->list->count - 1) {
-            data->selected--;
-        }
         
         ListDestroy(data->list, false);
         data->list = GetQuestionListCopy();
         ListInsert(data->list, 0, &AddQuestionQuestion);
         ListInsert(data->list, 0, &ReturnQuestion);
+
+        if(data->selected >= data->list->count) {
+            data->selected = data->list->count - 1;
+        }
+
         DrawAll(data);
     }
 }
