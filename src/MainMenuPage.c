@@ -62,7 +62,7 @@ void PrintMainMenu(MainMenuPageData* data)
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
     printf(CSR_MOVE_RIGHT(2));
-    printf("Witaj w Programisterach!\n");
+    printf("Witaj w " ESC_SEQ "5m" "Programisterach" ESC_SEQ "25m" "!\n");
 
     PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
 
