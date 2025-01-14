@@ -57,6 +57,10 @@ void UpdateTerminalSize()
 
 extern bool internal_IO_WaitingResizeEvent;
 
+void EnqueuResizeEventCall() {
+    resizeCallPending = true;
+}
+
 void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
 {
     int termianlWidth = wbsr.dwSize.X;
@@ -78,7 +82,7 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
 
     if(resizeHandler == NULL) return;
 
-    resizeCallPending = true;
+    EnqueuResizeEventCall();
     lastResizeEvent = time(NULL);
 }
 

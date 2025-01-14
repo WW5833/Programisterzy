@@ -11,8 +11,12 @@ char _tmp_buffer[BUFFER_SIZE];
 
 extern Settings* LoadedSettings;
 
+extern bool TreatShiftRAsResizeEvent;
+static bool OldTreatShiftRAsResizeEvent;
 void GetCursorPosition(int* x, int* y)
 {
+    OldTreatShiftRAsResizeEvent = TreatShiftRAsResizeEvent;
+    TreatShiftRAsResizeEvent = false;
     while (kbhit()) getch(); // Clear input buffer
 
     printf(ESC_SEQ "6n");
@@ -47,6 +51,8 @@ void GetCursorPosition(int* x, int* y)
     }
     _tmp_buffer[i] = '\0';
     *x = atoi(_tmp_buffer);
+
+    TreatShiftRAsResizeEvent = OldTreatShiftRAsResizeEvent;
 }
 
 void SetCursorPosition(int x, int y)
@@ -112,11 +118,13 @@ void RestoreCursorPosition()
 void HideConsoleCursor()
 {
     printf(ESC_SEQ "?25l");
+    TreatShiftRAsResizeEvent = true;
 }
 
 void ShowConsoleCursor()
 {
     printf(ESC_SEQ "?25h");
+    TreatShiftRAsResizeEvent = false;
 }
 
 void EnableAlternativeBuffer()

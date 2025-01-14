@@ -18,9 +18,6 @@ KeyInputType HandleInteractions(bool blocking) {
         case '3':
             return KEY_3;
 
-        case 'R':
-            return KEY_R;
-
         case ESC:
             return KEY_ESCAPE;
 

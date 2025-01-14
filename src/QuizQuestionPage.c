@@ -641,12 +641,6 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
             DrawStaticUI(data);
             break;
 
-        case KEY_R:
-            // Recalculate and redraw UI
-            CalculateQuizQuestionPageData(data, true);
-            DrawStaticUI(data);
-            break;
-
         case KEY_ESCAPE:
             if(ShowExitConfirmationWindow(data)) {
                 *data->outResult = QQR_Forfeit;
@@ -866,12 +860,6 @@ void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer) {
     while(continueLoop) {
         switch (HandleInteractions(false))
         {
-            case KEY_R:
-                // Recalculate and redraw UI
-                CalculateQuizQuestionPageData(&data, true);
-                DrawStaticUI(&data);
-                break;
-
             case KEY_ENTER:
             case KEY_ESCAPE:
                 continueLoop = false;

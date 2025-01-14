@@ -1,5 +1,6 @@
 #include "IOHelper.Keyboard.h"
 #include <stdio.h>
+#include "IOHelper.Window.h"
 
 #define TEXT_INPUT_BUFFER_SIZE 128
 #define CTRL_C '\03'
@@ -28,12 +29,19 @@ int kbhit()
     return textInputBufferReadPtr != textInputBufferWritePtr;
 }
 
+bool TreatShiftRAsResizeEvent = false;
+
 void KeyEventProc(KEY_EVENT_RECORD ker)
 {
     if(ker.bKeyDown)
     {
         if(ker.uChar.AsciiChar == CTRL_C) {
             ExitApp(EXIT_SUCCESS);
+        }
+
+        if(TreatShiftRAsResizeEvent && ker.uChar.AsciiChar == 'R') {
+            EnqueuResizeEventCall();
+            return;
         }
 
         if(ker.uChar.AsciiChar == '\t' && ker.dwControlKeyState & SHIFT_PRESSED) {

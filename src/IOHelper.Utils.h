@@ -20,7 +20,6 @@ typedef enum {
     KEY_1,
     KEY_2,
     KEY_3,
-    KEY_R,
 } KeyInputType;
 
 KeyInputType HandleInteractions(bool blocking);
