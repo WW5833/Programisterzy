@@ -501,6 +501,13 @@ static ReadTextResult ReadText(TextEditorData* data) {
                 case VK_DELETE | VK_SHIFT_MOD: // Shift + Delete
                     RemoveAll(data);
                     LoadDefaultBuffer(data);
+                    for (int i = 0; i < data->maxLines; i++)
+                    {
+                        SetCursorPosition(data->beginX, data->beginY + i);
+                        printf(CLR_LINE_END);
+                        PrintFiller(data);
+                    }
+                    
                     return RTR_Update;
 
                 default:
