@@ -41,7 +41,7 @@ static const int LineTable[] = {4, 5, 6, 7, 8, 9, 10};
 void PrintBottomInstructions()
 {
     SetCursorPosition(0, LatestTerminalHeight);
-    PrintWrappedLine("Użyj [ ↑ ] / [ ↓ ] do nawigacji, [ ENTER ] do wyboru opcji.", LatestTerminalWidth, 0, true);
+    PrintWrappedLine("Użyj [ ↑ ] / [ ↓ ] do nawigacji, [ Enter ] do wyboru opcji.", LatestTerminalWidth, 0, true);
 }
 
 void PrintMainMenu(MainMenuPageData* data)

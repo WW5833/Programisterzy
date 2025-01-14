@@ -10,7 +10,7 @@
 
 #define RESET_COLOR ESC_SEQ "39;40m"
 
-#define TERMINAL_MIN_WIDTH 80
+#define TERMINAL_MIN_WIDTH 70
 #define TERMINAL_MIN_HEIGHT 26
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -115,7 +115,8 @@ void DrawUIPageOne(InstructionPageData* data) {
 
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
-    PrintWrappedLine("Strona: 1/3", data->terminalWidth, 0, true);
+    printf(CSR_MOVE_UP_1);
+    PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 1/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
 void DrawUIPageTwo(InstructionPageData* data) {
@@ -139,7 +140,7 @@ void DrawUIPageTwo(InstructionPageData* data) {
     lineCount += PrintWrappedLine("Wróć do poprzedniego okna / Zakończ podejście w teleturnieju",
         width, offset, false);
 
-    printf("\n  *) [   ENTER   ] - ");
+    printf("\n  *) [   Enter   ] - ");
     lineCount += PrintWrappedLine("Wybierz / Potwierdź daną opcję",
         width, offset, false);
 
@@ -155,18 +156,19 @@ void DrawUIPageTwo(InstructionPageData* data) {
     lineCount += PrintWrappedLine("Wybierz / Potwierdź 3 koło ratunkowe (telefon do przyjaciela - twój przyjaciel sugeruje poprawną według niego odpowiedź)",
         width, offset, false);
 
-    printf("\n  *) [ SHIFT + R ] - ");
-    lineCount += PrintWrappedLine("Odśwież wyświetlany obraz konsoli (działa jedynie podczas pytań teleturnieju!)",
+    printf("\n  *) [ Shift + R ] - ");
+    lineCount += PrintWrappedLine("Odśwież wyświetlany obraz konsoli",
         width, offset, false);
 
-    printf("\n\n");
-    lineCount += 2;
+    printf("\n");
+    lineCount += 1;
 
     PrintBorderEdges(data, lineCount);
 
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
-    PrintWrappedLine("Strona: 2/3", data->terminalWidth, 0, true);
+    printf(CSR_MOVE_UP_1);
+    PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 2/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
 void DrawUIPageThree(InstructionPageData* data) {
@@ -177,22 +179,22 @@ void DrawUIPageThree(InstructionPageData* data) {
     printf("  Zakończenie Gry: ");
     PrintGenericBorderEdges(0, data->terminalWidth, 3, SINGLE_VERTICAL_LINE, false);
 
-    const int offset2 = 33;
+    const int offset2 = 27;
 
     int width = widthWithoutBorders- offset2 + 1;
     int lineCount = 2;
 
-    printf("\n  *) [     Wielka wygrana!   ] - ");
+    printf("\n  *) [ Wielka wygrana! ] - ");
     lineCount += PrintWrappedLine("Pokonując wszelkie przeszkody osiągasz swój cel wygrywając główną nagrodę teleturnieju.",
         width, offset2, false);
 
-    printf("\n  *) [  Rezygnacja / wyjście ] - ");
+    printf("\n  *) [    Rezygnacja   ] - ");
     lineCount += PrintWrappedLine("Nie znając poprawnej odpowiedzi oraz decydując się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
         SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
     ResetColor();
 
-    printf("\n  *) [      Zła odpowiedź    ] - ");
+    printf("\n  *) [  Zła odpowiedź  ] - ");
     lineCount += PrintWrappedLine("Popełniając błąd, zaznaczając błędną odpowiedź, kończysz swoje podejście w tym teleturnieju. Zdobywasz jednak nagrodę w postaci ostatniego \"punktu kontrolnego\" na który odpowiedziałeś poprawnie. Punkty te są umiejscowione odpowiednio na 1, 3 i 6 pytaniu. "
         SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
@@ -205,11 +207,12 @@ void DrawUIPageThree(InstructionPageData* data) {
 
     PRINT_SINGLE_BOTTOM_BORDER(data->terminalWidth);
 
-    PrintWrappedLine("Strona: 3/3", data->terminalWidth, 0, true);
+    printf(CSR_MOVE_UP_1);
+    PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 3/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
 void DrawBottomInstructions(InstructionPageData* data) {
-    char* text = "[ ← ] - Poprzednia strona / [ Esc ] - Wciśnij Escape aby powrócić do głównego Menu. / Następna strona - [ → ]";
+    char* text = "[ Esc ] Wciśnij aby powrócić do głównego Menu.\n[ ← ] Poprzednia strona / Następna strona [ → ]";
     int lineCount = GetWrappedLineCount(text, data->terminalWidth);
     SetCursorPosition(0, data->terminalHeight - lineCount + 1);
     PrintWrappedLine(text, data->terminalWidth, 0, true);
