@@ -2,7 +2,7 @@
 
 #include "AnsiHelper.h"
 #include "QuestionDetailsPage.h"
-#include "EditQuestionPage.h"
+#include "QuestionEditPage.h"
 #include "IOHelper.h"
 #include "RGBColors.h"
 #include "TextHelper.h"
@@ -366,7 +366,7 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
             newQuestion->Answer[i][0] = '\0';
         }
 
-        if(PageEnter_EditQuestion(newQuestion, true)) {
+        if(PageEnter_QuestionEdit(newQuestion, true)) {
             data->questionListModified = true;
         }
     }

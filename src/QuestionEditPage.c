@@ -1,4 +1,4 @@
-#include "EditQuestionPage.h"
+#include "QuestionEditPage.h"
 
 #include "AnsiHelper.h"
 #include <string.h>
@@ -386,7 +386,7 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
-bool PageEnter_EditQuestion(Question* question, bool newQuestion)
+bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 {
     ClearScreen();
 

@@ -1,7 +1,7 @@
 #include "QuestionDetailsPage.h"
 #include "AnsiHelper.h"
 #include "IOHelper.h"
-#include "EditQuestionPage.h"
+#include "QuestionEditPage.h"
 #include "QuizQuestionPage.h"
 #include "Popup.h"
 #include "TextHelper.h"
@@ -95,7 +95,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                 switch (data.selectedOption) {
                     case 0:
                         // Edit question
-                        if(PageEnter_EditQuestion(data.question, false)) {
+                        if(PageEnter_QuestionEdit(data.question, false)) {
                             SaveQuestions(GetQuestionList());
                         }
                         break;
