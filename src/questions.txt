@@ -110,7 +110,7 @@
 110;Ryś polski, łabędź rostowski, saksoński bocian i wywrotek smoleński to...;rasy gołębi;rasy kur;chrząszcze;akrobacje na deskorolce;
 111;Jarosław Kaczyński w jednym z wywiadów zwierzył się, że późno w nocy lubi oglądać w telewizji:;Rodeo;Wrestling;NHL;Monster truck;
 112;Kto prowadził pierwszą polską edycję teleturnieju "Milionerzy"?;Hubert Urbański;Piotr Kraśko;Kuba Wojewódzki;Kazimiera Szczuka;
-113;Z poniższych mężczyzn nie może poszczycić się faktem, że na jego cześć nazwano jeden z pierwiastków chemicznych;Isaac Newton;Enrico Fermi;Albert Einstein;Niels Bohr;
+113;Który z poniższych mężczyzn nie może poszczycić się faktem, że na jego cześć nazwano jeden z pierwiastków chemicznych?;Isaac Newton;Enrico Fermi;Albert Einstein;Niels Bohr;
 114;Ile dni liczy nieprzestępny rok w kalendarzu muzułmańskim;354;365;376;400;
 115;W jakiej cieśninie znajdują się dwie wyspy zwane wczorajszą i jutrzejszą, które dzielą niespełna cztery kilometry, ale aż 21 godzin różnicy czasu?;w Cieśninie Beringa;W Cieśninie Bosfor;W Cieśninie Magellana;W Cieśninie Kaletańskiej;
 116;Która z planet Układu Słonecznego jest najmniejsza?;Merkury;Venus;Uran;Neptun;
@@ -118,7 +118,7 @@
 118;Biała, niekompletna kula ułożona z puzzli to logo:;Wikipedii;Twittera;Instagrama;WhatsUppa;
 119;H2SO4 to kwas:;Siarkowy VI;Siarkowy IV;Salicylowy;Sodowy;
 120;Która część popularnej sagi "Gwiezdne Wojny" weszła na ekrany kin najwcześniej;Nowa Nadzieja;Zemsta Sithów;Mroczne Widmo;Imperium kontratakuje;
-121;Czym zajmuje się myrmekolog?;Badaniem mrówek;Bataniem motyli;Badaniem ptaków;Badaniem ryb;
+121;Czym zajmuje się myrmekolog?;Badaniem mrówek;Badaniem motyli;Badaniem ptaków;Badaniem ryb;
 122;Jak nazywa się równanie wiążące dwie zmienne, którego wykresem jest parabola?;Kwadratowe;Proste;Złożone;Wymierne;
 123;Kto napisał i wykonał piosenkę "For Mr President from Warsaw with Love" dla Donalda Trumpa?;Andrzej Rosiewicz;Muniek Staszczyk;Marcin Daniec;Maciej Maleńczuk;
 124;Kandydat na wysokie stanowisko często nie musi mieć odpowiednich kwalifikacji, o ile ma mocne:;plecy;ręce;łydki;kolana;
