@@ -15,7 +15,7 @@
 #define QUIZ_MIN_WIDTH 60
 #define QUIZ_MIN_HEIGHT 13
 
-#define MIN_TERMINAL_WIDTH 80
+#define MIN_TERMINAL_WIDTH 70
 #define MIN_TERMINAL_HEIGHT 26
 
 int GetMaxWordLength(const char* line)
@@ -128,13 +128,12 @@ void CalculateQuizPageWidthRequirements(const int terminalWidth, const int termi
 
 void PrintSymbols() {
     printf("\nSymbols");
-    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤▁▂▃▄▅▆▇█▶│─┌┐└┘┤├");
+    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤▁▂▃▄▅▆▇█▶│─┌┐└┘┤├↑↓←→");
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-void PageEnter_Debug()
-{
+void PrintContent() {
     ClearScreen();
     printf("Debug page\n");
 
@@ -152,5 +151,18 @@ void PageEnter_Debug()
     printf(ESC_SEQ "9m" "TEST" ESC_SEQ "29m" "\n");
 
     printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
+}
+
+void OnResize(void* data) {
+    PrintContent();
+}
+
+void PageEnter_Debug()
+{
+    PrintContent();
+    SetResizeHandler(OnResize, NULL);
+
     WaitForKeys(ESC, ENTER);
+
+    UnsetResizeHandler();
 }
