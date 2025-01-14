@@ -209,7 +209,7 @@ void DrawUIPageThree(InstructionPageData* data) {
 }
 
 void DrawBottomInstructions(InstructionPageData* data) {
-    char* text = "[ <- ] - Zmień stronę / [ Esc ] - Wciśnij Escape aby powrócić do głównego Menu. / Zmień stronę - [ -> ]";
+    char* text = "[ ← ] - Poprzednia strona / [ Esc ] - Wciśnij Escape aby powrócić do głównego Menu. / Następna strona - [ → ]";
     int lineCount = GetWrappedLineCount(text, data->terminalWidth);
     SetCursorPosition(0, data->terminalHeight - lineCount + 1);
     PrintWrappedLine(text, data->terminalWidth, 0, true);
