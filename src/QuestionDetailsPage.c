@@ -74,6 +74,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
 
     SetResizeHandler(OnResize, &data);
 
+    int oldSelected;
     bool continueLoop = true;
     while (continueLoop)
     {
@@ -81,25 +82,23 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
 
         switch (key) {
             case KEY_ARROW_UP:
-                data.selectedOption--;
-                if (data.selectedOption < 0) data.selectedOption = 0;
-                else {
-                    SetCursorPosition(2, data.contentLines + data.selectedOption + 1);
-                    printf(" ");
-                    SetCursorPosition(2, data.contentLines + data.selectedOption);
-                    printf("*");
-                }
+                oldSelected = data.selectedOption--;
+                if (data.selectedOption < 0) data.selectedOption = OPTION_COUNT - 1;
+
+                SetCursorPosition(2, data.contentLines + oldSelected);
+                printf(" ");
+                SetCursorPosition(2, data.contentLines + data.selectedOption);
+                printf("*");
                 break;
 
             case KEY_ARROW_DOWN:
-                data.selectedOption++;
-                if (data.selectedOption >= OPTION_COUNT) data.selectedOption = OPTION_COUNT - 1;
-                else {
-                    SetCursorPosition(2, data.contentLines + data.selectedOption - 1);
-                    printf(" ");
-                    SetCursorPosition(2, data.contentLines + data.selectedOption);
-                    printf("*");
-                }
+                oldSelected = data.selectedOption++;
+                if (data.selectedOption >= OPTION_COUNT) data.selectedOption = 0;
+                
+                SetCursorPosition(2, data.contentLines + oldSelected);
+                printf(" ");
+                SetCursorPosition(2, data.contentLines + data.selectedOption);
+                printf("*");
                 break;
 
             case KEY_ENTER: {
