@@ -55,7 +55,7 @@ void UpdateTerminalSize()
     GetTerminalSize(&LatestTerminalWidth, &LatestTerminalHeight);
 }
 
-extern bool internal_IO_WaitingResizeEvent;
+extern bool internal_IOHelper_WaitingResizeEvent;
 
 void EnqueuResizeEventCall() {
     resizeCallPending = true;
@@ -78,7 +78,7 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
     LatestTerminalWidth = termianlWidth;
     LatestTerminalHeight = terminalHeight;
 
-    internal_IO_WaitingResizeEvent = false;
+    internal_IOHelper_WaitingResizeEvent = false;
 
     if(resizeHandler == NULL) return;
 

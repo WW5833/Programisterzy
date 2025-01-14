@@ -43,7 +43,7 @@ void UnsetMouseHandler()
     EnableMouseInput(false);
 }
 
-extern bool internal_IO_WaitingForMousePress;
+extern bool internal_IOHelper_WaitingForMousePress;
 
 int LatestMouseX = 0;
 int LatestMouseY = 0;
@@ -65,8 +65,8 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
         switch(mer.dwEventFlags)
         {
             case 0:
-                if(mer.dwButtonState != 0 && internal_IO_WaitingForMousePress) {
-                    internal_IO_WaitingForMousePress = false;
+                if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress) {
+                    internal_IOHelper_WaitingForMousePress = false;
                     break;
                 }
                 if(mouseClickHandler != NULL) {

@@ -184,18 +184,18 @@ void ErrorExit(LPSTR lpszMessage)
     ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_PREFIX "[IO] %s\n", lpszMessage);
 }
 
-bool internal_IO_WaitingForMousePress = false;
-bool internal_IO_WaitingResizeEvent = false;
+bool internal_IOHelper_WaitingForMousePress = false;
+bool internal_IOHelper_WaitingResizeEvent = false;
 int WaitForAnyInput() {
-    internal_IO_WaitingForMousePress = true;
-    internal_IO_WaitingResizeEvent = true;
+    internal_IOHelper_WaitingForMousePress = true;
+    internal_IOHelper_WaitingResizeEvent = true;
     while(true) {
 
-        if(!internal_IO_WaitingForMousePress) {
+        if(!internal_IOHelper_WaitingForMousePress) {
             return INT_MAX;
         }
 
-        if(!internal_IO_WaitingResizeEvent) {
+        if(!internal_IOHelper_WaitingResizeEvent) {
             return INT_MAX - 1;
         }
 
