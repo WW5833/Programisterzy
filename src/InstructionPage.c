@@ -227,8 +227,8 @@ static void DrawUI(InstructionPageData* data){
     while(data->terminalWidth < TERMINAL_MIN_WIDTH || data->terminalHeight < TERMINAL_MIN_HEIGHT) {
         UnsetResizeHandler();
 
-        sprintf(buffer, "Terminal jest zbyt mały aby wyświetlić instrukcję. Minimalne wymagania to: %d x %d", TERMINAL_MIN_WIDTH, TERMINAL_MIN_HEIGHT);
-        ShowAlertPopupWithTitleKeys("Błąd", buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
+        sprintf(buffer, ERRMSG_TOO_SMALL_TERMINAL(TERMINAL_MIN_WIDTH, TERMINAL_MIN_HEIGHT));
+        ShowAlertPopupWithTitleKeys(ERRMSG_ERROR_POPUP_TITLE, buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
 
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;
