@@ -7,7 +7,7 @@
 
 #define BUFFER_SIZE 1024
 
-QuestionListHeader* QuestionList;
+static QuestionListHeader* QuestionList;
 
 QuestionListHeader* GetQuestionList() {
     return QuestionList;
@@ -62,6 +62,22 @@ void ListDestroy(QuestionListHeader* list, bool destoryData) {
     ListClear(list, destoryData);
 
     free(list);
+}
+
+bool ListContains(QuestionListHeader *list, Question *question) {
+    if(list == NULL) return false;
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        if(current->data == question) {
+            return true;
+        }
+
+        current = current->next;
+    }
+
+    return false;
 }
 
 void ListAdd(QuestionListHeader* list, Question* data) {
@@ -124,8 +140,8 @@ Question* ListGetAt(QuestionListHeader* list, int index) {
     return current->data;
 }
 
-void ListRemove(QuestionListHeader* list, Question* question) {
-    if(list == NULL) return;
+bool ListRemove(QuestionListHeader* list, Question* question) {
+    if(list == NULL) return false;
 
     QuestionListItem* current = list->head;
     while (current != NULL)
@@ -147,11 +163,13 @@ void ListRemove(QuestionListHeader* list, Question* question) {
 
             list->count--;
             free(current);
-            return;
+            return true;
         }
 
         current = current->next;
     }
+
+    return false;
 }
 
 QuestionListHeader* GetQuestionListCopy() {
