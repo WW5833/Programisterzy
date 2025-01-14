@@ -14,7 +14,7 @@ typedef struct {
     int DarkMode;
 } Settings;
 
-void LoadSettings();
-void SaveSettings();
+void LoadSettingsFromFile();
+void SaveSettingsToFile();
 
 #endif // _INC_SETTINGS_H

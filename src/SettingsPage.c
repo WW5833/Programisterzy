@@ -362,11 +362,11 @@ static bool HandleEnterKey(SettingsPageData* data) {
             break;
 
         case OPTION_COUNT - 2:
-            SaveSettings();
+            SaveSettingsToFile();
             return true;
 
         case OPTION_COUNT - 1:
-            LoadSettings(); // Reload settings
+            LoadSettingsFromFile(); // Reload settings
             return true;
 
         default: // Option does not support enter key
@@ -453,7 +453,7 @@ void PageEnter_Settings()
                 break;
 
             case KEY_ESCAPE:
-                LoadSettings(); // Reload settings
+                LoadSettingsFromFile(); // Reload settings
                 continueLoop = false; // Exit page
                 break;
 

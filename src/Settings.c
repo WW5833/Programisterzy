@@ -10,7 +10,7 @@
 
 Settings LoadedSettings;
 
-void LoadDefaultSettings() {
+static void LoadDefaultSettings() {
     LoadedSettings.CorrectAnswerColor = RGB_ID_GREEN;
     LoadedSettings.WrongAnswerColor = RGB_ID_RED;
     LoadedSettings.SelectedAnswerColor = RGB_ID_YELLOW;
@@ -23,14 +23,14 @@ void LoadDefaultSettings() {
     LoadedSettings.DarkMode = 1;
 }
 
-void LoadSettings()
+void LoadSettingsFromFile()
 {
     FILE* file = fopen(SETTINGS_FILE, "r");
 
     if(file == NULL) {
         LoadDefaultSettings();
 
-        SaveSettings();
+        SaveSettingsToFile();
 
         return;
     }
@@ -50,7 +50,7 @@ void LoadSettings()
     CloseFileChecked(file);
 }
 
-void SaveSettings()
+void SaveSettingsToFile()
 {
     OpenFileChecked(file, SETTINGS_FILE, "w");
 

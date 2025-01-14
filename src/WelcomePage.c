@@ -23,7 +23,7 @@ void PageEnter_Welcome()
 
     if(c == '2') {
         LoadedSettings.FullUTF8Support = 0;
-        SaveSettings();
+        SaveSettingsToFile();
         printf("\n\nWyłączono pełne wsparcie UTF-8.");
     }
 
@@ -34,7 +34,7 @@ void PageEnter_Welcome()
     c = WaitForKeys('1', '2');
 
     LoadedSettings.TutorialShown = 1;
-    SaveSettings();
+    SaveSettingsToFile();
 
     if(c == '1') {
         PageEnter_Instruction();

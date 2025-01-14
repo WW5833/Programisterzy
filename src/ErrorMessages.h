@@ -10,7 +10,6 @@
 
 // UTF-8 error messages
 #define ERRMSG_UTF8_GENERIC ERRMSG_PREFIX "Niepoprawna sekwencja UTF-8"
-#define ERRMSG_UTF8_NULL ERRMSG_UTF8_GENERIC " (Znaleziono znak NULL w sekwencji UTF-8)"
 #define ERRMSG_UTF8_CONTINUATION ERRMSG_UTF8_GENERIC " (Bajt jest kontynuacją, a nie początkiem)"
 #define ERRMSG_UTF8_INVALID(c) ERRMSG_UTF8_GENERIC " (Niepoprawny bajt UTF-8: %c (%d))", c, c
 

@@ -16,7 +16,7 @@ int main() {
 
     InitializeIO();
 
-    LoadSettings();
+    LoadSettingsFromFile();
 
     UpdateTerminalSize();
     ClearScreenManual();

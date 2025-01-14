@@ -163,7 +163,7 @@ static bool InsertCharacter(TextEditorData* data, int index, char c);
 
 extern int LatestTerminalWidth;
 
-void LoadDefaultBuffer(TextEditorData* data) {
+static void LoadDefaultBuffer(TextEditorData* data) {
     data->bufferLength = 0;
     data->cursorPosition = 0;
 
@@ -370,7 +370,7 @@ static int BufferToString(char** dest, CharacterData* src) {
 }
 
 
-CharacterData* GetAt(TextEditorData* data, int index) {
+static CharacterData* GetAt(TextEditorData* data, int index) {
     CharacterData* node = data->buffer;
     for (int i = 0; i < index; i++) {
         if(node->next == NULL) return NULL;
@@ -380,7 +380,7 @@ CharacterData* GetAt(TextEditorData* data, int index) {
     return node;
 }
 
-bool RemoveAt(TextEditorData* data, int index) {
+static bool RemoveAt(TextEditorData* data, int index) {
     CharacterData* node = GetAt(data, index);
 
     if(node == NULL) return false;
@@ -403,7 +403,7 @@ bool RemoveAt(TextEditorData* data, int index) {
     return true;
 }
 
-void InsertAt(TextEditorData* data, int index, CharacterData* node) {
+static void InsertAt(TextEditorData* data, int index, CharacterData* node) {
     CharacterData* current = GetAt(data, index);
     if(current == NULL) return;
 
@@ -422,7 +422,7 @@ void InsertAt(TextEditorData* data, int index, CharacterData* node) {
     data->bufferLength++;
 }
 
-void RemoveAll(TextEditorData* data) {
+static void RemoveAll(TextEditorData* data) {
     CharacterData* node = data->buffer;
     while(node != NULL) {
         CharacterData* next = node->next;

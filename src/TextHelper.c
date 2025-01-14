@@ -34,7 +34,7 @@ int GetUTF8CharSize(const char* start) {
     ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_UTF8_INVALID(start));
 }
 
-const char* _internal_GetNextChar(const char* c) {
+const char* GetNextChar(const char* c) {
     if(*c == ESC_SEQ_CHAR) {
         return c + GetUTF8CharSize(c);
     }
@@ -48,16 +48,6 @@ const char* _internal_GetNextChar(const char* c) {
     }
 
     return c + GetUTF8CharSize(c);
-}
-
-const char* GetNextChar(const char* c) {
-    const char* value = _internal_GetNextChar(c);
-    if(value == NULL) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_UTF8_NULL);
-    }
-
-
-    return value;
 }
 
 int GetCurrentCharSize(const char* stringStart, const char* c) {
@@ -110,7 +100,7 @@ int GetCharCount(const char* start, const char* end) {
     return count;
 }
 
-int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText, bool print)
+static int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText, bool print)
 {
     int byteLineLength, lineLength;
 
