@@ -153,7 +153,10 @@ void PrintContent() {
     printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void OnResize(void* data) {
+#pragma GCC diagnostic warning "-Wunused-parameter"
+
     PrintContent();
 }
 
