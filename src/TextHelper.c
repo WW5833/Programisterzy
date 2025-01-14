@@ -54,9 +54,6 @@ const char* GetNextChar(const char* c) {
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_UTF8_NULL);
     }
 
-    if(value[0] == ESC_SEQ_CHAR) {
-        return GetNextChar(value);
-    }
 
     return value;
 }
@@ -99,6 +96,11 @@ int GetCharCount(const char* start, const char* end) {
 
     while (start < end)
     {
+        if(start[0] == ESC_SEQ_CHAR) {
+            start = GetNextChar(start);
+            continue;
+        }
+
         start = GetNextChar(start);
         count++;
     }

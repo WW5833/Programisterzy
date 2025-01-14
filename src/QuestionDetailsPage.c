@@ -20,9 +20,9 @@ typedef struct {
 } QuestionDetailsPageData;
 
 bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
-    if(!ShowConfirmationPopup("Czy na pewno chcesz usunąc to pytanie?\n\n " 
-        SET_COLOR_RED "U W A G A !" SET_COLOR_BRIGHT_RED 
-        " \nTej operacji nie można cofnąc!!", "Tak", "Nie", 48)) {
+    if(!ShowConfirmationPopup("Czy na pewno chcesz usunąc to pytanie?\n\n"
+        SET_COLOR_RED "U W A G A !" SET_COLOR_BRIGHT_RED
+        "\nTej operacji nie można cofnąc!!", "Tak", "Nie", 48)) {
         return false;
     }
 
