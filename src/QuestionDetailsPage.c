@@ -54,6 +54,14 @@ void PrintUI(QuestionDetailsPageData* data) {
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
+static void OnResize(void* data) {
+    QuestionDetailsPageData* pageData = (QuestionDetailsPageData*)data;
+    pageData->terminalWidth = LatestTerminalWidth;
+    pageData->terminalHeight = LatestTerminalHeight;
+
+    PrintUI(pageData);
+}
+
 void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
 {
     QuestionDetailsPageData data;
@@ -64,7 +72,10 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
 
     PrintUI(&data);
 
-    while (true)
+    SetResizeHandler(OnResize, &data);
+
+    bool continueLoop = true;
+    while (continueLoop)
     {
         KeyInputType key = HandleInteractions(true);
 
@@ -98,14 +109,17 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                         if(PageEnter_QuestionEdit(data.question, false)) {
                             SaveQuestions(GetQuestionList());
                         }
+                        SetResizeHandler(OnResize, &data);
                         break;
                     case 1:
                         // Preview question
                         PageEnter_QuizQuestionPreview(data.question, false);
+                        SetResizeHandler(OnResize, &data);
                         break;
                     case 2:
                         // Preview question with answers
                         PageEnter_QuizQuestionPreview(data.question, true);
+                        SetResizeHandler(OnResize, &data);
                         break;
                     case 3:
                         // Delete question
@@ -116,17 +130,21 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                         break;
                     case 4:
                         // Back
-                        return;
+                        continueLoop = false;
+                        break;
                 }
                 PrintUI(&data);
                 break;
             }
 
             case KEY_ESCAPE:
-                return;
+                continueLoop = false;
+                break;
             
             default:
                 break;
         }
-    } 
+    }
+
+    UnsetResizeHandler();
 }
