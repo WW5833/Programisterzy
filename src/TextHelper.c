@@ -6,6 +6,8 @@
 #include "AnsiHelper.h"
 #include "IOHelper.h"
 
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+
 int GetUTF8CharSize(const char* start) {
     if(start[0] == ESC_SEQ_CHAR) { // Skip ANSI
         int i = 2;
@@ -182,4 +184,24 @@ int GetWrappedLineCount(const char* line, int width)
 int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
 {
     return _internal_PrintWrappedLine(line, width, secondaryOffset, centerText, true);
+}
+
+int GetMaxWordLength(const char* line)
+{
+    int max = 0;
+    const char* lastSpace = line;
+    while (*line != '\0')
+    {
+        if (*line == ' ')
+        {
+            max = MAX(max, GetCharCount(lastSpace, line));
+            lastSpace = line;
+        }
+
+        line++;
+    }
+
+    max = MAX(max, GetCharCount(lastSpace, line));
+
+    return max;
 }

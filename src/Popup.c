@@ -73,10 +73,10 @@ bool ShowConfirmationPopup(const char* message, const char* confirmText, const c
     PrintWrappedLine(message, popUpWidth - 4, beginX + 2, true);
     ResetColor();
     SetCursorPosition(beginX + 2, beginY + popUpHeight - 2);
-    printf("[ENTER] %s", confirmText);
+    printf("[Enter] %s", confirmText);
     if(split) printf(CSR_MOVE_DOWN_1);
     printf("\r" CSR_MOVE_RIGHT(beginX + 2 + popUpWidth - 4 - cancelTextWidth - 1));
-    printf("%s [ESC]", cancelText);
+    printf("%s [Esc]", cancelText);
 
     char c = WaitForKeys(ENTER, ESC);
 

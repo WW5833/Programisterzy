@@ -6,10 +6,8 @@
 #include "Settings.h"
 #include "RGBColors.h"
 
-#define BUFFER_SIZE 128
-char _tmp_buffer[BUFFER_SIZE];
-
-extern Settings* LoadedSettings;
+#define BUFFER_SIZE 32
+static char _tmp_buffer[BUFFER_SIZE];
 
 extern bool TreatShiftRAsResizeEvent;
 static bool OldTreatShiftRAsResizeEvent;

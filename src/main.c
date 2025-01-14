@@ -9,7 +9,6 @@
 #include "WelcomePage.h"
 
 extern Settings LoadedSettings;
-
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 int main() {

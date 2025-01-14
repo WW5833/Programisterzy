@@ -6,7 +6,6 @@
 #include "InstructionPage.h"
 
 extern Settings LoadedSettings;
-
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
 void PageEnter_Welcome()

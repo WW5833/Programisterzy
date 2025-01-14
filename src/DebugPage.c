@@ -18,27 +18,8 @@
 #define MIN_TERMINAL_WIDTH 70
 #define MIN_TERMINAL_HEIGHT 26
 
-int GetMaxWordLength(const char* line)
-{
-    int max = 0;
-    const char* lastSpace = line;
-    while (*line != '\0')
-    {
-        if (*line == ' ')
-        {
-            max = MAX(max, GetCharCount(lastSpace, line));
-            lastSpace = line;
-        }
-
-        line++;
-    }
-
-    max = MAX(max, GetCharCount(lastSpace, line));
-
-    return max;
-}
-
-void CalculateQuizPageWidthRequirements(const int terminalWidth, const int terminalHeight) {
+extern int LatestTerminalWidth, LatestTerminalHeight;
+static void CalculateQuizPageWidthRequirements() {
 
     printf("\nCalculating quiz page width requirements\n");
 

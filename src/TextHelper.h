@@ -11,5 +11,6 @@ int GetStringCharCount(const char* start);
 int GetCharCount(const char* start, const char* end);
 int GetWrappedLineCount(const char* line, int width);
 int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText);
+int GetMaxWordLength(const char* line);
 
 #endif // _INC_TEXTHELPER_H

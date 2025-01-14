@@ -53,6 +53,7 @@ void ClearScreenManual();
 void GetCursorPosition(int* x, int* y);
 void SetCursorPosition(int x, int y);
 
+// This is done to avoid conflicts with Windows API
 #define HideCursor HideConsoleCursor
 #define ShowCursor ShowConsoleCursor
 

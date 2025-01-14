@@ -168,26 +168,6 @@ void PageEnter_Quiz()
 int QuizPageMinimumWidth = -1;
 int QuizPageMinimumHeight = -1;
 
-static int GetMaxWordLength(const char* line)
-{
-    int max = 0;
-    const char* lastSpace = line;
-    while (*line != '\0')
-    {
-        if (*line == ' ')
-        {
-            max = MAX(max, GetCharCount(lastSpace, line));
-            lastSpace = line;
-        }
-
-        line++;
-    }
-
-    max = MAX(max, GetCharCount(lastSpace, line));
-
-    return max;
-}
-
 void CalculateQuizPageSizeRequirements() {
     const int rewardBoxWidth = 18 + 1;
     const int rewardBoxHeight = 10;
