@@ -307,7 +307,6 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
 
     DestroyWordList(wordList);
 
-    SetCursorPosition(data->beginX + currentWidth, data->beginY + lineCount - 1);
     printf(CLR_LINE_END);
     PrintFiller(data);
     if(data->maxLines > lineCount) {
