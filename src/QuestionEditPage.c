@@ -31,8 +31,8 @@ typedef struct {
     int textFieldWidth;
 } AddQuestionPageData;
 
-const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
-const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
+static const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+static const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -262,7 +262,7 @@ static void DrawUI(AddQuestionPageData* data) {
     RestoreCursorPosition();
 }
 
-bool InputLoop(AddQuestionPageData* data) {
+static bool InputLoop(AddQuestionPageData* data) {
     while(true) {
         DrawUI(data);
 

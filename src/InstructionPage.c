@@ -21,11 +21,8 @@ typedef struct {
     int pageNumber;
 } InstructionPageData;
 
-void DrawUIPageOne(InstructionPageData* data);
-void DrawUIPageTwo(InstructionPageData* data);
-void DrawUIPageThree(InstructionPageData* data);
-void DrawUI(InstructionPageData* data);
-void OnInstructionPageResize(void* data);
+static void DrawUI(InstructionPageData* data);
+static void OnResize(void* data);
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -40,7 +37,7 @@ void PageEnter_Instruction()
 
     DrawUI(&data);
 
-    SetResizeHandler(OnInstructionPageResize, &data);
+    SetResizeHandler(OnResize, &data);
 
     while(true){
         KeyInputType key = HandleInteractions(true);
@@ -73,7 +70,7 @@ void PageEnter_Instruction()
     }
 }
 
-void PrintBorderEdges(InstructionPageData* data, int lineCount) {
+static void PrintBorderEdges(InstructionPageData* data, int lineCount) {
     printf("\r");
     if(lineCount > -1) printf(CSR_MOVE_UP(lineCount - 1));
     for (int i = 0; i < lineCount; i++)
@@ -83,7 +80,7 @@ void PrintBorderEdges(InstructionPageData* data, int lineCount) {
     }
 }
 
-void DrawUIPageOne(InstructionPageData* data) {
+static void DrawUIPageOne(InstructionPageData* data) {
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -119,7 +116,7 @@ void DrawUIPageOne(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 1/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-void DrawUIPageTwo(InstructionPageData* data) {
+static void DrawUIPageTwo(InstructionPageData* data) {
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -171,7 +168,7 @@ void DrawUIPageTwo(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 2/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-void DrawUIPageThree(InstructionPageData* data) {
+static void DrawUIPageThree(InstructionPageData* data) {
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -211,21 +208,21 @@ void DrawUIPageThree(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 3/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-void DrawBottomInstructions(InstructionPageData* data) {
+static void DrawUI_BottomInstructions(InstructionPageData* data) {
     char* text = "[ Esc ] Wciśnij aby powrócić do głównego Menu.\n[ ← ] Poprzednia strona / Następna strona [ → ]";
     int lineCount = GetWrappedLineCount(text, data->terminalWidth);
     SetCursorPosition(0, data->terminalHeight - lineCount + 1);
     PrintWrappedLine(text, data->terminalWidth, 0, true);
 }
 
-void OnInstructionPageResize(void* data) {
+static void OnResize(void* data) {
     InstructionPageData* pageData = (InstructionPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
     DrawUI(pageData);
 }
 
-void DrawUI(InstructionPageData* data){
+static void DrawUI(InstructionPageData* data){
     char buffer[256];
     while(data->terminalWidth < TERMINAL_MIN_WIDTH || data->terminalHeight < TERMINAL_MIN_HEIGHT) {
         UnsetResizeHandler();
@@ -236,10 +233,11 @@ void DrawUI(InstructionPageData* data){
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;
 
-        SetResizeHandler(OnInstructionPageResize, data);
+        SetResizeHandler(OnResize, data);
     }
 
     ClearScreenManual();
+    
     switch (data->pageNumber)
     {
         case 1:
@@ -252,5 +250,6 @@ void DrawUI(InstructionPageData* data){
             DrawUIPageThree(data);
             break;
     }
-    DrawBottomInstructions(data);
+
+    DrawUI_BottomInstructions(data);
 }

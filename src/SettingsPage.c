@@ -34,7 +34,7 @@ typedef struct {
     int descriptionHeight;
 } SettingsPageData;
 
-void PrintColors(SettingsPageData* data, int color) {
+static void DrawUI_PrintColors(SettingsPageData* data, int color) {
     if(data->slimMode) printf("\n    ");
     ResetColor();
     printf("|");
@@ -47,7 +47,7 @@ void PrintColors(SettingsPageData* data, int color) {
     }
 }
 
-void PrintSettingValue(SettingsPageData* data, int index) {
+static void DrawUI_SettingValue(SettingsPageData* data, int index) {
     bool value;
     switch(index) {
         case 5:
@@ -87,7 +87,7 @@ void PrintSettingValue(SettingsPageData* data, int index) {
     ResetColor();
 }
 
-int* GetOptionColor(int selected) {
+static int* GetOptionColor(int selected) {
     switch (selected)
     {
         case 0:
@@ -181,7 +181,7 @@ static const char* Descriptions[OPTION_COUNT] = {
     ExitWithoutSaveDescription,
 };
 
-void UpdateDescriptionHeight(SettingsPageData* data) {
+static void UpdateDescriptionHeight(SettingsPageData* data) {
     const int width = data->terminalWidth - 4;
     int maxLines = 0;
 
@@ -196,7 +196,7 @@ void UpdateDescriptionHeight(SettingsPageData* data) {
     data->descriptionHeight = maxLines + 1;
 }
 
-void UpdateSettingDescription(SettingsPageData* data) {
+static void DrawUI_UpdateSettingDescription(SettingsPageData* data) {
     if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
         return;
     }
@@ -237,7 +237,7 @@ void UpdateSettingDescription(SettingsPageData* data) {
     PrintWrappedLine(text, width, 2, center);
 }
 
-void DrawSettingDescription(SettingsPageData* data) {
+static void DrawUI_SettingDescription(SettingsPageData* data) {
     if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
         return;
     }
@@ -245,10 +245,10 @@ void DrawSettingDescription(SettingsPageData* data) {
     SetCursorPosition(0, data->terminalHeight - data->descriptionHeight);
     PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
 
-    UpdateSettingDescription(data);
+    DrawUI_UpdateSettingDescription(data);
 }
 
-void DrawSettingsUI(SettingsPageData* data) {
+static void DrawUI_Settings(SettingsPageData* data) {
     ResetColor();
     ClearScreen();
 
@@ -260,35 +260,35 @@ void DrawSettingsUI(SettingsPageData* data) {
 
     data->slimMode = (data->terminalWidth - data->colorsX) < COLOR_PALET_WIDTH;
 
-    PrintColors(data, LoadedSettings.CorrectAnswerColor);
+    DrawUI_PrintColors(data, LoadedSettings.CorrectAnswerColor);
     printf("\n  [ ] Kolor błędnej odpowiedzi       ");
-    PrintColors(data, LoadedSettings.WrongAnswerColor);
+    DrawUI_PrintColors(data, LoadedSettings.WrongAnswerColor);
     printf("\n  [ ] Kolor zaznaczonej odpowiedzi   ");
-    PrintColors(data, LoadedSettings.SelectedAnswerColor);
+    DrawUI_PrintColors(data, LoadedSettings.SelectedAnswerColor);
     printf("\n  [ ] Kolor potwierdzonej odpowiedzi ");
-    PrintColors(data, LoadedSettings.ConfirmedAnswerColor);
+    DrawUI_PrintColors(data, LoadedSettings.ConfirmedAnswerColor);
     printf("\n  [ ] Kolor wsparcia                 ");
-    PrintColors(data, LoadedSettings.SupportColor);
+    DrawUI_PrintColors(data, LoadedSettings.SupportColor);
 
     printf("\n  [ ] ");
     PrintWrappedLine("Pełne wsparcie UTF-8 | Jeśli ten znak [▶] (trójkąt) nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: ___",
         data->terminalWidth - 8, 6, false);
     GetCursorPosition(&data->utf8SupportX, &data->utf8SupportY);
     data->utf8SupportX -= 3;
-    PrintSettingValue(data, 5);
+    DrawUI_SettingValue(data, 5);
 
     printf("\n  [ ] ");
     PrintWrappedLine("Pokaż poprawną odpowiedź po przegranej: ", data->terminalWidth - 8, 6, false);
     GetCursorPosition(&data->showCorrectWhenWrongX, &data->showCorrectWhenWrongY);
-    PrintSettingValue(data, 6);
+    DrawUI_SettingValue(data, 6);
 
     printf("\n  [ ] Włącz wsparcie myszki: ");
     GetCursorPosition(&data->enableMouseSupportX, &data->enableMouseSupportY);
-    PrintSettingValue(data, 7);
+    DrawUI_SettingValue(data, 7);
 
     printf("\n  [ ] Włącz tryb ciemny: ");
     GetCursorPosition(&data->darkModeX, &data->darkModeY);
-    PrintSettingValue(data, 8);
+    DrawUI_SettingValue(data, 8);
 
     printf("\n");
 
@@ -322,10 +322,10 @@ void DrawSettingsUI(SettingsPageData* data) {
 
     UpdateDescriptionHeight(data);
     
-    DrawSettingDescription(data);
+    DrawUI_SettingDescription(data);
 }
 
-void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
+static void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
     SetCursorPosition(4, data->lineIndexes[data->selected]);
     printf(" ");
 
@@ -336,10 +336,10 @@ void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
     SetCursorPosition(4, data->lineIndexes[data->selected]);
     printf("*");
 
-    DrawSettingDescription(data);
+    DrawUI_SettingDescription(data);
 }
 
-bool HandleEnterKey(SettingsPageData* data) {
+static bool HandleEnterKey(SettingsPageData* data) {
     switch(data->selected) {
         case 5:
             LoadedSettings.FullUTF8Support = !LoadedSettings.FullUTF8Support;
@@ -358,7 +358,7 @@ bool HandleEnterKey(SettingsPageData* data) {
         case 8:
             LoadedSettings.DarkMode = !LoadedSettings.DarkMode;
 
-            DrawSettingsUI(data);
+            DrawUI_Settings(data);
             break;
 
         case OPTION_COUNT - 2:
@@ -373,12 +373,12 @@ bool HandleEnterKey(SettingsPageData* data) {
             return false;
     }
 
-    PrintSettingValue(data, data->selected);
+    DrawUI_SettingValue(data, data->selected);
 
     return false;
 }
 
-void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
+static void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     if(data->selected > 4) return;
 
     int* option = GetOptionColor(data->selected);
@@ -392,22 +392,22 @@ void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     if(data->selected == 0 || data->selected == 1) {
         for (int i = 5; i < 9; i++)
         {
-            PrintSettingValue(data, i); // Refresh for Yes/No colors
+            DrawUI_SettingValue(data, i); // Refresh for Yes/No colors
         }
     }
 
     SetCursorPosition(data->colorsX, data->lineIndexes[data->selected]);
-    PrintColors(data, *option);
+    DrawUI_PrintColors(data, *option);
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-void OnSettingsPageResize(void* data) {
+static void OnResize(void* data) {
     SettingsPageData* pageData = (SettingsPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
 
-    DrawSettingsUI(pageData);
+    DrawUI_Settings(pageData);
 }
 
 void PageEnter_Settings()
@@ -420,9 +420,9 @@ void PageEnter_Settings()
     data.selected = 0;
     data.descriptionHeight = 0;
 
-    DrawSettingsUI(&data);
+    DrawUI_Settings(&data);
 
-    SetResizeHandler(OnSettingsPageResize, &data);
+    SetResizeHandler(OnResize, &data);
 
     bool continueLoop = true;
     while (continueLoop)
