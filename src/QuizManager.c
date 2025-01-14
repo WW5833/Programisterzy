@@ -15,7 +15,7 @@ QuestionListHeader* GetQuestionList() {
 
 QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index) {
     if(index < 0 || index >= list->count) {
-        fprintf(stderr, "[ERROR] Index out of range");
+        fprintf(stderr, ERRMSG_INDEX_OUT_OF_RANGE);
         return NULL;
     }
 
@@ -113,7 +113,7 @@ void ListInsert(QuestionListHeader* list, int index, Question* data) {
 
 Question* ListGetAt(QuestionListHeader* list, int index) {
     if(index < 0 || index >= list->count) {
-        fprintf(stderr, "[ERROR] Index out of range");
+        fprintf(stderr, ERRMSG_INDEX_OUT_OF_RANGE);
         return NULL;
     }
 

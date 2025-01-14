@@ -193,8 +193,8 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
         UnsetResizeHandler();
 
         char buffer[256];
-        sprintf(buffer, "Terminal jest zbyt mały aby wyświetlić to okno. Minimalne wymagania to: %d x %d", QuizPageMinimumWidth, QuizPageMinimumHeight);
-        ShowAlertPopupWithTitleKeys("Błąd", buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
+        sprintf(buffer, ERRMSG_TOO_SMALL_TERMINAL(QuizPageMinimumWidth, QuizPageMinimumHeight));
+        ShowAlertPopupWithTitleKeys(ERRMSG_ERROR_POPUP_TITLE, buffer, MIN(data->terminalWidth, 60), RESIZE_EVENT);
 
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;

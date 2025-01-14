@@ -37,5 +37,9 @@
 #define ERRMSG_OPTION_NOT_FOUND ERRMSG_PREFIX "Nie znaleziono opcji\n"
 #define ERRMSG_NULL_TERMINATOR_MISSING ERRMSG_PREFIX "Brak znaku NULL w ciągu znaków\n"
 #define ERRMSG_UNEXPEDTED_END_OF_STRING ERRMSG_PREFIX "Nieoczekiwany koniec bufora, nie znaleziono znaku NULL\n"
+#define ERRMSG_INDEX_OUT_OF_RANGE ERRMSG_PREFIX "Indeks poza zakresem\n"
+
+#define ERRMSG_ERROR_POPUP_TITLE "Błąd"
+#define ERRMSG_TOO_SMALL_TERMINAL(x, y) "Terminal jest zbyt mały aby wyświetlić to okno. Minimalne wymagania to: %d x %d", x, y
 
 #endif // _INC_ERRORMESSAGES_H
