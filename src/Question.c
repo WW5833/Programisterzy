@@ -4,7 +4,9 @@
 #include <errno.h>
 #include "IOHelper.h"
 
-bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
+static void AppendQuestion(FILE* file, Question* question);
+
+static bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
     errno = 0;
     char* end;
     question->Id = strtol(serializedQuestion, &end, 10);
@@ -24,8 +26,8 @@ bool DeserializeQuestionId(const char* serializedQuestion, Question* question, i
     return true;
 }
 
-char buffer[255];
-bool DeserializeString(const char* serializedQuestion, char** content, int* offset) {
+static bool DeserializeString(const char* serializedQuestion, char** content, int* offset) {
+    char buffer[255];
     int i = 0;
     while(serializedQuestion[i] != ';' && serializedQuestion[i] != '\0') {
         buffer[i] = serializedQuestion[i];
@@ -41,7 +43,7 @@ bool DeserializeString(const char* serializedQuestion, char** content, int* offs
     *offset = i + 1;
 
     if(i == 0) {
-        fprintf(stderr, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT_EMPTY);
+        fprintf(stderr, ERRMSG_QUESTION_CONTENT_EMPTY);
         return false;
     }
 
@@ -67,8 +69,8 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         DestroyQuestion(question);
         return NULL;
     }
-    serializedQuestion = &serializedQuestion[i];
 
+    serializedQuestion = &serializedQuestion[i];
     if(!DeserializeString(serializedQuestion, &question->Content, &i))
     {
         fprintf(stderr, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT(serializedQuestion));
@@ -76,24 +78,22 @@ Question* DeserializeQuestion(char* serializedQuestion) {
         return NULL;
     }
 
-    serializedQuestion = &serializedQuestion[i];
-
     for (int j = 0; j < 4; j++)
     {
+        serializedQuestion = &serializedQuestion[i];
         if(!DeserializeString(serializedQuestion, &question->Answer[j], &i))
         {
             fprintf(stderr,  ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_ANSWER(j, serializedQuestion));
             DestroyQuestion(question);
             return NULL;
         }
-        serializedQuestion = &serializedQuestion[i];
     }
 
     return question;
 }
 
-void AppendQuestion(FILE* file, Question* question) {
-    // Id;Question;Ans1;Ans2;Ans3;Ans4;Help;\n
+static void AppendQuestion(FILE* file, Question* question) {
+    // Id;Question;Ans1;Ans2;Ans3;Ans4;\n
     fprintf(file, "%d;%s;%s;%s;%s;%s;\n",
         question->Id,
         question->Content,

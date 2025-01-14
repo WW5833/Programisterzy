@@ -29,7 +29,7 @@
 #define ERRMSG_QUESTION_INVALID_QUESTION_ID(question) ERRMSG_PREFIX "Niepoprawny identyfikator pytania: \"%s\"\n", question
 #define ERRMSG_QUESTION_INVALID_QUESTION_ID_PERRNO ERRMSG_PREFIX "Niepoprawny identyfikator pytania"
 #define ERRMSG_QUESTION_FAILED_TO_LOAD ERRMSG_PREFIX "Nie udało się załadować pytań"
-#define ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT_EMPTY ERRMSG_PREFIX "Treść pytania jest pusta"
+#define ERRMSG_QUESTION_CONTENT_EMPTY ERRMSG_PREFIX "Treść pytania jest pusta"
 
 // General error messages
 #define ERRMSG_INVALID_OPTION_INDEX(index) ERRMSG_PREFIX "Niepoprawny indeks opcji: %d\n", index
