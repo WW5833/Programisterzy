@@ -20,6 +20,7 @@ typedef struct {
     int terminalHeight;
 
     bool newQuestion;
+    Question* questionClone;
     Question* question;
     int slotNumber;
 
@@ -399,6 +400,29 @@ static bool FinalizeEdit(AddQuestionPageData* data) {
     return true;
 }
 
+void RevertChanges(AddQuestionPageData* data) {
+    Question* original = data->questionClone;
+    Question* question = data->question;
+
+    if(question->Content != NULL) {
+        free(question->Content);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if(question->Answer[i] != NULL) {
+            free(question->Answer[i]);
+        }
+    }
+
+    question->Id = original->Id;
+    question->Content = original->Content;
+    for (int i = 0; i < 4; i++)
+    {
+        question->Answer[i] = original->Answer[i];
+    }
+}
+
 bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 {
     ClearScreen();
@@ -409,6 +433,7 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
     data.slotNumber = 0;
 
     data.question = question;
+    data.questionClone = CloneQuestion(question);
     data.newQuestion = newQuestion;
 
     CalculateValues(&data);
@@ -417,8 +442,9 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 
     while(true) {
         if(!InputLoop(&data)) {
+            RevertChanges(&data);
+            DestroyQuestion(data.questionClone);
             UnsetResizeHandler();
-            LoadQuestionsFromFile(); // Reload questions
             return false;
         }
 
@@ -426,6 +452,7 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
         UnsetResizeHandler();
 
         if(FinalizeEdit(&data)) {
+            DestroyQuestion(data.questionClone);
             return true;
         }
 

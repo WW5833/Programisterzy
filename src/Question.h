@@ -14,6 +14,7 @@ typedef struct
 Question* DeserializeQuestion(char* serializedQuestion);
 void DestroyQuestion(Question* question);
 
+Question* CloneQuestion(Question* question);
 bool ValidateQuestion(Question* question, char** outMessage);
 bool AddQuestion(Question* question, char** outMessage);
 bool EditQuestion(Question* question, char** outMessage);

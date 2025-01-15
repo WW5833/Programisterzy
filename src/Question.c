@@ -94,6 +94,25 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     return question;
 }
 
+Question* CloneQuestion(Question *question) {
+    Question* clone = malloc(sizeof(Question));
+    mallocCheck(clone);
+
+    clone->Id = question->Id;
+    clone->Content = malloc(strlen(question->Content) + 1);
+    mallocCheck(clone->Content);
+    strcpy(clone->Content, question->Content);
+
+    for (int i = 0; i < 4; i++)
+    {
+        clone->Answer[i] = malloc(strlen(question->Answer[i]) + 1);
+        mallocCheck(clone->Answer[i]);
+        strcpy(clone->Answer[i], question->Answer[i]);
+    }
+
+    return clone;
+}
+
 bool ValidateQuestion(Question* question, char** outMessage) {
     if(question->Id <= 0) {
         *outMessage = VLDFAIL_QUESTION_ID_INVALID;
