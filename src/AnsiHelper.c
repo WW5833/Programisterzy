@@ -7,7 +7,6 @@
 #include "RGBColors.h"
 
 #define BUFFER_SIZE 32
-static char _tmp_buffer[BUFFER_SIZE];
 
 extern bool TreatShiftRAsResizeEvent;
 static bool OldTreatShiftRAsResizeEvent;
@@ -33,22 +32,29 @@ void GetCursorPosition(int* x, int* y)
     }
     esc_seq_found:
 
+    char buffer[BUFFER_SIZE];
     c = getch(); // Shold be '['
     int i = 0;
     while(c != ';' && c != '\0') { // Read y position
         c = getch();
-        _tmp_buffer[i++] = (char)c;
+        buffer[i++] = (char)c;
+        if(i >= BUFFER_SIZE) {
+            ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
+        }
     }
-    _tmp_buffer[i] = '\0';
-    *y = atoi(_tmp_buffer);
+    buffer[i] = '\0';
+    *y = atoi(buffer);
 
     i = 0;
     while(c != 'R' && c != '\0') { // Read x position
         c = getch();
-        _tmp_buffer[i++] = (char)c;
+        buffer[i++] = (char)c;
+        if(i >= BUFFER_SIZE) {
+            ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
+        }
     }
-    _tmp_buffer[i] = '\0';
-    *x = atoi(_tmp_buffer);
+    buffer[i] = '\0';
+    *x = atoi(buffer);
 
     TreatShiftRAsResizeEvent = OldTreatShiftRAsResizeEvent;
 }
