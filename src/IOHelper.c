@@ -9,9 +9,15 @@
 #include "IOHelper.Window.h"
 #include "IOHelper.Keyboard.h"
 
-#define ENABLE_VIRTUAL_TERMINAL_INPUT 0x200
-#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x4
+#ifndef ENABLE_VIRTUAL_TERMINAL_INPUT
+    #define ENABLE_VIRTUAL_TERMINAL_INPUT 0x200
+#endif
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x4
+#endif
 
+/// @brief The internal lock for the IO loop
+/// If true, events will not be called, keyboard input will be unaffected
 bool internal_IOHelper_LoopLock = false;
 
 static HANDLE stdinHandle;
@@ -187,7 +193,9 @@ void ErrorExit(LPSTR lpszMessage)
     ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_PREFIX "[IO] %s\n", lpszMessage);
 }
 
+/// @brief Internal check for awaiting mouse press event (used in WaitForAnyInput), mouse press will always override it to false
 bool internal_IOHelper_WaitingForMousePress = false;
+/// @brief Internal check for awaiting resize event (used in WaitForAnyInput), resize event will always override it to false
 bool internal_IOHelper_WaitingResizeEvent = false;
 int WaitForAnyInput() {
     internal_IOHelper_WaitingForMousePress = true;

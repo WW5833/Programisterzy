@@ -8,6 +8,7 @@
 
 #define SETTINGS_FILE "./settings.txt"
 
+/// @brief The loaded settings
 Settings LoadedSettings;
 
 static void LoadDefaultSettings() {

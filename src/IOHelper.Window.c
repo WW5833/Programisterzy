@@ -21,7 +21,9 @@ void UnsetResizeHandler()
     resizeHandlerData = NULL;
 }
 
+/// @brief The latest terminal width
 int LatestTerminalWidth = -1;
+/// @brief The latest terminal height
 int LatestTerminalHeight = -1;
 
 static time_t lastResizeEvent = 0;

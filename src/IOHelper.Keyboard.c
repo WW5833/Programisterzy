@@ -27,6 +27,7 @@ int kbhit()
     return textInputBufferReadPtr != textInputBufferWritePtr;
 }
 
+/// @brief If true, treat Shift + R as a resize event
 bool TreatShiftRAsResizeEvent = false;
 
 void KeyEventProc(KEY_EVENT_RECORD ker)

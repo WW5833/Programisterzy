@@ -165,7 +165,9 @@ void PageEnter_Quiz()
     WaitForKeys(ENTER);
 }
 
+/// @brief The minimum width of the quiz page considering the worst case scenario
 int QuizPageMinimumWidth = -1;
+/// @brief The minimum height of the quiz page considering the worst case scenario
 int QuizPageMinimumHeight = -1;
 
 static void CalculateQuizPageSizeRequirements() {

@@ -45,7 +45,9 @@ void UnsetMouseHandler()
 
 extern bool internal_IOHelper_WaitingForMousePress;
 
+/// @brief The latest mouse X position
 int LatestMouseX = 0;
+/// @brief The latest mouse Y position
 int LatestMouseY = 0;
 
 void MouseEventProc(MOUSE_EVENT_RECORD mer)
@@ -65,6 +67,8 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
         switch(mer.dwEventFlags)
         {
             case 0:
+                // If the event is a mouse click, any button is pressed and we are waiting for a mouse press
+                // Signal event happened by setting the flag to false and break the loop as the event was handled
                 if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress) {
                     internal_IOHelper_WaitingForMousePress = false;
                     break;
