@@ -465,6 +465,7 @@ void RevertChanges(AddQuestionPageData* data)
     if(question->Content != NULL)
     {
         free(question->Content);
+        question->Content = NULL;
     }
 
     for (int i = 0; i < 4; i++)
@@ -472,14 +473,17 @@ void RevertChanges(AddQuestionPageData* data)
         if(question->Answer[i] != NULL)
         {
             free(question->Answer[i]);
+            question->Answer[i] = NULL;
         }
     }
 
     question->Id = original->Id;
     question->Content = original->Content;
+    original->Content = NULL; // Prevent freeing when destroying clone
     for (int i = 0; i < 4; i++)
     {
         question->Answer[i] = original->Answer[i];
+        original->Answer[i] = NULL; // Prevent freeing when destroying clone
     }
 }
 
