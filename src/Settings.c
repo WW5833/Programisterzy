@@ -11,7 +11,8 @@
 /// @brief The loaded settings
 Settings LoadedSettings;
 
-static void LoadDefaultSettings() {
+static void LoadDefaultSettings()
+{
     LoadedSettings.CorrectAnswerColor = RGB_ID_GREEN;
     LoadedSettings.WrongAnswerColor = RGB_ID_RED;
     LoadedSettings.SelectedAnswerColor = RGB_ID_YELLOW;
@@ -28,7 +29,8 @@ void LoadSettingsFromFile()
 {
     FILE* file = fopen(SETTINGS_FILE, "r");
 
-    if(file == NULL) {
+    if(file == NULL)
+    {
         LoadDefaultSettings();
 
         SaveSettingsToFile();
@@ -37,16 +39,16 @@ void LoadSettingsFromFile()
     }
 
     fscanf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
-        &LoadedSettings.CorrectAnswerColor,
-        &LoadedSettings.WrongAnswerColor,
-        &LoadedSettings.SelectedAnswerColor,
-        &LoadedSettings.ConfirmedAnswerColor,
-        &LoadedSettings.SupportColor,
-        &LoadedSettings.FullUTF8Support,
-        &LoadedSettings.WelcomePageShown,
-        &LoadedSettings.ShowCorrectWhenWrong,
-        &LoadedSettings.EnableMouseSupport,
-        &LoadedSettings.DarkMode);
+           &LoadedSettings.CorrectAnswerColor,
+           &LoadedSettings.WrongAnswerColor,
+           &LoadedSettings.SelectedAnswerColor,
+           &LoadedSettings.ConfirmedAnswerColor,
+           &LoadedSettings.SupportColor,
+           &LoadedSettings.FullUTF8Support,
+           &LoadedSettings.WelcomePageShown,
+           &LoadedSettings.ShowCorrectWhenWrong,
+           &LoadedSettings.EnableMouseSupport,
+           &LoadedSettings.DarkMode);
 
     CloseFileChecked(file);
 }
@@ -56,16 +58,16 @@ void SaveSettingsToFile()
     OpenFileChecked(file, SETTINGS_FILE, "w");
 
     fprintf(file, "%d;%d;%d;%d;%d;%d;%d;%d;%d;%d",
-        LoadedSettings.CorrectAnswerColor,
-        LoadedSettings.WrongAnswerColor,
-        LoadedSettings.SelectedAnswerColor,
-        LoadedSettings.ConfirmedAnswerColor,
-        LoadedSettings.SupportColor,
-        LoadedSettings.FullUTF8Support,
-        LoadedSettings.WelcomePageShown,
-        LoadedSettings.ShowCorrectWhenWrong,
-        LoadedSettings.EnableMouseSupport,
-        LoadedSettings.DarkMode);
+            LoadedSettings.CorrectAnswerColor,
+            LoadedSettings.WrongAnswerColor,
+            LoadedSettings.SelectedAnswerColor,
+            LoadedSettings.ConfirmedAnswerColor,
+            LoadedSettings.SupportColor,
+            LoadedSettings.FullUTF8Support,
+            LoadedSettings.WelcomePageShown,
+            LoadedSettings.ShowCorrectWhenWrong,
+            LoadedSettings.EnableMouseSupport,
+            LoadedSettings.DarkMode);
 
     CloseFileChecked(file);
 }

@@ -34,7 +34,8 @@ void CallResizeHandler()
 
     if(resizeHandler == NULL || !resizeCallPending) return;
 
-    if(difftime(time(NULL), lastResizeEvent) < 0.10) {
+    if(difftime(time(NULL), lastResizeEvent) < 0.10)
+    {
         return;
     }
 
@@ -59,7 +60,8 @@ void UpdateTerminalSize()
 
 extern bool internal_IOHelper_WaitingResizeEvent;
 
-void EnqueuResizeEventCall() {
+void EnqueuResizeEventCall()
+{
     resizeCallPending = true;
 }
 
@@ -68,11 +70,14 @@ void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
     int termianlWidth = wbsr.dwSize.X;
     int terminalHeight = wbsr.dwSize.Y;
 
-    if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) { // Cmd has always height of buffer in resize info but size check will return true value
-        if(internal_IOHelper_LoopLock) {
+    if(wbsr.dwSize.Y > MAX_Y_SIZE_CONSOLE) // Cmd has always height of buffer in resize info but size check will return true value
+    {
+        if(internal_IOHelper_LoopLock)
+        {
             terminalHeight = LatestTerminalHeight; // Prevent infinite loop
         }
-        else {
+        else
+        {
             GetTerminalSize(&termianlWidth, &terminalHeight);
         }
     }

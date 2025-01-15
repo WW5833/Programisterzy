@@ -20,25 +20,30 @@ void GetCursorPosition(int* x, int* y)
 
     int c = getch();
 
-    if(c != ESC_SEQ_CHAR) {
-        while(kbhit()) {
+    if(c != ESC_SEQ_CHAR)
+    {
+        while(kbhit())
+        {
             c = getch();
-            if(c == ESC_SEQ_CHAR){
+            if(c == ESC_SEQ_CHAR)
+            {
                 goto esc_seq_found;
             }
         }
 
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
     }
-    esc_seq_found:
+esc_seq_found:
 
     c = getch(); // Shold be '['
     char buffer[BUFFER_SIZE];
     int i = 0;
-    while(c != ';' && c != '\0') { // Read y position
+    while(c != ';' && c != '\0') // Read y position
+    {
         c = getch();
         buffer[i++] = (char)c;
-        if(i >= BUFFER_SIZE) {
+        if(i >= BUFFER_SIZE)
+        {
             ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
         }
     }
@@ -46,10 +51,12 @@ void GetCursorPosition(int* x, int* y)
     *y = atoi(buffer);
 
     i = 0;
-    while(c != 'R' && c != '\0') { // Read x position
+    while(c != 'R' && c != '\0') // Read x position
+    {
         c = getch();
         buffer[i++] = (char)c;
-        if(i >= BUFFER_SIZE) {
+        if(i >= BUFFER_SIZE)
+        {
             ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CURSOR_FAILED);
         }
     }
@@ -64,11 +71,13 @@ void SetCursorPosition(int x, int y)
     printf(ESC_SEQ "%d;%dH", y, x);
 }
 
-bool CheckForAnsiSupport() {
+bool CheckForAnsiSupport()
+{
     printf(ESC_SEQ "6n");
 
     // Use _getch() instead of custom getch() because this function is called before IOHelper is fully initialized
-    if(_kbhit() && _getch() == ESC_SEQ_CHAR) {
+    if(_kbhit() && _getch() == ESC_SEQ_CHAR)
+    {
         while (_getch() != 'R'); // Clear the buffer
         return true; // ANSI supported
     }

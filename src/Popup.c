@@ -28,14 +28,16 @@ void _internal_ShowAlertPopupWithTitleKeys(const char* title, const char* messag
 {
     int popUpHeight = 2 + GetWrappedLineCount(message, popUpWidth - 4) + 2;
 
-    if(title != NULL) {
+    if(title != NULL)
+    {
         popUpHeight += GetWrappedLineCount(title, popUpWidth - 4);
     }
 
     int beginX, beginY;
     DrawEmptyPopup(popUpWidth, popUpHeight, &beginX, &beginY);
     int offsetY = 2;
-    if(title != NULL) {
+    if(title != NULL)
+    {
         SetCursorPosition(beginX + 2, beginY + 1);
         PrintWrappedLine(title, popUpWidth - 4, beginX + 2, true);
         offsetY += GetWrappedLineCount(title, popUpWidth - 4);
@@ -47,14 +49,16 @@ void _internal_ShowAlertPopupWithTitleKeys(const char* title, const char* messag
     _internal_WaitForKeys(keyCount, keys);
 }
 
+static char DefaultKeys[] = {ENTER, ESC};
+
 void ShowAlertPopup(const char* message, int popUpWidth)
 {
-    _internal_ShowAlertPopupWithTitleKeys(NULL, message, popUpWidth, 2, (char[]){ENTER, ESC});
+    _internal_ShowAlertPopupWithTitleKeys(NULL, message, popUpWidth, 2, DefaultKeys);
 }
 
 void ShowAlertPopupWithTitle(const char* title, const char* message, int popUpWidth)
 {
-    _internal_ShowAlertPopupWithTitleKeys(title, message, popUpWidth, 2, (char[]){ENTER, ESC});
+    _internal_ShowAlertPopupWithTitleKeys(title, message, popUpWidth, 2, DefaultKeys);
 }
 
 bool ShowConfirmationPopup(const char* message, const char* confirmText, const char* cancelText, int popUpWidth)

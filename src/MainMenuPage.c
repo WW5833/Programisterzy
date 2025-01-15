@@ -87,13 +87,17 @@ static void DrawUI(MainMenuPageData* data)
     DrawUI_BottomInstructions();
 }
 
-static void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
+static void OnArrowKeysPressed(MainMenuPageData* data, bool down)
+{
     SetCursorPosition(4, LineTable[data->selected]);
     printf(" ");
 
-    if(down) {
+    if(down)
+    {
         data->selected = (data->selected + 1) % TOTAL_OPTION_COUNT;
-    } else {
+    }
+    else
+    {
         data->selected = (data->selected - 1 + TOTAL_OPTION_COUNT) % TOTAL_OPTION_COUNT;
     }
 
@@ -101,7 +105,8 @@ static void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
     printf("*");
 }
 
-static void OnEnterPressed(MainMenuPageData* data) {
+static void OnEnterPressed(MainMenuPageData* data)
+{
     switch (data->selected)
     {
         case 0:
@@ -147,10 +152,12 @@ void PageEnter_MainMenu()
     while (true)
     {
         KeyInputType key = HandleInteractions(true);
-        if(key == KEY_ARROW_UP || key == KEY_ARROW_DOWN) {
+        if(key == KEY_ARROW_UP || key == KEY_ARROW_DOWN)
+        {
             OnArrowKeysPressed(&data, key == KEY_ARROW_DOWN);
         }
-        else if (key == KEY_ENTER) {
+        else if (key == KEY_ENTER)
+        {
             UnsetResizeHandler();
 
             OnEnterPressed(&data);
@@ -162,7 +169,8 @@ void PageEnter_MainMenu()
     UnsetResizeHandler();
 }
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     MainMenuPageData* mainMenuData = (MainMenuPageData*)data;
     mainMenuData->terminalWidth = LatestTerminalWidth;
     mainMenuData->terminalHeight = LatestTerminalHeight;

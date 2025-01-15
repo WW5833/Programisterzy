@@ -10,7 +10,8 @@
 #define MIN_TERMINAL_HEIGHT 26
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
-static void CalculateQuizPageWidthRequirements() {
+static void CalculateQuizPageWidthRequirements()
+{
 
     printf("\nCalculating quiz page width requirements\n");
 
@@ -39,7 +40,8 @@ static void CalculateQuizPageWidthRequirements() {
     while (current != NULL)
     {
         int lengthWordContent = GetMaxWordLength(current->data->Content);
-        if(lengthWordContent > maxLengthWordContent) {
+        if(lengthWordContent > maxLengthWordContent)
+        {
             maxLengthWordContent = lengthWordContent;
             maxLengthWordContentID = current->data->Id;
         }
@@ -47,7 +49,8 @@ static void CalculateQuizPageWidthRequirements() {
         for (int i = 0; i < 4; i++)
         {
             int lengthWordAnswer = GetMaxWordLength(current->data->Answer[i]);
-            if(lengthWordAnswer > maxLengthWordAnswer) {
+            if(lengthWordAnswer > maxLengthWordAnswer)
+            {
                 maxLengthWordAnswer = lengthWordAnswer;
                 maxLengthWordAnswerID = current->data->Id;
             }
@@ -65,7 +68,8 @@ static void CalculateQuizPageWidthRequirements() {
     while (current != NULL)
     {
         int lineCountContent = GetWrappedLineCount(current->data->Content, minContentWidth);
-        if(lineCountContent > maxLineCountContent) {
+        if(lineCountContent > maxLineCountContent)
+        {
             maxLineCountContent = lineCountContent;
             maxLineCountContentID = current->data->Id;
         }
@@ -73,7 +77,8 @@ static void CalculateQuizPageWidthRequirements() {
         for (int i = 0; i < 4; i++)
         {
             int lineCountAnswer = GetWrappedLineCount(current->data->Answer[i], minAnswerWidth);
-            if(lineCountAnswer > maxLineCountAnswer) {
+            if(lineCountAnswer > maxLineCountAnswer)
+            {
                 maxLineCountAnswer = lineCountAnswer;
                 maxLineCountAnswerID = current->data->Id;
             }
@@ -98,7 +103,8 @@ static void CalculateQuizPageWidthRequirements() {
     printf("\n");
 }
 
-static void DrawUI() {
+static void DrawUI()
+{
     ClearScreen();
     printf("Debug page\n");
 
@@ -121,7 +127,8 @@ static void DrawUI() {
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
 #pragma GCC diagnostic warning "-Wunused-parameter"
 
     DrawUI();

@@ -15,7 +15,8 @@
 #define SCROLL_BAR_HANDLE "█"
 #define SCROLL_BAR_LINE "│"
 
-typedef struct {
+typedef struct
+{
     int terminalWidth, terminalHeight;
     int blockWidth, elementLimit;
 
@@ -44,42 +45,50 @@ static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected);
 static void DrawUI_AddScrollBar(QuestionListPageData* data);
 static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected);
 
-static void DrawUI_Static_ScrollBar(QuestionListPageData* data) {
+static void DrawUI_Static_ScrollBar(QuestionListPageData* data)
+{
     if(data->list->count <= data->elementLimit) return;
 
     for (int i = 0; i < data->terminalHeight; i++)
     {
         SetCursorPosition(data->terminalWidth - 1, 1 + i);
-        if(i == 0) {
+        if(i == 0)
+        {
             printf("▲");
         }
-        else if(i == data->terminalHeight - 1) {
+        else if(i == data->terminalHeight - 1)
+        {
             printf("▼");
         }
-        else {
+        else
+        {
             printf(SCROLL_BAR_LINE);
         }
     }
 }
 
-static void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
+static void PrintQuestionLine(Question* question, int widthLimit, int blockWidth)
+{
     int length = GetStringCharCount(question->Content);
 
     printf(CSR_MOVE_CURSOR_X(blockWidth));
     printf(CLR_LINE_START "\r");
 
-    if(question->Id == ADD_QUESTION_ID) {
+    if(question->Id == ADD_QUESTION_ID)
+    {
         printf("     Dodaj nowe pytanie");
         return;
     }
-    else if(question->Id == RETURN_QUESTION_ID) {
+    else if(question->Id == RETURN_QUESTION_ID)
+    {
         printf("     Powróć do menu");
         return;
     }
 
     printf("%3d. ", question->Id);
 
-    if(widthLimit < length) {
+    if(widthLimit < length)
+    {
         const char* currentChar = question->Content;
         for (int j = 0; j < widthLimit - 3; j++)
         {
@@ -92,19 +101,22 @@ static void PrintQuestionLine(Question* question, int widthLimit, int blockWidth
 
         printf("...");
     }
-    else {
+    else
+    {
         printf("%s", question->Content);
     }
 }
 
-static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected)
+{
     int widthLimit = data->blockWidth - 5;
 
     int oldStartIndex = data->drawQuestionStartIndex;
     CalculateStartIndex(data);
 
     int delta = data->drawQuestionStartIndex - oldStartIndex;
-    if(abs(delta) >= data->elementLimit) {
+    if(abs(delta) >= data->elementLimit)
+    {
         DrawUI_VisibleQuestions(data);
         DrawUI_ScrollBar(data, oldSelected);
         return;
@@ -117,20 +129,24 @@ static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSel
     // Remove scrollBarHandle
     DrawUI_RemoveScrollBar(data, oldSelected);
 
-    if(delta > 0) {
+    if(delta > 0)
+    {
         printf(SCREEN_SCROLL_UP(delta));
     }
-    else if(delta < 0) {
+    else if(delta < 0)
+    {
         printf(SCREEN_SCROLL_DOWN(-delta));
     }
 
     // Add missing lines
     for (int i = 0; i < abs(delta); i++)
     {
-        if(delta > 0) {
+        if(delta > 0)
+        {
             SetCursorPosition(data->terminalWidth - 1, 2 + data->elementLimit - delta + i);
         }
-        else {
+        else
+        {
             SetCursorPosition(data->terminalWidth - 1, 2 + i);
         }
 
@@ -153,11 +169,13 @@ static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSel
     {
         int index;
 
-        if(delta > 0) {
+        if(delta > 0)
+        {
             SetCursorPosition(0, 2 + data->elementLimit - delta + i);
             index = data->drawQuestionStartIndex + data->elementLimit - delta + i;
         }
-        else {
+        else
+        {
             SetCursorPosition(0, 2 + i);
             index = data->drawQuestionStartIndex + i;
         }
@@ -168,22 +186,27 @@ static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSel
     }
 }
 
-static void CalculateStartIndex(QuestionListPageData* data) {
+static void CalculateStartIndex(QuestionListPageData* data)
+{
     data->drawQuestionStartIndex = 0;
-    if(data->selected > data->elementLimit / 2) {
+    if(data->selected > data->elementLimit / 2)
+    {
         data->drawQuestionStartIndex = data->selected - data->elementLimit / 2;
     }
 
-    if(data->drawQuestionStartIndex + data->elementLimit > data->list->count) {
+    if(data->drawQuestionStartIndex + data->elementLimit > data->list->count)
+    {
         data->drawQuestionStartIndex = data->list->count - data->elementLimit;
     }
 
-    if(data->drawQuestionStartIndex < 0) {
+    if(data->drawQuestionStartIndex < 0)
+    {
         data->drawQuestionStartIndex = 0;
     }
 }
 
-static void DrawUI_VisibleQuestions(QuestionListPageData* data) {
+static void DrawUI_VisibleQuestions(QuestionListPageData* data)
+{
     SetCursorPosition(0, 2);
     int i = 0;
 
@@ -194,27 +217,31 @@ static void DrawUI_VisibleQuestions(QuestionListPageData* data) {
     QuestionListItem* current = data->list->head;
     while (current != NULL)
     {
-        if(i < data->drawQuestionStartIndex) {
+        if(i < data->drawQuestionStartIndex)
+        {
             i++;
             current = current->next;
             continue;
         }
 
-        if(i == data->selected) {
+        if(i == data->selected)
+        {
             SetColorRGBPreset(RGB_ID_WHITE, false);
             SetColorRGBPreset(RGB_ID_BLUE, true);
         }
 
         PrintQuestionLine(current->data, widthLimit, data->blockWidth);
 
-        if(i == data->selected) {
+        if(i == data->selected)
+        {
             ResetColor();
         }
 
         i++;
         current = current->next;
 
-        if(i >= data->drawQuestionStartIndex + data->elementLimit) {
+        if(i >= data->drawQuestionStartIndex + data->elementLimit)
+        {
             break;
         }
 
@@ -222,7 +249,8 @@ static void DrawUI_VisibleQuestions(QuestionListPageData* data) {
     }
 }
 
-static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected)
+{
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -230,7 +258,8 @@ static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected) {
     int scrollPosition = (int)((float)data->selected * movePerElement);
     int oldScrollPosition = (int)((float)oldSelected * movePerElement);
 
-    if(scrollPosition == oldScrollPosition) {
+    if(scrollPosition == oldScrollPosition)
+    {
         return;
     }
 
@@ -264,7 +293,8 @@ static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected) {
     ResetCursor();
 }
 
-static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected)
+{
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -284,7 +314,8 @@ static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected) 
     ResetCursor();
 }
 
-static void DrawUI_AddScrollBar(QuestionListPageData* data) {
+static void DrawUI_AddScrollBar(QuestionListPageData* data)
+{
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -304,7 +335,8 @@ static void DrawUI_AddScrollBar(QuestionListPageData* data) {
     ResetCursor();
 }
 
-static void DrawUI(QuestionListPageData* data) {
+static void DrawUI(QuestionListPageData* data)
+{
     ClearScreen();
 
     printf("Lista pytań\n");
@@ -315,15 +347,18 @@ static void DrawUI(QuestionListPageData* data) {
     DrawUI_ScrollBar(data, INT_MIN);
 }
 
-static void Scroll(QuestionListPageData* data, bool down) {
+static void Scroll(QuestionListPageData* data, bool down)
+{
     int oldSelected;
 
-    if(down) {
+    if(down)
+    {
         if(data->selected >= data->list->count - 1) return;
 
         oldSelected = data->selected++;
     }
-    else {
+    else
+    {
         if(data->selected == 0) return;
 
         oldSelected = data->selected--;
@@ -338,8 +373,10 @@ static Question AddQuestionQuestion = {ADD_QUESTION_ID, "", { "", "", "", "" }};
 static Question ReturnQuestion = {RETURN_QUESTION_ID, "", { "", "", "", "" }};
 
 static bool delayedEnterQuiz = false;
-static void EnterPreview(QuestionListPageData* data, bool mainLoop) {
-    if(!mainLoop) {
+static void EnterPreview(QuestionListPageData* data, bool mainLoop)
+{
+    if(!mainLoop)
+    {
         delayedEnterQuiz = true;
         return;
     }
@@ -348,11 +385,13 @@ static void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     UnsetMouseHandler();
 
     Question* question = ListGetAt(data->list, data->selected);
-    if(question->Id == RETURN_QUESTION_ID) {
+    if(question->Id == RETURN_QUESTION_ID)
+    {
         data->exit = true;
         return;
     }
-    else if(question->Id == ADD_QUESTION_ID) {
+    else if(question->Id == ADD_QUESTION_ID)
+    {
         Question* newQuestion = malloc(sizeof(Question));
         mallocCheck(newQuestion);
         newQuestion->Id = GetMaxQuestionId() + 1;
@@ -366,39 +405,45 @@ static void EnterPreview(QuestionListPageData* data, bool mainLoop) {
             newQuestion->Answer[i][0] = '\0';
         }
 
-        if(PageEnter_QuestionEdit(newQuestion, true)) {
+        if(PageEnter_QuestionEdit(newQuestion, true))
+        {
             data->questionListModified = true;
             data->selected = data->list->count;
             PageEnter_QuestionDetails(newQuestion, &data->questionListModified);
         }
     }
-    else {
+    else
+    {
         data->questionListModified = false;
         PageEnter_QuestionDetails(question, &data->questionListModified);
     }
-    
+
 
     delayedEnterQuiz = false;
 
     SetResizeHandler(OnResize, data);
     SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
 
-    if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight) {
+    if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight)
+    {
         OnResize(data);
     }
-    else if(!data->questionListModified) {
+    else if(!data->questionListModified)
+    {
         DrawUI(data);
     }
 
-    if(data->questionListModified) {
+    if(data->questionListModified)
+    {
         data->questionListModified = false;
-        
+
         ListDestroy(data->list, false);
         data->list = GetQuestionListCopy();
         ListInsert(data->list, 0, &AddQuestionQuestion);
         ListInsert(data->list, 0, &ReturnQuestion);
 
-        if(data->selected >= data->list->count) {
+        if(data->selected >= data->list->count)
+        {
             data->selected = data->list->count - 1;
         }
 
@@ -428,8 +473,10 @@ void PageEnter_QuestionList()
     SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, &data);
 
     KeyInputType key;
-    while(!data.exit) {
-        if(delayedEnterQuiz) {
+    while(!data.exit)
+    {
+        if(delayedEnterQuiz)
+        {
             EnterPreview(&data, true);
         }
 
@@ -475,10 +522,12 @@ static void OnResize(void* data)
     pageData->elementLimit = pageData->terminalHeight - 2;
 
     pageData->scrollSize = pageData->elementLimit*2 - 1 - pageData->list->count;
-    if(pageData->scrollSize > pageData->elementLimit) {
+    if(pageData->scrollSize > pageData->elementLimit)
+    {
         pageData->scrollSize = pageData->elementLimit;
     }
-    else if(pageData->scrollSize < 1) {
+    else if(pageData->scrollSize < 1)
+    {
         pageData->scrollSize = 1;
     }
 
@@ -487,45 +536,55 @@ static void OnResize(void* data)
     DrawUI(pageData);
 }
 
-static void OnScroll(bool down, void* data) {
+static void OnScroll(bool down, void* data)
+{
     Scroll((QuestionListPageData*)data, down);
 }
 
 extern int LatestMouseX, LatestMouseY;
 
-static void OnMouseClick(int button, void* data) {
+static void OnMouseClick(int button, void* data)
+{
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
     int oldSelected = pageData->selected;
-    if(LatestMouseX >= pageData->terminalWidth - 3) {
+    if(LatestMouseX >= pageData->terminalWidth - 3)
+    {
 
-        if(LatestMouseY == 0) {
+        if(LatestMouseY == 0)
+        {
             Scroll(pageData, false);
         }
-        else if(LatestMouseY == pageData->terminalHeight - 1) {
+        else if(LatestMouseY == pageData->terminalHeight - 1)
+        {
             Scroll(pageData, true);
         }
-        else {
+        else
+        {
             int boxLine = LatestMouseY - 1;
             float lineWorth = (float)pageData->list->count / (float)(pageData->elementLimit - 2);
             pageData->selected = (int)((float)boxLine * lineWorth);
 
-            if(pageData->selected >= pageData->list->count) {
+            if(pageData->selected >= pageData->list->count)
+            {
                 pageData->selected = pageData->list->count - 1;
             }
-            else if(pageData->selected < 0) {
+            else if(pageData->selected < 0)
+            {
                 pageData->selected = 0;
             }
         }
     }
-    else {
+    else
+    {
         int index = LatestMouseY - 1;
         if(index < 0 || index >= pageData->elementLimit) return;
 
         pageData->selected = index + pageData->drawQuestionStartIndex;
 
-        if(pageData->selected == oldSelected) {
+        if(pageData->selected == oldSelected)
+        {
             EnterPreview(pageData, false);
             return;
         }
@@ -534,14 +593,17 @@ static void OnMouseClick(int button, void* data) {
     DrawUI_UpdateVisibleQuestions(pageData, oldSelected);
 }
 
-static void OnMouseDoubleClick(int button, void* data) {
+static void OnMouseDoubleClick(int button, void* data)
+{
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
-    if(LatestMouseX >= pageData->terminalWidth - 3) {
+    if(LatestMouseX >= pageData->terminalWidth - 3)
+    {
         return; // Scrollbar
     }
-    else {
+    else
+    {
         int index = LatestMouseY - 1;
         if(index < 0 || index >= pageData->elementLimit) return; // Out of bounds
 

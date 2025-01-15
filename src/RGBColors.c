@@ -28,7 +28,8 @@
 
 extern Settings LoadedSettings;
 
-static void SetTextColorToComplementBackground(int color) {
+static void SetTextColorToComplementBackground(int color)
+{
     bool darkText = false;
     bool noSwap = false;
     switch (color)
@@ -56,14 +57,17 @@ static void SetTextColorToComplementBackground(int color) {
             break;
     }
 
-    if(!noSwap && !LoadedSettings.DarkMode) {
+    if(!noSwap && !LoadedSettings.DarkMode)
+    {
         darkText = !darkText;
     }
 
-    if(darkText) {
+    if(darkText)
+    {
         printf(SET_RGB_COLOR(COLOR_FG, RGB_BLACK));
     }
-    else {
+    else
+    {
         printf(SET_RGB_COLOR(COLOR_FG, RGB_WHITE));
     }
 }
@@ -138,26 +142,32 @@ static void internalSetColorRGBPresetWhiteMode(int color, int mode)
 
 void SetColorRGBPreset(int color, bool background)
 {
-    if(background) {
+    if(background)
+    {
         SetTextColorToComplementBackground(color);
     }
 
     int mode = background ? COLOR_BG : COLOR_FG;
 
-    if(LoadedSettings.DarkMode) {
+    if(LoadedSettings.DarkMode)
+    {
         internalSetColorRGBPreset(color, mode);
     }
-    else {
+    else
+    {
         internalSetColorRGBPresetWhiteMode(color, mode);
     }
 }
 
-void SetResetColor() {
-    if(LoadedSettings.DarkMode) {
+void SetResetColor()
+{
+    if(LoadedSettings.DarkMode)
+    {
         printf(SET_RGB_COLOR(COLOR_FG, RGB_GREY));
         printf(SET_RGB_COLOR(COLOR_BG, RGB_BLACK));
     }
-    else {
+    else
+    {
         printf(SET_RGB_COLOR(COLOR_FG, RGB_BLACK));
         printf(SET_RGB_COLOR(COLOR_BG, RGB_GREY));
     }

@@ -9,12 +9,15 @@
 
 static QuestionListHeader* QuestionList;
 
-QuestionListHeader* GetQuestionList() {
+QuestionListHeader* GetQuestionList()
+{
     return QuestionList;
 }
 
-QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index) {
-    if(index < 0 || index >= list->count) {
+QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index)
+{
+    if(index < 0 || index >= list->count)
+    {
         fprintf(stderr, ERRMSG_INDEX_OUT_OF_RANGE);
         return NULL;
     }
@@ -26,7 +29,8 @@ QuestionListItem* ListGetAtInternal(QuestionListHeader* list, int index) {
     return current;
 }
 
-QuestionListHeader* ListCreate() {
+QuestionListHeader* ListCreate()
+{
     QuestionListHeader* list = malloc(sizeof(QuestionListHeader));
     mallocCheck(list);
 
@@ -37,13 +41,15 @@ QuestionListHeader* ListCreate() {
     return list;
 }
 
-void ListClear(QuestionListHeader* list, bool destoryData) {
+void ListClear(QuestionListHeader* list, bool destoryData)
+{
     if(list == NULL) return;
 
     QuestionListItem* current = list->head;
     QuestionListItem* next;
 
-    while(current != NULL) {
+    while(current != NULL)
+    {
         next = current->next;
         if(destoryData)
             DestroyQuestion(current->data);
@@ -56,7 +62,8 @@ void ListClear(QuestionListHeader* list, bool destoryData) {
     list->count = 0;
 }
 
-void ListDestroy(QuestionListHeader* list, bool destoryData) {
+void ListDestroy(QuestionListHeader* list, bool destoryData)
+{
     if(list == NULL) return;
 
     ListClear(list, destoryData);
@@ -64,13 +71,15 @@ void ListDestroy(QuestionListHeader* list, bool destoryData) {
     free(list);
 }
 
-bool ListContains(QuestionListHeader *list, Question *question) {
+bool ListContains(QuestionListHeader *list, Question *question)
+{
     if(list == NULL) return false;
 
     QuestionListItem* current = list->head;
     while (current != NULL)
     {
-        if(current->data == question) {
+        if(current->data == question)
+        {
             return true;
         }
 
@@ -80,18 +89,22 @@ bool ListContains(QuestionListHeader *list, Question *question) {
     return false;
 }
 
-void ListAdd(QuestionListHeader* list, Question* data) {
+void ListAdd(QuestionListHeader* list, Question* data)
+{
     QuestionListItem* node = malloc(sizeof(QuestionListItem));
     mallocCheck(node);
 
     node->data = data;
     node->next = NULL;
 
-    if(list->head == NULL) {
+    if(list->head == NULL)
+    {
         list->head = node;
         list->tail = node;
         node->prev = NULL;
-    } else {
+    }
+    else
+    {
         list->tail->next = node;
         node->prev = list->tail;
         list->tail = node;
@@ -100,25 +113,29 @@ void ListAdd(QuestionListHeader* list, Question* data) {
     list->count++;
 }
 
-void ListInsert(QuestionListHeader* list, int index, Question* data) {
+void ListInsert(QuestionListHeader* list, int index, Question* data)
+{
     QuestionListItem* next = ListGetAtInternal(list, index);
 
-    if(next == NULL) {
+    if(next == NULL)
+    {
         ListAdd(list, data);
         return;
     }
 
     QuestionListItem* node = malloc(sizeof(QuestionListItem));
     mallocCheck(node);
-    
+
     node->data = data;
     node->next = next;
     node->prev = next->prev;
 
-    if(next->prev == NULL) {
+    if(next->prev == NULL)
+    {
         list->head = node;
     }
-    else {
+    else
+    {
         next->prev->next = node;
     }
 
@@ -127,8 +144,10 @@ void ListInsert(QuestionListHeader* list, int index, Question* data) {
     list->count++;
 }
 
-Question* ListGetAt(QuestionListHeader* list, int index) {
-    if(index < 0 || index >= list->count) {
+Question* ListGetAt(QuestionListHeader* list, int index)
+{
+    if(index < 0 || index >= list->count)
+    {
         fprintf(stderr, ERRMSG_INDEX_OUT_OF_RANGE);
         return NULL;
     }
@@ -140,24 +159,30 @@ Question* ListGetAt(QuestionListHeader* list, int index) {
     return current->data;
 }
 
-bool ListRemove(QuestionListHeader* list, Question* question) {
+bool ListRemove(QuestionListHeader* list, Question* question)
+{
     if(list == NULL) return false;
 
     QuestionListItem* current = list->head;
     while (current != NULL)
     {
-        if(current->data == question) {
-            if(current->prev != NULL) {
+        if(current->data == question)
+        {
+            if(current->prev != NULL)
+            {
                 current->prev->next = current->next;
             }
-            else {
+            else
+            {
                 list->head = current->next;
             }
 
-            if(current->next != NULL) {
+            if(current->next != NULL)
+            {
                 current->next->prev = current->prev;
             }
-            else {
+            else
+            {
                 list->tail = current->prev;
             }
 
@@ -172,7 +197,8 @@ bool ListRemove(QuestionListHeader* list, Question* question) {
     return false;
 }
 
-QuestionListHeader* GetQuestionListCopy() {
+QuestionListHeader* GetQuestionListCopy()
+{
     QuestionListHeader* list = ListCreate();
 
     QuestionListItem* current = QuestionList->head;
@@ -185,18 +211,22 @@ QuestionListHeader* GetQuestionListCopy() {
     return list;
 }
 
-void EnsureQuestionsFileExists() {
+void EnsureQuestionsFileExists()
+{
     OpenFileChecked(file, QUESTIONS_FILE, "a");
     CloseFileChecked(file);
 }
 
-int LoadQuestionsFromFile() {
+int LoadQuestionsFromFile()
+{
     EnsureQuestionsFileExists();
 
-    if(QuestionList == NULL) {
+    if(QuestionList == NULL)
+    {
         QuestionList = ListCreate();
     }
-    else {
+    else
+    {
         ListClear(QuestionList, true);
     }
 
@@ -205,7 +235,8 @@ int LoadQuestionsFromFile() {
 
     int lineId = 0;
 
-    while (!feof(file)) {
+    while (!feof(file))
+    {
         if (buffer != fgets(buffer, BUFFER_SIZE, file))
             break;
 
@@ -219,18 +250,21 @@ int LoadQuestionsFromFile() {
 
         Question* q = DeserializeQuestion(buffer);
 
-        if(q == NULL) {
+        if(q == NULL)
+        {
             ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_DESERIALIZE(QUESTIONS_FILE, lineId, buffer));
         }
 
-        if(q->Id <= 0) {
+        if(q->Id <= 0)
+        {
             ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_INVALID_OUT_OF_RANGE_QUESTION_ID(QUESTIONS_FILE, lineId, q->Id));
         }
 
         QuestionListItem* current = QuestionList->head;
         while (current != NULL)
         {
-            if(current->data->Id == q->Id) {
+            if(current->data->Id == q->Id)
+            {
                 ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_QUESTION_DUPLICATE_QUESTION_ID(QUESTIONS_FILE, lineId, q->Id));
             }
 
@@ -245,7 +279,8 @@ int LoadQuestionsFromFile() {
     return QuestionList->count;
 }
 
-Question* GetRandomQuestion() {
+Question* GetRandomQuestion()
+{
     if(QuestionList->count == 0) return NULL;
 
     int index = rand() % QuestionList->count;
@@ -266,28 +301,34 @@ int GetMaxQuestionId()
     return max;
 }
 
-QuestionListHeader* GenerateQuiz() {
-    if(QuestionList == NULL) {
+QuestionListHeader* GenerateQuiz()
+{
+    if(QuestionList == NULL)
+    {
         LoadQuestionsFromFile();
 
-        if(QuestionList == NULL) {
+        if(QuestionList == NULL)
+        {
             ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);
         }
     }
 
-    if(QuestionList->count < 10) {
+    if(QuestionList->count < 10)
+    {
         ShowAlertPopup("Aby rozpocząć quiz, potrzebujesz minimum 10 pytań.", 40);
         return NULL;
     }
 
     int questionIds[10];
     QuestionListHeader* questions = ListCreate();
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 10; i++)
+    {
         Question* q = GetRandomQuestion();
 
         for (int j = 0; j < i; j++)
         {
-            if(questionIds[j] == q->Id) {
+            if(questionIds[j] == q->Id)
+            {
                 i--;
                 q = NULL;
                 break;

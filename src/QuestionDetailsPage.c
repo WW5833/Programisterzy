@@ -6,12 +6,13 @@
 #include "Popup.h"
 #include "TextHelper.h"
 
-#define OPTION_COUNT 5 
+#define OPTION_COUNT 5
 
 #define SET_COLOR_RED           ESC_SEQ "38;2;139;0;0m"
 #define SET_COLOR_BRIGHT_RED    ESC_SEQ "38;2;255;36;0m"
 
-typedef struct {
+typedef struct
+{
     int terminalWidth, terminalHeight;
 
     Question *question;
@@ -19,15 +20,19 @@ typedef struct {
     int contentLines;
 } QuestionDetailsPageData;
 
-static bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
-    if(!ShowConfirmationPopup("Czy na pewno chcesz usunąc to pytanie?\n\n"
+static bool DeleteQuestionPrompt(QuestionDetailsPageData* data)
+{
+    if(!ShowConfirmationPopup(
+        "Czy na pewno chcesz usunąc to pytanie?\n\n"
         SET_COLOR_RED "U W A G A !" SET_COLOR_BRIGHT_RED
-        "\nTej operacji nie można cofnąc!!", "Tak", "Nie", 48)) {
+        "\nTej operacji nie można cofnąc!!", "Tak", "Nie", 48))
+    {
         return false;
     }
 
     char* message;
-    if(DeleteQuestion(data->question, &message)) {
+    if(DeleteQuestion(data->question, &message))
+    {
         ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
         return true;
     }
@@ -38,7 +43,8 @@ static bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
     return true;
 }
 
-static void DrawUI(QuestionDetailsPageData* data) {
+static void DrawUI(QuestionDetailsPageData* data)
+{
     ClearScreen();
 
     printf("Informacje o pytaniu (Id: %d)\n", data->question->Id);
@@ -57,7 +63,8 @@ static void DrawUI(QuestionDetailsPageData* data) {
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     QuestionDetailsPageData* pageData = (QuestionDetailsPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
@@ -65,7 +72,8 @@ static void OnResize(void* data) {
     DrawUI(pageData);
 }
 
-static void DrawUI_UpdateOptionSelector(QuestionDetailsPageData* data, int oldSelected) {
+static void DrawUI_UpdateOptionSelector(QuestionDetailsPageData* data, int oldSelected)
+{
     SetCursorPosition(2, data->contentLines + oldSelected);
     printf(" ");
     SetCursorPosition(2, data->contentLines + data->selectedOption);
@@ -90,7 +98,8 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
     {
         KeyInputType key = HandleInteractions(true);
 
-        switch (key) {
+        switch (key)
+        {
             case KEY_ARROW_UP:
                 oldSelected = data.selectedOption--;
                 if (data.selectedOption < 0) data.selectedOption = OPTION_COUNT - 1;
@@ -101,12 +110,14 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
             case KEY_ARROW_DOWN:
                 oldSelected = data.selectedOption++;
                 if (data.selectedOption >= OPTION_COUNT) data.selectedOption = 0;
-                
+
                 DrawUI_UpdateOptionSelector(&data, oldSelected);
                 break;
 
-            case KEY_ENTER: {
-                switch (data.selectedOption) {
+            case KEY_ENTER:
+            {
+                switch (data.selectedOption)
+                {
                     case 0:
                         // Edit question
                         PageEnter_QuestionEdit(data.question, false);
@@ -124,7 +135,8 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                         break;
                     case 3:
                         // Delete question
-                        if(DeleteQuestionPrompt(&data)) {
+                        if(DeleteQuestionPrompt(&data))
+                        {
                             *outDeleted = true;
                             return;
                         }
@@ -141,7 +153,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
             case KEY_ESCAPE:
                 continueLoop = false;
                 break;
-            
+
             default:
                 break;
         }

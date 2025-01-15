@@ -23,10 +23,14 @@ typedef struct CharacterData
     struct CharacterData* prev;
 } CharacterData;
 
-static void PrintChar(CharacterData* node) {
-    if(node->size == 1) {
+static void PrintChar(CharacterData* node)
+{
+    if(node->size == 1)
+    {
         printf("%c", node->data.ascii);
-    } else {
+    }
+    else
+    {
         for (int i = 0; i < node->size; i++)
         {
             printf("%c", node->data.utf8[i]);
@@ -47,7 +51,8 @@ typedef struct WordData
     struct WordData* prev;
 } WordData;
 
-static WordData* GenerateWordList(CharacterData* buffer) {
+static WordData* GenerateWordList(CharacterData* buffer)
+{
     WordData* head = malloc(sizeof(WordData));
     mallocCheck(head);
     head->length = 0;
@@ -60,8 +65,10 @@ static WordData* GenerateWordList(CharacterData* buffer) {
 
     if(node->data.ascii == '\0') return NULL;
 
-    while(node->size != 0) {
-        if(node->size == 1 && node->data.ascii == ' ') {
+    while(node->size != 0)
+    {
+        if(node->size == 1 && node->data.ascii == ' ')
+        {
             WordData* word = malloc(sizeof(WordData));
             mallocCheck(word);
             word->data.space = ' ';
@@ -72,7 +79,8 @@ static WordData* GenerateWordList(CharacterData* buffer) {
             current->next = word;
             current = word;
         }
-        else if(current->length == 0) {
+        else if(current->length == 0)
+        {
             WordData* word = malloc(sizeof(WordData));
             mallocCheck(word);
             word->data.word = node;
@@ -83,13 +91,15 @@ static WordData* GenerateWordList(CharacterData* buffer) {
             current->next = word;
             current = word;
         }
-        else {
+        else
+        {
             current->length++;
         }
 
         node = node->next;
 
-        if(node == NULL) {
+        if(node == NULL)
+        {
             ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_UNEXPEDTED_END_OF_STRING);
         }
     }
@@ -100,17 +110,21 @@ static WordData* GenerateWordList(CharacterData* buffer) {
     return current;
 }
 
-static void DestroyWordList(WordData* head) {
+static void DestroyWordList(WordData* head)
+{
     WordData* current = head;
-    while(current != NULL) {
+    while(current != NULL)
+    {
         WordData* next = current->next;
         free(current);
         current = next;
     }
 }
 
-static int PrintWord(WordData* word) {
-    if(word->length == 0) {
+static int PrintWord(WordData* word)
+{
+    if(word->length == 0)
+    {
         printf(" ");
         return 1;
     }
@@ -140,7 +154,8 @@ typedef struct
     bool resized;
 } TextEditorData;
 
-typedef enum {
+typedef enum
+{
     RTR_None,
     RTR_Cancelled,
     RTR_Completed,
@@ -163,7 +178,8 @@ static bool InsertCharacter(TextEditorData* data, int index, char c);
 
 extern int LatestTerminalWidth;
 
-static void LoadDefaultBuffer(TextEditorData* data) {
+static void LoadDefaultBuffer(TextEditorData* data)
+{
     data->bufferLength = 0;
     data->cursorPosition = 0;
 
@@ -191,20 +207,24 @@ TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, in
 
     LoadDefaultBuffer(&data);
 
-    if(buffer != NULL) {
+    if(buffer != NULL)
+    {
         StringToBuffer(&data, *buffer, *bufferLength);
     }
 
     TextEditorResult tor;
-    if(!DrawBufferContent(&data, &tor)) {
+    if(!DrawBufferContent(&data, &tor))
+    {
         RemoveAll(&data);
         return tor;
     }
 
     SetResizeHandler(OnResize, &data);
 
-    while(MainLoop(&data, &tor)) {
-        if(data.resized) {
+    while(MainLoop(&data, &tor))
+    {
+        if(data.resized)
+        {
             tor = TextEditorResult_WindowResized;
             break;
         }
@@ -218,14 +238,17 @@ TextEditorResult OpenTextEditor(char** buffer, int* bufferLength, int beginX, in
     return tor;
 }
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     TextEditorData* ted = (TextEditorData*)data;
     ted->resized = true;
 }
 
-static bool MainLoop(TextEditorData* data, TextEditorResult* result) {
+static bool MainLoop(TextEditorData* data, TextEditorResult* result)
+{
     ReadTextResult rtr = ReadText(data);
-    switch(rtr) {
+    switch(rtr)
+    {
         case RTR_None:
             return true;
 
@@ -253,14 +276,17 @@ static bool MainLoop(TextEditorData* data, TextEditorResult* result) {
     }
 }
 
-static void PrintFiller(TextEditorData* data) {
-    if(data->rightFiller != NULL) {
+static void PrintFiller(TextEditorData* data)
+{
+    if(data->rightFiller != NULL)
+    {
         printf("\r" CSR_MOVE_RIGHT(data->beginX + data->width - 1));
         printf("%s", data->rightFiller);
     }
 }
 
-static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
+static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result)
+{
     HideCursor();
     SetCursorPosition(data->beginX, data->beginY);
     WordData* wordList = GenerateWordList(data->buffer);
@@ -272,21 +298,25 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
     int index = 0;
     int lineCount = 1;
     WordData* current = wordList;
-    while(current != NULL) {
-        if(currentWidth + current->length > data->width) {
+    while(current != NULL)
+    {
+        if(currentWidth + current->length > data->width)
+        {
             printf(CLR_LINE_END);
             PrintFiller(data);
             printf("\n" CSR_MOVE_RIGHT(data->beginX - 1));
             lineCount++;
 
-            if(lineCount > data->maxLines) {
+            if(lineCount > data->maxLines)
+            {
                 *result = TextEditorResult_OutOfLines;
                 DestroyWordList(wordList);
                 return false;
             }
 
             currentWidth = 0;
-            if(current->length == 0) {
+            if(current->length == 0)
+            {
                 index++;
                 current = current->next; // Skip leading space
                 continue;
@@ -296,7 +326,8 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
         int wordLength = PrintWord(current);
         currentWidth += wordLength;
 
-        if(index <= data->cursorPosition && index + wordLength >= data->cursorPosition) {
+        if(index <= data->cursorPosition && index + wordLength >= data->cursorPosition)
+        {
             cursorX = currentWidth - (index + wordLength - data->cursorPosition);
             cursorY = lineCount - 1;
         }
@@ -309,7 +340,8 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
 
     printf(CLR_LINE_END);
     PrintFiller(data);
-    if(data->maxLines > lineCount) {
+    if(data->maxLines > lineCount)
+    {
         SetCursorPosition(data->beginX, data->beginY + lineCount);
         printf(CLR_LINE_END);
         PrintFiller(data);
@@ -321,7 +353,8 @@ static bool DrawBufferContent(TextEditorData* data, TextEditorResult* result) {
     return true;
 }
 
-static int StringToBuffer(TextEditorData* data, char* src, int srcLength) {
+static int StringToBuffer(TextEditorData* data, char* src, int srcLength)
+{
     for (int i = 0; i < srcLength; i++)
     {
         if(src[i] == '\0') break;
@@ -331,15 +364,18 @@ static int StringToBuffer(TextEditorData* data, char* src, int srcLength) {
     return data->cursorPosition = data->bufferLength;
 }
 
-static int BufferToString(char** dest, CharacterData* src) {
+static int BufferToString(char** dest, CharacterData* src)
+{
     int length = 0;
     CharacterData* node = src;
-    while(node->size != 0) {
+    while(node->size != 0)
+    {
         length += node->size;
         node = node->next;
     }
 
-    if(*dest != NULL) {
+    if(*dest != NULL)
+    {
         free(*dest);
         *dest = NULL;
     }
@@ -350,10 +386,13 @@ static int BufferToString(char** dest, CharacterData* src) {
     int index = 0;
     while (node->size != 0)
     {
-        if(node->size == 1) {
+        if(node->size == 1)
+        {
             (*dest)[index] = node->data.ascii;
             index++;
-        } else {
+        }
+        else
+        {
             for (int i = 0; i < node->size; i++)
             {
                 (*dest)[index] = node->data.utf8[i];
@@ -370,9 +409,11 @@ static int BufferToString(char** dest, CharacterData* src) {
 }
 
 
-static CharacterData* GetAt(TextEditorData* data, int index) {
+static CharacterData* GetAt(TextEditorData* data, int index)
+{
     CharacterData* node = data->buffer;
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < index; i++)
+    {
         if(node->next == NULL) return NULL;
         node = node->next;
     }
@@ -380,20 +421,24 @@ static CharacterData* GetAt(TextEditorData* data, int index) {
     return node;
 }
 
-static bool RemoveAt(TextEditorData* data, int index) {
+static bool RemoveAt(TextEditorData* data, int index)
+{
     CharacterData* node = GetAt(data, index);
 
     if(node == NULL) return false;
 
-    if(node->prev != NULL) {
+    if(node->prev != NULL)
+    {
         node->prev->next = node->next;
     }
 
-    if(node->next != NULL) {
+    if(node->next != NULL)
+    {
         node->next->prev = node->prev;
     }
 
-    if(node == data->buffer) {
+    if(node == data->buffer)
+    {
         data->buffer = node->next;
     }
 
@@ -403,11 +448,13 @@ static bool RemoveAt(TextEditorData* data, int index) {
     return true;
 }
 
-static void InsertAt(TextEditorData* data, int index, CharacterData* node) {
+static void InsertAt(TextEditorData* data, int index, CharacterData* node)
+{
     CharacterData* current = GetAt(data, index);
     if(current == NULL) return;
 
-    if(current->prev != NULL) {
+    if(current->prev != NULL)
+    {
         current->prev->next = node;
     }
 
@@ -415,16 +462,19 @@ static void InsertAt(TextEditorData* data, int index, CharacterData* node) {
     node->next = current;
     current->prev = node;
 
-    if(current == data->buffer) {
+    if(current == data->buffer)
+    {
         data->buffer = node;
     }
 
     data->bufferLength++;
 }
 
-static void RemoveAll(TextEditorData* data) {
+static void RemoveAll(TextEditorData* data)
+{
     CharacterData* node = data->buffer;
-    while(node != NULL) {
+    while(node != NULL)
+    {
         CharacterData* next = node->next;
         free(node);
         node = next;
@@ -434,14 +484,17 @@ static void RemoveAll(TextEditorData* data) {
     data->bufferLength = 0;
 }
 
-static ReadTextResult ReadText(TextEditorData* data) {
-    while(!kbhit()) {
+static ReadTextResult ReadText(TextEditorData* data)
+{
+    while(!kbhit())
+    {
         if(data->resized) return RTR_None;
     }
 
     int c = getch();
 
-    switch(c) {
+    switch(c)
+    {
         case '\n':
         case '\r':
             return RTR_Completed;
@@ -452,7 +505,8 @@ static ReadTextResult ReadText(TextEditorData* data) {
         case ';': // Disallow semicolon
             return RTR_None;
 
-        case '\b': {
+        case '\b':
+        {
             if(data->cursorPosition == 0) return RTR_None;
 
             data->cursorPosition--;
@@ -465,7 +519,8 @@ static ReadTextResult ReadText(TextEditorData* data) {
         case SHIFT_TAB:
             return RTR_ArrowUp;
 
-        case ESCAPE_CHAR: {
+        case ESCAPE_CHAR:
+        {
             switch (getch())
             {
                 case VK_LEFT: // Left arrow
@@ -506,7 +561,7 @@ static ReadTextResult ReadText(TextEditorData* data) {
                         printf(CLR_LINE_END);
                         PrintFiller(data);
                     }
-                    
+
                     return RTR_Update;
 
                 default:
@@ -514,12 +569,15 @@ static ReadTextResult ReadText(TextEditorData* data) {
             }
         }
 
-        default: {
-            if(!(isalnum(c) || ispunct(c) || isspace(c) || (c & 0x80) /* UTF-8 */)) {
+        default:
+        {
+            if(!(isalnum(c) || ispunct(c) || isspace(c) || (c & 0x80) /* UTF-8 */))
+            {
                 return RTR_None;
             }
 
-            if(InsertCharacter(data, data->cursorPosition, (char)c)) {
+            if(InsertCharacter(data, data->cursorPosition, (char)c))
+            {
                 data->cursorPosition++;
             }
 
@@ -528,9 +586,12 @@ static ReadTextResult ReadText(TextEditorData* data) {
     }
 }
 
-static bool InsertCharacter(TextEditorData* data, int index, char c) {
-    if(c & 0x80) {
-        if((c & 0xC0) == 0xC0) {
+static bool InsertCharacter(TextEditorData* data, int index, char c)
+{
+    if(c & 0x80)
+    {
+        if((c & 0xC0) == 0xC0)
+        {
             CharacterData* node = malloc(sizeof(CharacterData));
             mallocCheck(node);
             node->data.utf8[0] = c;
