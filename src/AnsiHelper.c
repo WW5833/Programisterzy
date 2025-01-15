@@ -32,8 +32,8 @@ void GetCursorPosition(int* x, int* y)
     }
     esc_seq_found:
 
-    char buffer[BUFFER_SIZE];
     c = getch(); // Shold be '['
+    char buffer[BUFFER_SIZE];
     int i = 0;
     while(c != ';' && c != '\0') { // Read y position
         c = getch();
