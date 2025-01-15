@@ -42,31 +42,31 @@ void PageEnter_Instruction()
         KeyInputType key = HandleInteractions(true);
         switch (key)
         {
-        case KEY_ENTER:
-            break;
+            case KEY_ENTER:
+                break;
 
-        case KEY_ARROW_LEFT:
-        {
-            data.pageNumber--;
-            if(data.pageNumber < 1) data.pageNumber = 1;
-            else DrawUI(&data);
-            break;
-        }
+            case KEY_ARROW_LEFT:
+            {
+                data.pageNumber--;
+                if(data.pageNumber < 1) data.pageNumber = 1;
+                else DrawUI(&data);
+                break;
+            }
 
-        case KEY_ARROW_RIGHT:
-        {
-            data.pageNumber++;
-            if(data.pageNumber > 3) data.pageNumber = 3;
-            else DrawUI(&data);
-            break;
-        }
+            case KEY_ARROW_RIGHT:
+            {
+                data.pageNumber++;
+                if(data.pageNumber > 3) data.pageNumber = 3;
+                else DrawUI(&data);
+                break;
+            }
 
-        case KEY_ESCAPE:
-            UnsetResizeHandler();
-            return;
+            case KEY_ESCAPE:
+                UnsetResizeHandler();
+                return;
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 }
@@ -261,15 +261,15 @@ static void DrawUI(InstructionPageData* data)
 
     switch (data->pageNumber)
     {
-    case 1:
-        DrawUIPageOne(data);
-        break;
-    case 2:
-        DrawUIPageTwo(data);
-        break;
-    case 3:
-        DrawUIPageThree(data);
-        break;
+        case 1:
+            DrawUIPageOne(data);
+            break;
+        case 2:
+            DrawUIPageTwo(data);
+            break;
+        case 3:
+            DrawUIPageThree(data);
+            break;
     }
 
     DrawUI_BottomInstructions(data);

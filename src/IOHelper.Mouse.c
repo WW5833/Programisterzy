@@ -68,37 +68,37 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
 
         switch(mer.dwEventFlags)
         {
-        case 0:
-            // If the event is a mouse click, any button is pressed and we are waiting for a mouse press
-            // Signal event happened by setting the flag to false and break the loop as the event was handled
-            if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress)
-            {
-                internal_IOHelper_WaitingForMousePress = false;
+            case 0:
+                // If the event is a mouse click, any button is pressed and we are waiting for a mouse press
+                // Signal event happened by setting the flag to false and break the loop as the event was handled
+                if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress)
+                {
+                    internal_IOHelper_WaitingForMousePress = false;
+                    break;
+                }
+                if(mouseClickHandler != NULL)
+                {
+                    mouseClickHandler((int)mer.dwButtonState, mouseHandlerData);
+                }
                 break;
-            }
-            if(mouseClickHandler != NULL)
-            {
-                mouseClickHandler((int)mer.dwButtonState, mouseHandlerData);
-            }
-            break;
-        case DOUBLE_CLICK:
-            if(mouseDoubleClickHandler != NULL)
-            {
-                mouseDoubleClickHandler((int)mer.dwButtonState, mouseHandlerData);
-            }
-            break;
-        case MOUSE_WHEELED:
-            if(mouseScrollHandler != NULL)
-            {
-                mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mouseHandlerData);
-            }
-            break;
-        case MOUSE_MOVED:
-            if(mouseMoveHandler != NULL)
-            {
-                mouseMoveHandler(mouseHandlerData);
-            }
-            break;
+            case DOUBLE_CLICK:
+                if(mouseDoubleClickHandler != NULL)
+                {
+                    mouseDoubleClickHandler((int)mer.dwButtonState, mouseHandlerData);
+                }
+                break;
+            case MOUSE_WHEELED:
+                if(mouseScrollHandler != NULL)
+                {
+                    mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mouseHandlerData);
+                }
+                break;
+            case MOUSE_MOVED:
+                if(mouseMoveHandler != NULL)
+                {
+                    mouseMoveHandler(mouseHandlerData);
+                }
+                break;
         }
         internal_IOHelper_LoopLock = false;
 
