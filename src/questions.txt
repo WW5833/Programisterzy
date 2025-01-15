@@ -81,7 +81,7 @@
 81;Ile to jest 1111 razy 1111, jeśli 1 razy 1 to 1, a 11 razy 11 to 121?;1 234 321;111 111 111;123 454 321;12 321;
 82;Kiedy rozpoczęło się drugie tysiąclecie?;1 stycznia 1001 roku;1 stycznia 1000 roku;1 stycznia 2001 roku;1 stycznia 2000 roku;
 83;Do czworonogów, czyli tetrapodów, nie zaliczamy:;Owadów;Gadów;Płazów;Ptaków;
-84;TUTAJ BYŁ DUPLIKAT PYTANIA;POPRAWNA;ŹLE;ŹLE;ŹLE;
+84;Ile najwięcej bajtów może mieć znak Utf-8?;4 bajty;3 bajty;2 bajty;5 bajtów;
 85;Budowa układu pokarmowego którego ze zwierząt świadczy o tym, że jest ono drapieżnikiem?;pandy;koali;sarny;lamy;
 86;Skąd pochodzi Conan Barbarzyńca?;z Cimmerii;z Mordoru;z Oz;z Rivii;
 87;Kto jest mistrzem tego samego oręża, w jakim specjalizowała się mitologiczna Artemida?;Legolas;Don Kichot;Zorro;Longinus Podbipięta;
@@ -128,3 +128,13 @@
 128;Inna nazwa tej gry to inteligencja.;państwa-miasta;okręty;kółko i krzyżyk;wisielec;
 129;Jakiej duszy nie ma, kiedy nikogo nie ma?;żywej;dusznej;uduchowionej;martwej;
 130;Kapnąć to uronić kroplę, a kapnąć się:;domyślić się;napić się kapkę;wziąć prysznic;wskoczyć do wody;
+131;Co będzie wynikiem pracy Assemblera?;Kod maszynowy;Polecenie;Linijka kodu;Kod procesora;
+132;Ile krawędzi ma sześcian?;12;30;8;6;
+133;Ile wynosi cosinus kąta prostego?;0;1;1/2;Nie istnieje;
+134;Regułe "KISS" możemy rozwinąć i przetłumaczyć na:;Zrób to prosto, głupcze;Nie dziel kodu z innymi;Więcej linijek, więcej funkcji;Zapisuje przed zakończeniem;
+135;Z ilu szymbolów składa się system heksadecymalny?;16;2;10;8;
+136;Jak nazywa się twórca systemu Linux?;Linus Torvalds;Mac Lebovsky;Ari Lemmke;Ian Murdock;
+137;Jak nazywa się jedyny Polak w historii, który był w kosmosie?;Mirosław Hermaszewski;Piotr Kosek;Jarosław Kuźniar;Michał Derdaś;
+138;Który z tych formatów plików graficznych nie obsługuje przezroczystości?;.jpg;.gif;.png;.svg;
+139;Jaki znacznik używany jest do definiowania styli wewnątrz dokumentu HTML?;<style>;<css>;<stylesheet>;<style attribute>;
+140;Jak powinien być zapisany kolor 255 12 12 w modelu RGB na stronie www?;#FF0C0C;#CA004F;#AB1A1D;#D13254;
