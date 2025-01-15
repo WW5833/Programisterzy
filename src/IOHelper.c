@@ -9,6 +9,9 @@
 #include "IOHelper.Window.h"
 #include "IOHelper.Keyboard.h"
 
+#define ENABLE_VIRTUAL_TERMINAL_INPUT 0x200
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x4
+
 bool internal_IOHelper_LoopLock = false;
 
 static HANDLE stdinHandle;
