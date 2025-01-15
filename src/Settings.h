@@ -1,8 +1,9 @@
 #ifndef _INC_SETTINGS_H
 #define _INC_SETTINGS_H
 
-/// @brief Settings structure 
-typedef struct {
+/// @brief Settings structure
+typedef struct
+{
     /// @brief Color id for correct answers
     int CorrectAnswerColor;
     /// @brief Color id for wrong answers

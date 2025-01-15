@@ -2,7 +2,8 @@
 #define _INC_QUIZPAGE_H
 
 /// @brief Quiz question result enum
-typedef enum {
+typedef enum
+{
     /// @brief Player has answerd wrong
     QQR_Wrong,
     /// @brief Player has answerd correctly
@@ -11,7 +12,8 @@ typedef enum {
     QQR_Forfeit,
 } QuizQuestionResult;
 
-typedef enum {
+typedef enum
+{
     /// @brief Ability was not used is available
     QQAS_Avaialable = 0,
     /// @brief Ability was used on this question and is available for the duration of it

@@ -2,7 +2,8 @@
 #define _INC_TEXTEDITOR_H
 
 /// @brief TextEditor result
-typedef enum {
+typedef enum
+{
     /// @brief User has canceled editing
     TextEditorResult_Cancelled,
     /// @brief User has completed editing

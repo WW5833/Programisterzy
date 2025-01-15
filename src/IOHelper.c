@@ -33,15 +33,19 @@ static bool stdOutHandleInitialized = false;
 
 static void ErrorExit(LPSTR);
 
-static void SetConsoleModes() {
+static void SetConsoleModes()
+{
     // Enable the window and mouse input events.
-    if (!SetConsoleMode(stdinHandle, fdwInMode)) {
+    if (!SetConsoleMode(stdinHandle, fdwInMode))
+    {
         ErrorExit("SetConsoleMode(STDIN)");
     }
 
-    if(fdwOutMode != 0) {
+    if(fdwOutMode != 0)
+    {
         // Set output mode to handle virtual terminal sequences
-        if (!SetConsoleMode(stdoutHandle, fdwOutMode)) {
+        if (!SetConsoleMode(stdoutHandle, fdwOutMode))
+        {
             ErrorExit("SetConsoleMode(STDOUT)");
         }
     }
@@ -56,26 +60,31 @@ extern Settings LoadedSettings;
 
 void EnableMouseInput(bool enable)
 {
-    if(enable && !LoadedSettings.EnableMouseSupport) {
+    if(enable && !LoadedSettings.EnableMouseSupport)
+    {
         return;
     }
 
     if(enable == ((fdwInMode & ENABLE_MOUSE_INPUT) != 0)) return;
 
-    if(enable) {
+    if(enable)
+    {
         fdwInMode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
     }
-    else {
+    else
+    {
         fdwInMode &= ~((DWORD)(ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS));
     }
 
     SetConsoleModes();
 }
 
-static bool CheckForAnsiSupportPost() {
+static bool CheckForAnsiSupportPost()
+{
     printf(ESC_SEQ "6n");
 
-    if(kbhit() && getch() == '\x1B') {
+    if(kbhit() && getch() == '\x1B')
+    {
         while (getch() != 'R'); // Clear the buffer
         return true; // ANSI supported
     }
@@ -91,12 +100,14 @@ void InitializeIO()
 
     // Get the standard input handle.
     stdinHandle = GetStdHandle(STD_INPUT_HANDLE);
-    if (stdinHandle == INVALID_HANDLE_VALUE) {
+    if (stdinHandle == INVALID_HANDLE_VALUE)
+    {
         ErrorExit("GetStdHandle(STDIN)");
     }
 
     // Save the current input mode, to be restored on exit.
-    if (! GetConsoleMode(stdinHandle, &fdwStdInOldMode)){
+    if (! GetConsoleMode(stdinHandle, &fdwStdInOldMode))
+    {
         ErrorExit("GetConsoleMode(STDIN)");
     }
 
@@ -104,25 +115,29 @@ void InitializeIO()
 
     // Get the standard output handle.
     stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (stdoutHandle == INVALID_HANDLE_VALUE) {
+    if (stdoutHandle == INVALID_HANDLE_VALUE)
+    {
         ErrorExit("GetStdHandle(STDOUT)");
     }
 
     // Save the current output mode, to be restored on exit.
-    if (! GetConsoleMode(stdoutHandle, &fdwStdOutOldMode)) {
+    if (! GetConsoleMode(stdoutHandle, &fdwStdOutOldMode))
+    {
         ErrorExit("GetConsoleMode(STDOUT)");
     }
 
     stdOutHandleInitialized = true;
 
-    if(!CheckForAnsiSupport()) {
+    if(!CheckForAnsiSupport())
+    {
         fdwInMode |= ENABLE_VIRTUAL_TERMINAL_INPUT;
         fdwOutMode |= ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     }
 
     SetConsoleModes();
 
-    if(!CheckForAnsiSupportPost()) {
+    if(!CheckForAnsiSupportPost())
+    {
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_ANSI_CHECK_FAILED);
     }
 
@@ -150,8 +165,10 @@ void _internal_PreExitApp()
 
 void _internal_PostExitApp(int exitCode) __attribute__((noreturn));
 
-void _internal_PostExitApp(int exitCode) {
-    if(exitCode != 0) {
+void _internal_PostExitApp(int exitCode)
+{
+    if(exitCode != 0)
+    {
         fprintf(stderr, "\nNaciśnij ENTER aby kontynuować...\n");
         getchar();
     }
@@ -183,7 +200,8 @@ void ExitAppWithErrorMessage(int exitCode, const char* message)
     _internal_PostExitApp(exitCode);
 }
 
-void ExitApp(int exitCode) {
+void ExitApp(int exitCode)
+{
     _internal_PreExitApp();
     _internal_PostExitApp(exitCode);
 }
@@ -197,20 +215,25 @@ void ErrorExit(LPSTR lpszMessage)
 bool internal_IOHelper_WaitingForMousePress = false;
 /// @brief Internal check for awaiting resize event (used in WaitForAnyInput), resize event will always override it to false
 bool internal_IOHelper_WaitingResizeEvent = false;
-int WaitForAnyInput() {
+int WaitForAnyInput()
+{
     internal_IOHelper_WaitingForMousePress = true;
     internal_IOHelper_WaitingResizeEvent = true;
-    while(true) {
+    while(true)
+    {
 
-        if(!internal_IOHelper_WaitingForMousePress) {
+        if(!internal_IOHelper_WaitingForMousePress)
+        {
             return INT_MAX;
         }
 
-        if(!internal_IOHelper_WaitingResizeEvent) {
+        if(!internal_IOHelper_WaitingResizeEvent)
+        {
             return INT_MAX - 1;
         }
 
-        if(kbhit()) {
+        if(kbhit())
+        {
             return getch();
         }
 
@@ -228,17 +251,18 @@ void IOLoop()
     Window_IOLoop();
     Mouse_IOLoop();
 
-    if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead)) {
+    if(!GetNumberOfConsoleInputEvents(stdinHandle, &cNumRead))
+    {
         ErrorExit("GetNumberOfConsoleInputEvents");
     }
 
     if(cNumRead == 0) return; // No events to process
 
     if (!ReadConsoleInput(
-            stdinHandle,                // input buffer handle
-            irInBuf,                    // buffer to read into
-            INPUT_RECORD_BUFFER_SIZE,   // size of read buffer
-            &cNumRead))                 // number of records read
+                stdinHandle,                // input buffer handle
+                irInBuf,                    // buffer to read into
+                INPUT_RECORD_BUFFER_SIZE,   // size of read buffer
+                &cNumRead))                 // number of records read
     {
         ErrorExit("ReadConsoleInput");
     }
@@ -247,7 +271,8 @@ void IOLoop()
     DWORD lastWindowResizeEventId = 0;
     for (DWORD i = 0; i < cNumRead; i++)
     {
-        if(irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT) {
+        if(irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT)
+        {
             lastWindowResizeEventId = i;
         }
     }

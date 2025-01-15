@@ -10,7 +10,8 @@
 #define ESCAPE_CHAR (char)(224)
 
 /// @brief The type of key input
-typedef enum {
+typedef enum
+{
     KEY_NONE = 0,
     KEY_ARROW_UP,
     KEY_ARROW_DOWN,

@@ -15,7 +15,8 @@ extern Settings LoadedSettings;
 
 #define OPTION_COUNT 11
 
-typedef struct {
+typedef struct
+{
     int terminalWidth;
     int terminalHeight;
 
@@ -34,7 +35,8 @@ typedef struct {
     int descriptionHeight;
 } SettingsPageData;
 
-static void DrawUI_PrintColors(SettingsPageData* data, int color) {
+static void DrawUI_PrintColors(SettingsPageData* data, int color)
+{
     if(data->slimMode) printf("\n    ");
     ResetColor();
     printf("|");
@@ -47,9 +49,11 @@ static void DrawUI_PrintColors(SettingsPageData* data, int color) {
     }
 }
 
-static void DrawUI_SettingValue(SettingsPageData* data, int index) {
+static void DrawUI_SettingValue(SettingsPageData* data, int index)
+{
     bool value;
-    switch(index) {
+    switch(index)
+    {
         case 5:
             SetCursorPosition(data->utf8SupportX, data->utf8SupportY);
             value = LoadedSettings.FullUTF8Support;
@@ -58,13 +62,16 @@ static void DrawUI_SettingValue(SettingsPageData* data, int index) {
             SetCursorPosition(data->showCorrectWhenWrongX, data->showCorrectWhenWrongY);
             value = LoadedSettings.ShowCorrectWhenWrong;
             SetColorRGBPreset(value ? LoadedSettings.CorrectAnswerColor : LoadedSettings.WrongAnswerColor, false);
-            if(data->terminalWidth - data->showCorrectWhenWrongX < 4) {
-                if(data->terminalWidth - data->showCorrectWhenWrongX < 2) {
+            if(data->terminalWidth - data->showCorrectWhenWrongX < 4)
+            {
+                if(data->terminalWidth - data->showCorrectWhenWrongX < 2)
+                {
                     printf(CSR_MOVE_LEFT(1));
                 }
                 printf(value ? "T" : "N");
             }
-            else {
+            else
+            {
                 printf(value ? "TAK" : "NIE");
             }
             ResetColor();
@@ -87,7 +94,8 @@ static void DrawUI_SettingValue(SettingsPageData* data, int index) {
     ResetColor();
 }
 
-static int* GetOptionColor(int selected) {
+static int* GetOptionColor(int selected)
+{
     switch (selected)
     {
         case 0:
@@ -106,68 +114,69 @@ static int* GetOptionColor(int selected) {
     }
 }
 
-static const char CorrectColorDescription[] = 
-"Ten kolor jest używany do oznaczenia:\n"
-"- poprawnej odpowiedzi oraz sugesti przyjaciela\n"
-"- dostępnych kół ratunkowych\n"
-"- komunikatu o wygranej grze\n"
-"- wartości wygranej w grze\n"
-"- osiągniętych bezpiecznych progów\n"
-"- włączonych opcji";
+static const char CorrectColorDescription[] =
+    "Ten kolor jest używany do oznaczenia:\n"
+    "- poprawnej odpowiedzi oraz sugesti przyjaciela\n"
+    "- dostępnych kół ratunkowych\n"
+    "- komunikatu o wygranej grze\n"
+    "- wartości wygranej w grze\n"
+    "- osiągniętych bezpiecznych progów\n"
+    "- włączonych opcji";
 
 static const char WrongColorDescription[] =
-"Ten kolor jest używany do oznaczenia:\n"
-"- błędnej odpowiedzi\n"
-"- zużytych kół ratunkowych\n"
-"- błędnych odpowiedzi przy koła ratunkowego 50/50\n"
-"- komunikatu o przegranej grze\n"
-"- wyłączonych opcji";
+    "Ten kolor jest używany do oznaczenia:\n"
+    "- błędnej odpowiedzi\n"
+    "- zużytych kół ratunkowych\n"
+    "- błędnych odpowiedzi przy koła ratunkowego 50/50\n"
+    "- komunikatu o przegranej grze\n"
+    "- wyłączonych opcji";
 
 static const char SelectedColorDescription[] =
-"Ten kolor jest używany do oznaczenia:\n"
-"- zaznaczonej odpowiedzi\n"
-"- zaznaczonego koła ratunkowego przy użyciu myszki\n"
-"- nagrody za obecne pytanie";
+    "Ten kolor jest używany do oznaczenia:\n"
+    "- zaznaczonej odpowiedzi\n"
+    "- zaznaczonego koła ratunkowego przy użyciu myszki\n"
+    "- nagrody za obecne pytanie";
 
 static const char ConfirmedColorDescription[] =
-"Ten kolor jest używany do oznaczenia:\n"
-"- zaznaczonej i oczekującej na potwierdzenie odpowiedzi\n"
-"- zaznaczonego i oczekującego na potwierdzenie koła ratunkowego\n"
-"- liter pytań";
+    "Ten kolor jest używany do oznaczenia:\n"
+    "- zaznaczonej i oczekującej na potwierdzenie odpowiedzi\n"
+    "- zaznaczonego i oczekującego na potwierdzenie koła ratunkowego\n"
+    "- liter pytań";
 
 static const char SupportColorDescription[] =
-"Ten kolor jest używany do oznaczenia:\n"
-"- aktywnych kół ratunkowych\n"
-"- nieosiągniętych bezpiecznych progów\n"
-"- do wskaźników procentów w kole ratunkowych: Głos publiczności\n"
-"- komunikat o rezygnacji z gry";
+    "Ten kolor jest używany do oznaczenia:\n"
+    "- aktywnych kół ratunkowych\n"
+    "- nieosiągniętych bezpiecznych progów\n"
+    "- do wskaźników procentów w kole ratunkowych: Głos publiczności\n"
+    "- komunikat o rezygnacji z gry";
 
 static const char Utf8SupportDescription[] =
-"Starsze terminale (np. Cmd, PowerShell na Windows 10) nie wspierają wszystkich znaków UTF-8,"
-" co może prowadzić do nieprawidłowego wyświetlania niektórych znaków."
-" Gdy ta opcja jest wyłączona, program używa znaków ASCII zamiast niedostepnych znaków UTF-8."
-"\nPrecyzyjniej: Znak [>] jest używany zamiast [▶] (trójkąt), a w kole ratunknowym \"Głos publiczności\" wykres jest mniej dokładny.";
+    "Starsze terminale (np. Cmd, PowerShell na Windows 10) nie wspierają wszystkich znaków UTF-8,"
+    " co może prowadzić do nieprawidłowego wyświetlania niektórych znaków."
+    " Gdy ta opcja jest wyłączona, program używa znaków ASCII zamiast niedostepnych znaków UTF-8."
+    "\nPrecyzyjniej: Znak [>] jest używany zamiast [▶] (trójkąt), a w kole ratunknowym \"Głos publiczności\" wykres jest mniej dokładny.";
 
 static const char ShowCorrectWhenWrongDescription[] =
-"Po udzieleniu błędnej odpowiedzi program zaznaczy poprawną odpowiedź.";
+    "Po udzieleniu błędnej odpowiedzi program zaznaczy poprawną odpowiedź.";
 
 static const char EnableMouseSupportDescription[] =
-"Umożliwia korzystanie z myszki w grze.\n"
-"Kliknięcie na odpowiedź zaznacza ją, a kliknięcie na koło ratunkowe je aktywuje. (Wymagane ponowne kliknięcie aby potwierdzić)\n"
-"Pozwala na nawigację po liście pytań za pomocą myszki.";
+    "Umożliwia korzystanie z myszki w grze.\n"
+    "Kliknięcie na odpowiedź zaznacza ją, a kliknięcie na koło ratunkowe je aktywuje. (Wymagane ponowne kliknięcie aby potwierdzić)\n"
+    "Pozwala na nawigację po liście pytań za pomocą myszki.";
 
 static const char DarkModeDescription[] =
-"Włącza tryb ciemny.\n\n"
-"Zmienia kolor tła na czarny, a tekst na biały.\n"
-"Zmienia odcienie kolorów na bardziej przyjazne dla oczu biorąc pod uwagę kolor tła.";
+    "Włącza tryb ciemny.\n\n"
+    "Zmienia kolor tła na czarny, a tekst na biały.\n"
+    "Zmienia odcienie kolorów na bardziej przyjazne dla oczu biorąc pod uwagę kolor tła.";
 
 static const char SaveAndExitDescription[] =
-"Zapisuje zmiany i wraca do menu głównego.";
+    "Zapisuje zmiany i wraca do menu głównego.";
 
 static const char ExitWithoutSaveDescription[] =
-"Anuluje zmiany i wraca do menu głównego.";
+    "Anuluje zmiany i wraca do menu głównego.";
 
-static const char* Descriptions[OPTION_COUNT] = {
+static const char* Descriptions[OPTION_COUNT] =
+{
     CorrectColorDescription,
     WrongColorDescription,
     SelectedColorDescription,
@@ -181,14 +190,16 @@ static const char* Descriptions[OPTION_COUNT] = {
     ExitWithoutSaveDescription,
 };
 
-static void UpdateDescriptionHeight(SettingsPageData* data) {
+static void UpdateDescriptionHeight(SettingsPageData* data)
+{
     const int width = data->terminalWidth - 4;
     int maxLines = 0;
 
     for (int i = 0; i < OPTION_COUNT; i++)
     {
         int lineCount = GetWrappedLineCount(Descriptions[i], width);
-        if(lineCount > maxLines) {
+        if(lineCount > maxLines)
+        {
             maxLines = lineCount;
         }
     }
@@ -196,8 +207,10 @@ static void UpdateDescriptionHeight(SettingsPageData* data) {
     data->descriptionHeight = maxLines + 1;
 }
 
-static void DrawUI_UpdateSettingDescription(SettingsPageData* data) {
-    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
+static void DrawUI_UpdateSettingDescription(SettingsPageData* data)
+{
+    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight)
+    {
         return;
     }
 
@@ -209,15 +222,17 @@ static void DrawUI_UpdateSettingDescription(SettingsPageData* data) {
         printf("\r" CSR_MOVE_RIGHT(data->terminalWidth - 1));
         printf(SINGLE_VERTICAL_LINE);
     }
-    
+
     bool center = true;
     bool onTop = false;
 
-    if(data->selected >= OPTION_COUNT) {
+    if(data->selected >= OPTION_COUNT)
+    {
         ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_INVALID_OPTION_INDEX(data->selected));
     }
 
-    if(data->selected < 5) {
+    if(data->selected < 5)
+    {
         onTop = true;
         center = false;
     }
@@ -228,7 +243,8 @@ static void DrawUI_UpdateSettingDescription(SettingsPageData* data) {
 
     double centerOffset = (double)(maxTextLines - lineCount) / 2.0;
     const int top = data->terminalHeight - maxTextLines;
-    if(onTop) {
+    if(onTop)
+    {
         centerOffset = 0;
     }
 
@@ -237,8 +253,10 @@ static void DrawUI_UpdateSettingDescription(SettingsPageData* data) {
     PrintWrappedLine(text, width, 2, center);
 }
 
-static void DrawUI_SettingDescription(SettingsPageData* data) {
-    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight) {
+static void DrawUI_SettingDescription(SettingsPageData* data)
+{
+    if(data->terminalHeight <= data->lineIndexes[OPTION_COUNT - 1] + data->descriptionHeight)
+    {
         return;
     }
 
@@ -248,7 +266,8 @@ static void DrawUI_SettingDescription(SettingsPageData* data) {
     DrawUI_UpdateSettingDescription(data);
 }
 
-static void DrawUI_Settings(SettingsPageData* data) {
+static void DrawUI_Settings(SettingsPageData* data)
+{
     ResetColor();
     ClearScreen();
 
@@ -271,7 +290,8 @@ static void DrawUI_Settings(SettingsPageData* data) {
     DrawUI_PrintColors(data, LoadedSettings.SupportColor);
 
     printf("\n  [ ] ");
-    PrintWrappedLine("Pełne wsparcie UTF-8 | Jeśli ten znak [▶] (trójkąt) nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: ___",
+    PrintWrappedLine(
+        "Pełne wsparcie UTF-8 | Jeśli ten znak [▶] (trójkąt) nie jest poprawnie wyświetlany, wyłącz tę opcję | Włączone: ___",
         data->terminalWidth - 8, 6, false);
     GetCursorPosition(&data->utf8SupportX, &data->utf8SupportY);
     data->utf8SupportX -= 3;
@@ -321,11 +341,12 @@ static void DrawUI_Settings(SettingsPageData* data) {
     }
 
     UpdateDescriptionHeight(data);
-    
+
     DrawUI_SettingDescription(data);
 }
 
-static void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
+static void HandleArrowUpDownKeys(SettingsPageData* data, int direction)
+{
     SetCursorPosition(4, data->lineIndexes[data->selected]);
     printf(" ");
 
@@ -339,8 +360,10 @@ static void HandleArrowUpDownKeys(SettingsPageData* data, int direction) {
     DrawUI_SettingDescription(data);
 }
 
-static bool HandleEnterKey(SettingsPageData* data) {
-    switch(data->selected) {
+static bool HandleEnterKey(SettingsPageData* data)
+{
+    switch(data->selected)
+    {
         case 5:
             LoadedSettings.FullUTF8Support = !LoadedSettings.FullUTF8Support;
             break;
@@ -350,7 +373,8 @@ static bool HandleEnterKey(SettingsPageData* data) {
         case 7:
             LoadedSettings.EnableMouseSupport = !LoadedSettings.EnableMouseSupport;
 
-            if(!LoadedSettings.EnableMouseSupport) {
+            if(!LoadedSettings.EnableMouseSupport)
+            {
                 EnableMouseInput(false);
             }
 
@@ -378,7 +402,8 @@ static bool HandleEnterKey(SettingsPageData* data) {
     return false;
 }
 
-static void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
+static void HandleArrowLeftRightKeys(SettingsPageData* data, int direction)
+{
     if(data->selected > 4) return;
 
     int* option = GetOptionColor(data->selected);
@@ -389,7 +414,8 @@ static void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
     else if(*option >= RGB_COLOR_COUNT)
         *option = 0;
 
-    if(data->selected == 0 || data->selected == 1) {
+    if(data->selected == 0 || data->selected == 1)
+    {
         for (int i = 5; i < 9; i++)
         {
             DrawUI_SettingValue(data, i); // Refresh for Yes/No colors
@@ -402,7 +428,8 @@ static void HandleArrowLeftRightKeys(SettingsPageData* data, int direction) {
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     SettingsPageData* pageData = (SettingsPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
@@ -439,7 +466,8 @@ void PageEnter_Settings()
                 break;
 
             case KEY_ENTER:
-                if(HandleEnterKey(&data)) {
+                if(HandleEnterKey(&data))
+                {
                     continueLoop = false; // Exit page
                 }
                 break;

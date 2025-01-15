@@ -11,7 +11,8 @@
 extern Settings LoadedSettings;
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
-int main() {
+int main()
+{
     srand((unsigned int)time(NULL));
 
     InitializeIO();
@@ -30,17 +31,20 @@ int main() {
 
     LoadQuestionsFromFile();
 
-    if(GetQuestionList() == NULL) {
+    if(GetQuestionList() == NULL)
+    {
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);
     }
 
     IOLoop();
 
-    if(LatestTerminalHeight == -1) {
+    if(LatestTerminalHeight == -1)
+    {
         UpdateTerminalSize();
     }
 
-    if(LoadedSettings.WelcomePageShown == 0) {
+    if(LoadedSettings.WelcomePageShown == 0)
+    {
         PageEnter_Welcome();
     }
 

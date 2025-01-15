@@ -15,7 +15,8 @@
 #define SET_COLOR_RED           ESC_SEQ "38;2;139;0;0m"
 #define SET_COLOR_BRIGHT_RED    ESC_SEQ "38;2;255;36;0m"
 
-typedef struct {
+typedef struct
+{
     int terminalWidth;
     int terminalHeight;
 
@@ -40,14 +41,16 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 static void DrawUI(AddQuestionPageData* data);
 static void OnResize(void* data);
 
-static bool EnforceSizeRequirements(AddQuestionPageData* data) {
+static bool EnforceSizeRequirements(AddQuestionPageData* data)
+{
     int usedHeight = 4 + 2;
     for (int i = 0; i < 6; i++)
     {
         usedHeight += data->maxLines[i] + 1;
     }
 
-    if(usedHeight >= data->terminalHeight) {
+    if(usedHeight >= data->terminalHeight)
+    {
         UnsetResizeHandler();
         ShowAlertPopupKeys("Brak miejsca na dodanie nowych linii!", 30, RESIZE_EVENT);
         OnResize(data);
@@ -58,25 +61,29 @@ static bool EnforceSizeRequirements(AddQuestionPageData* data) {
     return false;
 }
 
-typedef enum {
+typedef enum
+{
     LoadTextResult_Cancelled = 0,
     LoadTextResult_ArrowDown = 1,
     LoadTextResult_ArrowUp = 2
 } LoadTextResult;
 
-static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
+static LoadTextResult LoadText(AddQuestionPageData* data, char** output)
+{
     int y;
     int outputLength;
     TextEditorResult result = TextEditorResult_Cancelled;
-    while(result != TextEditorResult_Completed) {
+    while(result != TextEditorResult_Completed)
+    {
         y = 5;
         for (int i = 0; i < data->slotNumber; i++)
             y += data->maxLines[i] + 1;
 
         outputLength = (int)strlen(*output);
         result = OpenTextEditor(output, &outputLength, data->textStartX + 1, y, data->maxLines[data->slotNumber], " " SINGLE_VERTICAL_LINE);
-        
-        switch (result) {
+
+        switch (result)
+        {
             case TextEditorResult_ArrowUp:
                 return LoadTextResult_ArrowUp;
             case TextEditorResult_ArrowDown:
@@ -85,7 +92,8 @@ static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
             case TextEditorResult_OutOfLines:
                 data->maxLines[data->slotNumber]++;
 
-                if(!EnforceSizeRequirements(data)) {
+                if(!EnforceSizeRequirements(data))
+                {
                     DrawUI(data);
                 }
 
@@ -99,7 +107,8 @@ static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
             case TextEditorResult_Cancelled:
                 HideCursor();
                 const char* message = data->newQuestion ? "Czy na pewno chcesz anulować dodawanie pytania?" : "Czy na pewno chcesz anulować modyfikowanie pytania?";
-                if(ShowConfirmationPopup(message, "Tak", "Nie", 41)) {
+                if(ShowConfirmationPopup(message, "Tak", "Nie", 41))
+                {
                     return LoadTextResult_Cancelled;
                 }
 
@@ -110,7 +119,8 @@ static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
                 break;
         }
 
-        if(outputLength == 0) {
+        if(outputLength == 0)
+        {
             HideCursor();
             ShowAlertPopup("To pole jest wymagane !!", 30);
             result = false;
@@ -124,25 +134,30 @@ static LoadTextResult LoadText(AddQuestionPageData* data, char** output) {
     return LoadTextResult_ArrowDown;
 }
 
-static void PrintLine(int lineCount, int offset, const char* top, const char* bottom) {
+static void PrintLine(int lineCount, int offset, const char* top, const char* bottom)
+{
     printf("\r" CSR_MOVE_UP(lineCount));
     for (int i = -1; i <= lineCount; i++)
     {
         printf(CSR_MOVE_RIGHT(offset));
-        if(i == -1) {
+        if(i == -1)
+        {
             printf("%s", top);
         }
-        else if(i == lineCount) {
+        else if(i == lineCount)
+        {
             printf("%s", bottom);
         }
-        else {
+        else
+        {
             printf(SINGLE_VERTICAL_LINE);
         }
         printf(CSR_MOVE_LEFT_0_DOWN1);
     }
 }
 
-static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCount, char* content, bool selected) {
+static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCount, char* content, bool selected)
+{
     bool top = slotNumber == -1;
     bool bottom = slotNumber == 5;
 
@@ -163,7 +178,8 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
     int offset = (lineCount - 1) / 2;
     int inverseOffset = lineCount - offset - 1;
     if(offset > 0) printf(CSR_MOVE_DOWN(offset));
-    if(selected) {
+    if(selected)
+    {
         printf(CSR_MOVE_RIGHT(data->selectorOffset));
         printf(SELECTOR_MARKER);
         printf("\r");
@@ -171,15 +187,24 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
 
     printf(CSR_MOVE_RIGHT(data->textOffset));
 
-    if(slotNumber == -1) {
+    if(slotNumber == -1)
+    {
         printf("ID pytania:");
-    } else if(slotNumber == 0) {
+    }
+    else if(slotNumber == 0)
+    {
         printf("Podaj treść pytania:");
-    } else if(slotNumber == 1) {
+    }
+    else if(slotNumber == 1)
+    {
         printf("Podaj poprawną odpowiedź:");
-    } else if(slotNumber == 5){
+    }
+    else if(slotNumber == 5)
+    {
         printf("ZATWIERDŹ");
-    } else {
+    }
+    else
+    {
         printf("Podaj odpowiedź %c:", 'A' + (slotNumber - 1));
     }
 
@@ -189,14 +214,16 @@ static void DrawUI_Element(AddQuestionPageData* data, int slotNumber, int lineCo
     printf(CSR_MOVE_UP(lineCount + 1));
     printf("\r" CSR_MOVE_RIGHT(data->textStartX));
 
-    if(content != NULL) {
+    if(content != NULL)
+    {
         int lines = PrintWrappedLine(content, data->textFieldWidth, data->textStartX, slotNumber == -1);
 
         printf(CSR_MOVE_LEFT_0_DOWN(lineCount - lines + 1));
     }
 }
 
-static void DrawOnOnlyMoved(AddQuestionPageData* data) {
+static void DrawOnOnlyMoved(AddQuestionPageData* data)
+{
     HideCursor();
     SaveCursorPosition();
     ResetCursor();
@@ -219,14 +246,17 @@ static void DrawOnOnlyMoved(AddQuestionPageData* data) {
     ShowCursor();
 }
 
-static void DrawUI(AddQuestionPageData* data) {
+static void DrawUI(AddQuestionPageData* data)
+{
     HideCursor();
     ClearScreen();
 
-    if(data->newQuestion) {
+    if(data->newQuestion)
+    {
         printf("Dodaj pytanie:\n");
     }
-    else {
+    else
+    {
         printf("Edytuj pytanie:\n");
     }
 
@@ -237,18 +267,22 @@ static void DrawUI(AddQuestionPageData* data) {
     HideCursor();
     SetCursorPosition(0, 4);
 
-    if(data->slotNumber == 0) {
+    if(data->slotNumber == 0)
+    {
         DrawUI_Element(data, data->slotNumber, data->maxLines[0], NULL, true);
         SaveCursorPosition();
         printf(CSR_MOVE_LEFT_0_DOWN(data->maxLines[0]));
 
-    } else {
+    }
+    else
+    {
         DrawUI_Element(data, 0, data->maxLines[0], data->question->Content, false);
     }
 
     for (int i = 0; i < 4; i++)
     {
-        if(data->slotNumber == i+1) {
+        if(data->slotNumber == i+1)
+        {
             DrawUI_Element(data, data->slotNumber, data->maxLines[i+1], NULL, true);
             SaveCursorPosition();
             printf(CSR_MOVE_LEFT_0_DOWN(data->maxLines[i+1]));
@@ -263,8 +297,10 @@ static void DrawUI(AddQuestionPageData* data) {
     RestoreCursorPosition();
 }
 
-static bool InputLoop(AddQuestionPageData* data) {
-    while(true) {
+static bool InputLoop(AddQuestionPageData* data)
+{
+    while(true)
+    {
         DrawUI(data);
 
         while (data->slotNumber < 5)
@@ -273,9 +309,12 @@ static bool InputLoop(AddQuestionPageData* data) {
 
             char** output;
 
-            if(data->slotNumber == 0) {
+            if(data->slotNumber == 0)
+            {
                 output = &data->question->Content;
-            } else {
+            }
+            else
+            {
                 output = &data->question->Answer[data->slotNumber - 1];
             }
 
@@ -288,7 +327,8 @@ static bool InputLoop(AddQuestionPageData* data) {
                     break;
                 case LoadTextResult_ArrowUp:
                     data->slotNumber--;
-                    if(data->slotNumber < 0) {
+                    if(data->slotNumber < 0)
+                    {
                         data->slotNumber = 0;
                     }
                     break;
@@ -296,7 +336,8 @@ static bool InputLoop(AddQuestionPageData* data) {
         }
 
         HideCursor();
-        if(data->question->Content[0] == '\0') {
+        if(data->question->Content[0] == '\0')
+        {
             ShowAlertPopup("Treść pytania nie może być pusta!", 41);
             data->slotNumber = 0;
             continue;
@@ -305,12 +346,15 @@ static bool InputLoop(AddQuestionPageData* data) {
         bool allPasss = true;
         for (int i = 0; i < 4; i++)
         {
-            if(data->question->Answer[i][0] == '\0') {
+            if(data->question->Answer[i][0] == '\0')
+            {
                 allPasss = false;
-                if(i == 0) {
+                if(i == 0)
+                {
                     ShowAlertPopup("Poprawna odpowiedź nie może być pusta!", 42);
                 }
-                else {
+                else
+                {
                     char buffer[40];
                     sprintf(buffer, "Odpowiedź %c nie może być pusta!", 'A' + i);
                     ShowAlertPopup(buffer, 41);
@@ -324,7 +368,8 @@ static bool InputLoop(AddQuestionPageData* data) {
 
         const char* confirmText = data->newQuestion ? "Czy na pewno chcesz dodać to pytanie?" : "Czy na pewno chcesz zmodyfikować to pytanie?";
 
-        if(ShowConfirmationPopup(confirmText, "Tak", "Nie", 45)) {
+        if(ShowConfirmationPopup(confirmText, "Tak", "Nie", 45))
+        {
             return true;
         }
         data->slotNumber = 4;
@@ -333,29 +378,35 @@ static bool InputLoop(AddQuestionPageData* data) {
 
 static void CalculateValues(AddQuestionPageData* data);
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     AddQuestionPageData* pageData = (AddQuestionPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
 
     CalculateValues(pageData);
 
-    if(!EnforceSizeRequirements(data)) {
+    if(!EnforceSizeRequirements(data))
+    {
         DrawUI(pageData);
     }
 }
 
-static void CalculateMaxLines(AddQuestionPageData* data) {
+static void CalculateMaxLines(AddQuestionPageData* data)
+{
     data->maxLines[5] = 1;
-    if(data->question->Content == NULL) {
+    if(data->question->Content == NULL)
+    {
         data->maxLines[0] = 1;
     }
-    else {
+    else
+    {
         data->maxLines[0] = GetWrappedLineCount(data->question->Content, data->textFieldWidth);
     }
     for (int i = 0; i < 4; i++)
     {
-        if(data->question->Answer[i] == NULL) {
+        if(data->question->Answer[i] == NULL)
+        {
             data->maxLines[i + 1] = 1;
             continue;
         }
@@ -365,7 +416,8 @@ static void CalculateMaxLines(AddQuestionPageData* data) {
     data->maxLines[5] = GetWrappedLineCount(data->newQuestion ? ConfirmAddButtonText : ConfirmEditButtonText, data->textFieldWidth);
 }
 
-static void CalculateValues(AddQuestionPageData* data) {
+static void CalculateValues(AddQuestionPageData* data)
+{
     data->selectorOffset = 1;
     data->textOffset = data->selectorOffset + 3;
     const int width = 25;
@@ -375,20 +427,25 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
-static bool FinalizeEdit(AddQuestionPageData* data) {
+static bool FinalizeEdit(AddQuestionPageData* data)
+{
     char buffer[256];
     char* message;
-    if(data->newQuestion) {
-        if(!AddQuestion(data->question, &message)) {
+    if(data->newQuestion)
+    {
+        if(!AddQuestion(data->question, &message))
+        {
             sprintf(buffer, "Nie udało się dodać pytania!\n\n%s", message);
             ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
             return false;
         }
-        
+
         ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
     }
-    else {
-        if(!EditQuestion(data->question, &message)) {
+    else
+    {
+        if(!EditQuestion(data->question, &message))
+        {
             sprintf(buffer, "Nie udało się edytować pytania!\n\n%s", message);
             ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
             return false;
@@ -400,17 +457,20 @@ static bool FinalizeEdit(AddQuestionPageData* data) {
     return true;
 }
 
-void RevertChanges(AddQuestionPageData* data) {
+void RevertChanges(AddQuestionPageData* data)
+{
     Question* original = data->questionClone;
     Question* question = data->question;
 
-    if(question->Content != NULL) {
+    if(question->Content != NULL)
+    {
         free(question->Content);
     }
 
     for (int i = 0; i < 4; i++)
     {
-        if(question->Answer[i] != NULL) {
+        if(question->Answer[i] != NULL)
+        {
             free(question->Answer[i]);
         }
     }
@@ -440,8 +500,10 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 
     SetResizeHandler(OnResize, &data);
 
-    while(true) {
-        if(!InputLoop(&data)) {
+    while(true)
+    {
+        if(!InputLoop(&data))
+        {
             RevertChanges(&data);
             DestroyQuestion(data.questionClone);
             UnsetResizeHandler();
@@ -451,7 +513,8 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
         HideCursor();
         UnsetResizeHandler();
 
-        if(FinalizeEdit(&data)) {
+        if(FinalizeEdit(&data))
+        {
             DestroyQuestion(data.questionClone);
             return true;
         }

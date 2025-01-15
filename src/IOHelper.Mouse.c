@@ -52,13 +52,15 @@ int LatestMouseY = 0;
 
 void MouseEventProc(MOUSE_EVENT_RECORD mer)
 {
-    if(internal_IOHelper_LoopLock) {
+    if(internal_IOHelper_LoopLock)
+    {
         MerBufferPtrInc(merQueueWritePtr);
         merQueue[merQueueWritePtr] = mer;
         return;
     }
 
-    do {
+    do
+    {
         internal_IOHelper_LoopLock = true;
 
         LatestMouseX = mer.dwMousePosition.X;
@@ -69,33 +71,39 @@ void MouseEventProc(MOUSE_EVENT_RECORD mer)
             case 0:
                 // If the event is a mouse click, any button is pressed and we are waiting for a mouse press
                 // Signal event happened by setting the flag to false and break the loop as the event was handled
-                if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress) {
+                if(mer.dwButtonState != 0 && internal_IOHelper_WaitingForMousePress)
+                {
                     internal_IOHelper_WaitingForMousePress = false;
                     break;
                 }
-                if(mouseClickHandler != NULL) {
+                if(mouseClickHandler != NULL)
+                {
                     mouseClickHandler((int)mer.dwButtonState, mouseHandlerData);
                 }
                 break;
             case DOUBLE_CLICK:
-                if(mouseDoubleClickHandler != NULL) {
+                if(mouseDoubleClickHandler != NULL)
+                {
                     mouseDoubleClickHandler((int)mer.dwButtonState, mouseHandlerData);
                 }
                 break;
             case MOUSE_WHEELED:
-                if(mouseScrollHandler != NULL) {
+                if(mouseScrollHandler != NULL)
+                {
                     mouseScrollHandler((mer.dwButtonState & 0x80000000) != 0, mouseHandlerData);
                 }
                 break;
             case MOUSE_MOVED:
-                if(mouseMoveHandler != NULL) {
+                if(mouseMoveHandler != NULL)
+                {
                     mouseMoveHandler(mouseHandlerData);
                 }
                 break;
         }
         internal_IOHelper_LoopLock = false;
 
-        if(merQueueReadPtr == merQueueWritePtr) {
+        if(merQueueReadPtr == merQueueWritePtr)
+        {
             break;
         }
 
@@ -109,7 +117,8 @@ void Mouse_IOLoop()
 {
     if(internal_IOHelper_LoopLock) return;
 
-    if(merQueueReadPtr != merQueueWritePtr) {
+    if(merQueueReadPtr != merQueueWritePtr)
+    {
         MouseEventProc(merQueue[merQueueReadPtr]);
         MerBufferPtrInc(merQueueReadPtr);
     }

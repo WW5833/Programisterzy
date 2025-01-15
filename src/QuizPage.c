@@ -20,21 +20,28 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static void CalculateQuizPageSizeRequirements();
 
-static bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result) {
-    if(result == QQR_Correct) {
-        if(rewardId == 9) {
+static bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result)
+{
+    if(result == QQR_Correct)
+    {
+        if(rewardId == 9)
+        {
             SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
     }
-    else if(result == QQR_Wrong) {
-        if(rewardId == safe) {
+    else if(result == QQR_Wrong)
+    {
+        if(rewardId == safe)
+        {
             SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
     }
-    else if(result == QQR_Forfeit) {
-        if(rewardId == questionNumber - 1) {
+    else if(result == QQR_Forfeit)
+    {
+        if(rewardId == questionNumber - 1)
+        {
             SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
             return true;
         }
@@ -43,7 +50,8 @@ static bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuest
     return false;
 }
 
-static void DrawUI_EndGame_RightSide(int questionNumber, int safe, QuizQuestionResult result, int beginX, int beginY, int partSplit) {
+static void DrawUI_EndGame_RightSide(int questionNumber, int safe, QuizQuestionResult result, int beginX, int beginY, int partSplit)
+{
     SetCursorPosition(beginX + partSplit, beginY + 1 - 1);
     printf(SINGLE_BREAK_BOTTOM);
     SetCursorPosition(beginX + partSplit + 16, beginY + 1 - 1);
@@ -56,14 +64,16 @@ static void DrawUI_EndGame_RightSide(int questionNumber, int safe, QuizQuestionR
         printf(SINGLE_VERTICAL_LINE);
         printf(" ");
 
-        if(SetRewardColor(j, questionNumber, safe, result)) {
+        if(SetRewardColor(j, questionNumber, safe, result))
+        {
             printf("Twoja wygrana ");
             if (LoadedSettings.FullUTF8Support)
                 printf(TRIANGLE);
             else
                 printf(">");
         }
-        else {
+        else
+        {
             printf(CSR_MOVE_RIGHT(14));
             printf(SINGLE_VERTICAL_LINE);
         }
@@ -79,7 +89,8 @@ static void DrawUI_EndGame_RightSide(int questionNumber, int safe, QuizQuestionR
     printf(SINGLE_BREAK_TOP);
 }
 
-static void DrawUI_EndGame(int questionNumber, int safe, QuizQuestionResult result) {
+static void DrawUI_EndGame(int questionNumber, int safe, QuizQuestionResult result)
+{
     const int width = 60;
     const int height = 13;
 
@@ -134,14 +145,17 @@ void PageEnter_Quiz()
     QuizQuestionResult correct;
     QuestionListItem* current = questions->head;
     int i;
-    for(i = 0; i < 10; i++) {
+    for(i = 0; i < 10; i++)
+    {
 
         for (int j = 0; j < 3; j++)
         {
-            if(abilitiesStatus[j] == QQAS_Selected) {
+            if(abilitiesStatus[j] == QQAS_Selected)
+            {
                 abilitiesStatus[j] = QQAS_Avaialable;
             }
-            else if(abilitiesStatus[j] == QQAS_Active) {
+            else if(abilitiesStatus[j] == QQAS_Active)
+            {
                 abilitiesStatus[j] = QQAS_Unavailable;
             }
         }
@@ -170,7 +184,8 @@ int QuizPageMinimumWidth = -1;
 /// @brief The minimum height of the quiz page considering the worst case scenario
 int QuizPageMinimumHeight = -1;
 
-static void CalculateQuizPageSizeRequirements() {
+static void CalculateQuizPageSizeRequirements()
+{
     const int rewardBoxWidth = 18 + 1;
     const int rewardBoxHeight = 10;
     const int staticWidthContent = 14 + 2;

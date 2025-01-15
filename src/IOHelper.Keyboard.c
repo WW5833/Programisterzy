@@ -34,35 +34,41 @@ void KeyEventProc(KEY_EVENT_RECORD ker)
 {
     if(ker.bKeyDown)
     {
-        if(ker.uChar.AsciiChar == CTRL_C) {
+        if(ker.uChar.AsciiChar == CTRL_C)
+        {
             ExitApp(EXIT_SUCCESS);
         }
 
-        if(TreatShiftRAsResizeEvent && ker.uChar.AsciiChar == 'R') {
+        if(TreatShiftRAsResizeEvent && ker.uChar.AsciiChar == 'R')
+        {
             EnqueuResizeEventCall();
             return;
         }
 
-        if(ker.uChar.AsciiChar == '\t' && ker.dwControlKeyState & SHIFT_PRESSED) {
+        if(ker.uChar.AsciiChar == '\t' && ker.dwControlKeyState & SHIFT_PRESSED)
+        {
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = SHIFT_TAB; // Use VT (Vertical Tab) as a Shift + Tab
             return;
         }
 
-        if(ker.uChar.AsciiChar != 0) {
+        if(ker.uChar.AsciiChar != 0)
+        {
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = ker.uChar.AsciiChar;
             return;
         }
 
-        if((ker.dwControlKeyState & ENHANCED_KEY) != 0) {
+        if((ker.dwControlKeyState & ENHANCED_KEY) != 0)
+        {
             if(ker.wVirtualKeyCode < VK_END) return; // Ignore not supported keys
             if(ker.wVirtualKeyCode > VK_DELETE) return; // Ignore not supported keys
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = ESCAPE_CHAR;
             BufferPtrInc(textInputBufferWritePtr);
             textInputBuffer[textInputBufferWritePtr] = (char)ker.wVirtualKeyCode;
-            if((ker.dwControlKeyState & SHIFT_PRESSED) != 0) {
+            if((ker.dwControlKeyState & SHIFT_PRESSED) != 0)
+            {
                 textInputBuffer[textInputBufferWritePtr] |= VK_SHIFT_MOD;
             }
             return;

@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "IOHelper.h"
 
-KeyInputType HandleInteractions(bool blocking) {
+KeyInputType HandleInteractions(bool blocking)
+{
     if(!blocking && !kbhit()) return KEY_NONE;
 
     char c = (char)getch();
@@ -48,18 +49,22 @@ KeyInputType HandleInteractions(bool blocking) {
 char _internal_WaitForKeys(int count, char* keys)
 {
     int c;
-    while(true) {
+    while(true)
+    {
         c = WaitForAnyInput();
 
         for (int i = 0; i < count; i++)
         {
-            if(keys[i] == ANY_MOUSE_BUTTON && c == INT_MAX) {
+            if(keys[i] == ANY_MOUSE_BUTTON && c == INT_MAX)
+            {
                 return ANY_MOUSE_BUTTON;
             }
-            else if(keys[i] == RESIZE_EVENT && c == INT_MAX - 1) {
+            else if(keys[i] == RESIZE_EVENT && c == INT_MAX - 1)
+            {
                 return RESIZE_EVENT;
             }
-            else if(c == keys[i]) {
+            else if(c == keys[i])
+            {
                 return (char)c;
             }
         }

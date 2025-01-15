@@ -12,7 +12,8 @@
 
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-typedef struct {
+typedef struct
+{
     int terminalWidth;
     int terminalHeight;
     int pageNumber;
@@ -36,21 +37,24 @@ void PageEnter_Instruction()
 
     SetResizeHandler(OnResize, &data);
 
-    while(true){
+    while(true)
+    {
         KeyInputType key = HandleInteractions(true);
         switch (key)
         {
             case KEY_ENTER:
                 break;
 
-            case KEY_ARROW_LEFT: {
+            case KEY_ARROW_LEFT:
+            {
                 data.pageNumber--;
                 if(data.pageNumber < 1) data.pageNumber = 1;
                 else DrawUI(&data);
                 break;
             }
 
-            case KEY_ARROW_RIGHT: {
+            case KEY_ARROW_RIGHT:
+            {
                 data.pageNumber++;
                 if(data.pageNumber > 3) data.pageNumber = 3;
                 else DrawUI(&data);
@@ -67,7 +71,8 @@ void PageEnter_Instruction()
     }
 }
 
-static void PrintBorderEdges(InstructionPageData* data, int lineCount) {
+static void PrintBorderEdges(InstructionPageData* data, int lineCount)
+{
     printf("\r");
     if(lineCount > -1) printf(CSR_MOVE_UP(lineCount - 1));
     for (int i = 0; i < lineCount; i++)
@@ -77,7 +82,8 @@ static void PrintBorderEdges(InstructionPageData* data, int lineCount) {
     }
 }
 
-static void DrawUIPageOne(InstructionPageData* data) {
+static void DrawUIPageOne(InstructionPageData* data)
+{
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -89,7 +95,8 @@ static void DrawUIPageOne(InstructionPageData* data) {
     PRINT_SINGLE_TJUNCTION_BORDER(data->terminalWidth);
 
     printf("  Opis: ");
-    int lineCount = PrintWrappedLine("W naszej aplikacji będziesz miał możliwość sprawdzenia się w popularnym teleturnieju jakim są Milionerzy!"
+    int lineCount = PrintWrappedLine(
+        "W naszej aplikacji będziesz miał możliwość sprawdzenia się w popularnym teleturnieju jakim są Milionerzy!"
         " W tej aplikacji będziesz w stanie sprawdzić swoją wiedzę w najróżniejszych dziedzinach, bądź swoich znajomych dzięki możliwości dodawania "
         "własnych pytań! Czytaj uważnie pytania i niech nie zwiedzie ciebie pewność siebie. Powodzenia!",
         widthWithoutBorders - 6, 7, false);
@@ -97,7 +104,8 @@ static void DrawUIPageOne(InstructionPageData* data) {
     PrintBorderEdges(data, lineCount);
 
     printf("\n  Zasady: ");
-    lineCount = PrintWrappedLine("Podczas rozgrywki jako gracz zmierzysz się z 10 różnymi pytaniami z szerokiej puli pytań posilając się kołami ratunkowymi. "
+    lineCount = PrintWrappedLine(
+        "Podczas rozgrywki jako gracz zmierzysz się z 10 różnymi pytaniami z szerokiej puli pytań posilając się kołami ratunkowymi. "
         "Na każde pytanie istnieje tylko 1 prawidłowa odpowiedź! Wybierając odpowiedź, bądź koło ratunkowe podświetli się ono na inny kolor oczekując na "
         "potwierdzenie (ponowne wciśnięcie danego klawisza)."
         "Wraz z kolejnymi pytaniami kwota pieniężna o którą grasz będzie wzrastać ( im dalej tym większa szansa na znaczną wygraną ). ",
@@ -113,7 +121,8 @@ static void DrawUIPageOne(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 1/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-static void DrawUIPageTwo(InstructionPageData* data) {
+static void DrawUIPageTwo(InstructionPageData* data)
+{
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -127,31 +136,38 @@ static void DrawUIPageTwo(InstructionPageData* data) {
     int lineCount = 2;
 
     printf("\n  *) [  Strzałki ] - ");
-    lineCount += PrintWrappedLine("Korzystaj z nich aby nawigować się w Menu oraz podczas teleturnieju.",
+    lineCount += PrintWrappedLine(
+        "Korzystaj z nich aby nawigować się w Menu oraz podczas teleturnieju.",
         width, offset, false);
 
     printf("\n  *) [    Esc    ] - ");
-    lineCount += PrintWrappedLine("Wróć do poprzedniego okna / Zakończ podejście w teleturnieju",
+    lineCount += PrintWrappedLine(
+        "Wróć do poprzedniego okna / Zakończ podejście w teleturnieju",
         width, offset, false);
 
     printf("\n  *) [   Enter   ] - ");
-    lineCount += PrintWrappedLine("Wybierz / Potwierdź daną opcję",
+    lineCount += PrintWrappedLine(
+        "Wybierz / Potwierdź daną opcję",
         width, offset, false);
 
     printf("\n  *) [     1     ] - ");
-    lineCount += PrintWrappedLine("Wybierz / Potwierdź 1 koło ratunkowe (pytanie do publiczności - publiczność głosuje za poprawną odpowiedzią)",
+    lineCount += PrintWrappedLine(
+        "Wybierz / Potwierdź 1 koło ratunkowe (pytanie do publiczności - publiczność głosuje za poprawną odpowiedzią)",
         width, offset, false);
 
     printf("\n  *) [     2     ] - ");
-    lineCount += PrintWrappedLine("Wybierz / Potwierdź 2 koło ratunkowe (50/50 - zaznacza 2 z 4 odpowiedzi które są nieprawidłowe)",
+    lineCount += PrintWrappedLine(
+        "Wybierz / Potwierdź 2 koło ratunkowe (50/50 - zaznacza 2 z 4 odpowiedzi które są nieprawidłowe)",
         width, offset, false);
 
     printf("\n  *) [     3     ] - ");
-    lineCount += PrintWrappedLine("Wybierz / Potwierdź 3 koło ratunkowe (telefon do przyjaciela - twój przyjaciel sugeruje poprawną według niego odpowiedź)",
+    lineCount += PrintWrappedLine(
+        "Wybierz / Potwierdź 3 koło ratunkowe (telefon do przyjaciela - twój przyjaciel sugeruje poprawną według niego odpowiedź)",
         width, offset, false);
 
     printf("\n  *) [ Shift + R ] - ");
-    lineCount += PrintWrappedLine("Odśwież wyświetlany obraz konsoli",
+    lineCount += PrintWrappedLine(
+        "Odśwież wyświetlany obraz konsoli",
         width, offset, false);
 
     printf("\n");
@@ -165,7 +181,8 @@ static void DrawUIPageTwo(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 2/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-static void DrawUIPageThree(InstructionPageData* data) {
+static void DrawUIPageThree(InstructionPageData* data)
+{
     const int widthWithoutBorders = data->terminalWidth - 4;
 
     PRINT_SINGLE_TOP_BORDER(data->terminalWidth);
@@ -179,17 +196,20 @@ static void DrawUIPageThree(InstructionPageData* data) {
     int lineCount = 2;
 
     printf("\n  *) [ Wielka wygrana! ] - ");
-    lineCount += PrintWrappedLine("Pokonując wszelkie przeszkody osiągasz swój cel wygrywając główną nagrodę teleturnieju.",
+    lineCount += PrintWrappedLine(
+        "Pokonując wszelkie przeszkody osiągasz swój cel wygrywając główną nagrodę teleturnieju.",
         width, offset2, false);
 
     printf("\n  *) [    Rezygnacja   ] - ");
-    lineCount += PrintWrappedLine("Nie znając poprawnej odpowiedzi oraz decydując się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
+    lineCount += PrintWrappedLine(
+        "Nie znając poprawnej odpowiedzi oraz decydując się poddać, kończysz swoje podejście w teleturnieju wygrywając ostatnią kwotę o którą w pytaniu dobrze odpowiedziałeś. "
         SET_COLOR_BRIGHT_RED "Jeśli jednak zrezygnujesz już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
     ResetColor();
 
     printf("\n  *) [  Zła odpowiedź  ] - ");
-    lineCount += PrintWrappedLine("Popełniając błąd, zaznaczając błędną odpowiedź, kończysz swoje podejście w tym teleturnieju. Zdobywasz jednak nagrodę w postaci ostatniego \"punktu kontrolnego\" na który odpowiedziałeś poprawnie. Punkty te są umiejscowione odpowiednio na 1, 3 i 6 pytaniu. "
+    lineCount += PrintWrappedLine(
+        "Popełniając błąd, zaznaczając błędną odpowiedź, kończysz swoje podejście w tym teleturnieju. Zdobywasz jednak nagrodę w postaci ostatniego \"punktu kontrolnego\" na który odpowiedziałeś poprawnie. Punkty te są umiejscowione odpowiednio na 1, 3 i 6 pytaniu. "
         SET_COLOR_BRIGHT_RED "Jeśli pomylisz się już na 1 pytaniu ukończysz teleturniej bez żadnej nagrody!",
         width, offset2, false);
     ResetColor();
@@ -205,23 +225,27 @@ static void DrawUIPageThree(InstructionPageData* data) {
     PrintWrappedLine(SINGLE_BREAK_LEFT "Strona: 3/3" SINGLE_BREAK_RIGHT, data->terminalWidth, 0, true);
 }
 
-static void DrawUI_BottomInstructions(InstructionPageData* data) {
+static void DrawUI_BottomInstructions(InstructionPageData* data)
+{
     char* text = "[ Esc ] Wciśnij aby powrócić do głównego Menu.\n[ ← ] Poprzednia strona / Następna strona [ → ]";
     int lineCount = GetWrappedLineCount(text, data->terminalWidth);
     SetCursorPosition(0, data->terminalHeight - lineCount + 1);
     PrintWrappedLine(text, data->terminalWidth, 0, true);
 }
 
-static void OnResize(void* data) {
+static void OnResize(void* data)
+{
     InstructionPageData* pageData = (InstructionPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
     DrawUI(pageData);
 }
 
-static void DrawUI(InstructionPageData* data){
+static void DrawUI(InstructionPageData* data)
+{
     char buffer[256];
-    while(data->terminalWidth < TERMINAL_MIN_WIDTH || data->terminalHeight < TERMINAL_MIN_HEIGHT) {
+    while(data->terminalWidth < TERMINAL_MIN_WIDTH || data->terminalHeight < TERMINAL_MIN_HEIGHT)
+    {
         UnsetResizeHandler();
 
         sprintf(buffer, ERRMSG_TOO_SMALL_TERMINAL(TERMINAL_MIN_WIDTH, TERMINAL_MIN_HEIGHT));
@@ -234,7 +258,7 @@ static void DrawUI(InstructionPageData* data){
     }
 
     ClearScreenManual();
-    
+
     switch (data->pageNumber)
     {
         case 1:

@@ -8,19 +8,22 @@
 static void AppendQuestion(FILE* file, Question* question);
 static void SaveQuestions(QuestionListHeader *list);
 
-static bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset) {
+static bool DeserializeQuestionId(const char* serializedQuestion, Question* question, int* offset)
+{
     errno = 0;
     char* end;
     question->Id = strtol(serializedQuestion, &end, 10);
     *offset = (int)(end - serializedQuestion) + 1;
 
-    if(serializedQuestion == end) {
+    if(serializedQuestion == end)
+    {
         question->Id = -1;
         fprintf(stderr, ERRMSG_QUESTION_INVALID_QUESTION_ID(serializedQuestion));
         return false;
     }
 
-    if(errno == ERANGE) {
+    if(errno == ERANGE)
+    {
         perror(ERRMSG_QUESTION_INVALID_QUESTION_ID_PERRNO);
         return false;
     }
@@ -28,10 +31,12 @@ static bool DeserializeQuestionId(const char* serializedQuestion, Question* ques
     return true;
 }
 
-static bool DeserializeString(const char* serializedQuestion, char** content, int* offset) {
+static bool DeserializeString(const char* serializedQuestion, char** content, int* offset)
+{
     char buffer[255];
     int i = 0;
-    while(serializedQuestion[i] != ';' && serializedQuestion[i] != '\0') {
+    while(serializedQuestion[i] != ';' && serializedQuestion[i] != '\0')
+    {
         buffer[i] = serializedQuestion[i];
         i++;
     }
@@ -44,7 +49,8 @@ static bool DeserializeString(const char* serializedQuestion, char** content, in
     (*content)[i] = '\0';
     *offset = i + 1;
 
-    if(i == 0) {
+    if(i == 0)
+    {
         fprintf(stderr, ERRMSG_QUESTION_CONTENT_EMPTY);
         return false;
     }
@@ -52,7 +58,8 @@ static bool DeserializeString(const char* serializedQuestion, char** content, in
     return true;
 }
 
-Question* DeserializeQuestion(char* serializedQuestion) {
+Question* DeserializeQuestion(char* serializedQuestion)
+{
     if(serializedQuestion == NULL) return NULL;
 
     Question* question = malloc(sizeof(Question));
@@ -94,7 +101,8 @@ Question* DeserializeQuestion(char* serializedQuestion) {
     return question;
 }
 
-Question* CloneQuestion(Question *question) {
+Question* CloneQuestion(Question *question)
+{
     Question* clone = malloc(sizeof(Question));
     mallocCheck(clone);
 
@@ -113,46 +121,56 @@ Question* CloneQuestion(Question *question) {
     return clone;
 }
 
-bool ValidateQuestion(Question* question, char** outMessage) {
-    if(question->Id <= 0) {
+bool ValidateQuestion(Question* question, char** outMessage)
+{
+    if(question->Id <= 0)
+    {
         *outMessage = VLDFAIL_QUESTION_ID_INVALID;
         return false;
     }
 
     size_t sumLength = 10;
-    if(question->Content == NULL || question->Content[0] == '\0') {
+    if(question->Content == NULL || question->Content[0] == '\0')
+    {
         *outMessage = VLDFAIL_QUESTION_CONTENT_EMPTY;
         return false;
     }
-    else {
+    else
+    {
         sumLength += strlen(question->Content);
     }
 
     for (int i = 0; i < 4; i++)
     {
-        if(question->Answer[i] == NULL || question->Answer[i][0] == '\0') {
+        if(question->Answer[i] == NULL || question->Answer[i][0] == '\0')
+        {
             *outMessage = VLDFAIL_QUESTION_ANSWER_EMPTY;
             return false;
         }
-        else {
+        else
+        {
             sumLength += strlen(question->Answer[i]);
         }
     }
 
-    if(sumLength >= QUESTION_MAX_FULL_LENGTH) {
+    if(sumLength >= QUESTION_MAX_FULL_LENGTH)
+    {
         *outMessage = VLDFAIL_QUESTION_TOO_LONG;
         return false;
     }
 
     QuestionListHeader* list = GetQuestionList();
-    if(list == NULL) {
+    if(list == NULL)
+    {
         *outMessage = VLDFAIL_QUESTION_LIST_NULL;
         return false;
     }
 
     QuestionListItem* current = list->head;
-    while(current != NULL) {
-        if(current->data->Id == question->Id) {
+    while(current != NULL)
+    {
+        if(current->data->Id == question->Id)
+        {
             *outMessage = VLDFAIL_QUESTION_DUPLICATE_ID;
             return false;
         }
@@ -163,12 +181,14 @@ bool ValidateQuestion(Question* question, char** outMessage) {
     return true;
 }
 
-bool AddQuestion(Question* question, char** outMessage) {
+bool AddQuestion(Question* question, char** outMessage)
+{
     if(!ValidateQuestion(question, outMessage)) return false;
 
     QuestionListHeader* list = GetQuestionList();
 
-    if(list == NULL) {
+    if(list == NULL)
+    {
         *outMessage = VLDFAIL_QUESTION_LIST_NULL;
         return false;
     }
@@ -179,15 +199,18 @@ bool AddQuestion(Question* question, char** outMessage) {
     return true;
 }
 
-bool EditQuestion(Question* question, char** outMessage) {
+bool EditQuestion(Question* question, char** outMessage)
+{
     QuestionListHeader* list = GetQuestionList();
 
-    if(list == NULL) {
+    if(list == NULL)
+    {
         *outMessage = VLDFAIL_QUESTION_LIST_NULL;
         return false;
     }
-    
-    if(!ListContains(list, question)) {
+
+    if(!ListContains(list, question))
+    {
         *outMessage = VLDFAIL_QUESTION_NOT_FOUND;
         return false;
     }
@@ -197,15 +220,18 @@ bool EditQuestion(Question* question, char** outMessage) {
     return true;
 }
 
-bool DeleteQuestion(Question* question, char** outMessage) {
+bool DeleteQuestion(Question* question, char** outMessage)
+{
     QuestionListHeader* list = GetQuestionList();
 
-    if(list == NULL) {
+    if(list == NULL)
+    {
         *outMessage = VLDFAIL_QUESTION_LIST_NULL;
         return false;
     }
 
-    if(!ListRemove(list, question)) {
+    if(!ListRemove(list, question))
+    {
         *outMessage = VLDFAIL_QUESTION_NOT_FOUND;
         return false;
     }
@@ -228,18 +254,20 @@ static void SaveQuestions(QuestionListHeader *list)
     CloseFileChecked(file);
 }
 
-static void AppendQuestion(FILE* file, Question* question) {
+static void AppendQuestion(FILE* file, Question* question)
+{
     // Id;Question;Ans1;Ans2;Ans3;Ans4;\n
     fprintf(file, "%d;%s;%s;%s;%s;%s;\n",
-        question->Id,
-        question->Content,
-        question->Answer[0],
-        question->Answer[1],
-        question->Answer[2],
-        question->Answer[3]);
+            question->Id,
+            question->Content,
+            question->Answer[0],
+            question->Answer[1],
+            question->Answer[2],
+            question->Answer[3]);
 }
 
-void DestroyQuestion(Question* question) {
+void DestroyQuestion(Question* question)
+{
     if(question == NULL) return;
 
     free(question->Content);
