@@ -100,9 +100,13 @@ bool ValidateQuestion(Question* question, char** outMessage) {
         return false;
     }
 
+    size_t sumLength = 10;
     if(question->Content == NULL || question->Content[0] == '\0') {
         *outMessage = VLDFAIL_QUESTION_CONTENT_EMPTY;
         return false;
+    }
+    else {
+        sumLength += strlen(question->Content);
     }
 
     for (int i = 0; i < 4; i++)
@@ -111,6 +115,14 @@ bool ValidateQuestion(Question* question, char** outMessage) {
             *outMessage = VLDFAIL_QUESTION_ANSWER_EMPTY;
             return false;
         }
+        else {
+            sumLength += strlen(question->Answer[i]);
+        }
+    }
+
+    if(sumLength >= QUESTION_MAX_FULL_LENGTH) {
+        *outMessage = VLDFAIL_QUESTION_TOO_LONG;
+        return false;
     }
 
     QuestionListHeader* list = GetQuestionList();

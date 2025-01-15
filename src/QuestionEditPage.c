@@ -374,6 +374,31 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
+static bool FinalizeEdit(AddQuestionPageData* data) {
+    char buffer[256];
+    char* message;
+    if(data->newQuestion) {
+        if(!AddQuestion(data->question, &message)) {
+            sprintf(buffer, "Nie udało się dodać pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+        
+        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
+    }
+    else {
+        if(!EditQuestion(data->question, &message)) {
+            sprintf(buffer, "Nie udało się edytować pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+
+        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
+    }
+
+    return true;
+}
+
 bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 {
     ClearScreen();
@@ -390,35 +415,20 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 
     SetResizeHandler(OnResize, &data);
 
-    if(!InputLoop(&data)) {
+    while(true) {
+        if(!InputLoop(&data)) {
+            UnsetResizeHandler();
+            LoadQuestionsFromFile(); // Reload questions
+            return false;
+        }
+
+        HideCursor();
         UnsetResizeHandler();
-        return false;
-    }
 
-    HideCursor();
-
-    UnsetResizeHandler();
-
-    char buffer[256];
-    char* message;
-    if(newQuestion) {
-        if(!AddQuestion(data.question, &message)) {
-            sprintf(buffer, "Nie udało się dodać pytania!\n\n%s", message);
-            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
-            return false;
-        }
-        
-        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
-    }
-    else {
-        if(!EditQuestion(data.question, &message)) {
-            sprintf(buffer, "Nie udało się edytować pytania!\n\n%s", message);
-            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
-            return false;
+        if(FinalizeEdit(&data)) {
+            return true;
         }
 
-        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
+        SetResizeHandler(OnResize, &data);
     }
-
-    return true;
 }

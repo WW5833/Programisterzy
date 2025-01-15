@@ -5,10 +5,7 @@
 #include "TextHelper.h"
 #include "Popup.h"
 
-#define SET_COLOR_RED ESC_SEQ "38;2;139;0;0m"
 #define SET_COLOR_BRIGHT_RED ESC_SEQ "38;2;255;36;0m"
-
-#define RESET_COLOR ESC_SEQ "39;40m"
 
 #define TERMINAL_MIN_WIDTH 70
 #define TERMINAL_MIN_HEIGHT 26

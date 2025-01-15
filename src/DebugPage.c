@@ -6,15 +6,6 @@
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-#define MAIN_MENU_MIN_WIDTH 48
-#define MAIN_MENU_MIN_HEIGHT 13
-
-#define SETTINGS_MIN_WIDTH 48
-#define SETTINGS_MIN_HEIGHT 20
-
-#define QUIZ_MIN_WIDTH 60
-#define QUIZ_MIN_HEIGHT 13
-
 #define MIN_TERMINAL_WIDTH 70
 #define MIN_TERMINAL_HEIGHT 26
 

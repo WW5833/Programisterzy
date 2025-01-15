@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #define QUESTIONS_FILE "./questions.txt"
+#define QUESTION_MAX_FULL_LENGTH 1000
 
 typedef struct QuestionListItem
 {

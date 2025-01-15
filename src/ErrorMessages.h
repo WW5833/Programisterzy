@@ -48,5 +48,6 @@
 #define VLDFAIL_QUESTION_LIST_NULL "Błąd wewnętrzny: Lista pytań jest niezaładowana"
 #define VLDFAIL_QUESTION_DUPLICATE_ID "Duplikat identyfikatora pytania"
 #define VLDFAIL_QUESTION_NOT_FOUND "Nie znaleziono pytania"
+#define VLDFAIL_QUESTION_TOO_LONG "Pytanie jest zbyt długie (Suma wszystkich znaków przekracza limit)"
 
 #endif // _INC_ERRORMESSAGES_H
