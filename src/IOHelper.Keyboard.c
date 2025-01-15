@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "IOHelper.Window.h"
 
-#define TEXT_INPUT_BUFFER_SIZE 128
+#define TEXT_INPUT_BUFFER_SIZE 1024
 #define CTRL_C '\03'
 
 static int textInputBufferReadPtr = TEXT_INPUT_BUFFER_SIZE;
