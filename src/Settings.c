@@ -17,7 +17,7 @@ static void LoadDefaultSettings() {
     LoadedSettings.ConfirmedAnswerColor = RGB_ID_CYAN;
     LoadedSettings.SupportColor = RGB_ID_MAGENTA;
     LoadedSettings.FullUTF8Support = 1;
-    LoadedSettings.TutorialShown = 0;
+    LoadedSettings.WelcomePageShown = 0;
     LoadedSettings.ShowCorrectWhenWrong = 1;
     LoadedSettings.EnableMouseSupport = 1;
     LoadedSettings.DarkMode = 1;
@@ -42,7 +42,7 @@ void LoadSettingsFromFile()
         &LoadedSettings.ConfirmedAnswerColor,
         &LoadedSettings.SupportColor,
         &LoadedSettings.FullUTF8Support,
-        &LoadedSettings.TutorialShown,
+        &LoadedSettings.WelcomePageShown,
         &LoadedSettings.ShowCorrectWhenWrong,
         &LoadedSettings.EnableMouseSupport,
         &LoadedSettings.DarkMode);
@@ -61,7 +61,7 @@ void SaveSettingsToFile()
         LoadedSettings.ConfirmedAnswerColor,
         LoadedSettings.SupportColor,
         LoadedSettings.FullUTF8Support,
-        LoadedSettings.TutorialShown,
+        LoadedSettings.WelcomePageShown,
         LoadedSettings.ShowCorrectWhenWrong,
         LoadedSettings.EnableMouseSupport,
         LoadedSettings.DarkMode);

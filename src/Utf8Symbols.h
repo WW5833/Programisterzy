@@ -44,25 +44,39 @@
 
 #define TRIANGLE "▶" /* Does not work on all terminals */
 
+/// @brief Print generic border line
+/// @param width Width of the border
+/// @param leftCharacter Character on the left
+/// @param middleCharacter Character in the middle
+/// @param rightCharacter Character on the right
 void PrintGenericBorder(
     int width,
-    const char* leftFormat,
-    const char* middleFormat,
-    const char* rightFormat);
+    const char* leftCharacter,
+    const char* middleCharacter,
+    const char* rightCharacter);
 
+/// @brief Print generic border edges
+/// @param startX X to start from
+/// @param width Width of the border
+/// @param y Y of the border
+/// @param character Character to use to print border
+/// @param clearInside If true, in between the characters will be cleared
 void PrintGenericBorderEdges(
     int startX, int width, int y,
-    const char* format,
+    const char* character,
     bool clearInside);
 
+/// @brief Print generic border edge on current line
+/// @param startX X to start from
+/// @param width Width of the border
+/// @param character Character to use to print border
 void PrintGenericBorderEdgesHere(
     int startX, int width,
-    const char* format);
+    const char* character);
 
 #define PRINT_SINGLE_TOP_BORDER(width) PrintGenericBorder(width, SINGLE_TOP_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_TOP_RIGHT_CORNER)
 #define PRINT_SINGLE_BOTTOM_BORDER(width) PrintGenericBorder(width, SINGLE_BOTTOM_LEFT_CORNER, SINGLE_HORIZONTAL_LINE, SINGLE_BOTTOM_RIGHT_CORNER)
 #define PRINT_SINGLE_TJUNCTION_BORDER(width) PrintGenericBorder(width, SINGLE_BREAK_RIGHT, SINGLE_HORIZONTAL_LINE, SINGLE_BREAK_LEFT)
-
 
 #define PRINT_TOP_BORDER(width) PrintGenericBorder(width, TOP_LEFT_CORNER, HORIZONTAL_LINE, TOP_RIGHT_CORNER)
 #define PRINT_BOTTOM_BORDER(width) PrintGenericBorder(width, BOTTOM_LEFT_CORNER, HORIZONTAL_LINE, BOTTOM_RIGHT_CORNER)

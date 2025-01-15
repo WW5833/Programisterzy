@@ -33,7 +33,7 @@ void PageEnter_Welcome()
 
     c = WaitForKeys('1', '2');
 
-    LoadedSettings.TutorialShown = 1;
+    LoadedSettings.WelcomePageShown = 1;
     SaveSettingsToFile();
 
     if(c == '1') {

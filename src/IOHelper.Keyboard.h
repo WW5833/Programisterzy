@@ -5,7 +5,8 @@
 #include "IOHelper.h"
 #include <windows.h>
 
-void KeyEventProc(KEY_EVENT_RECORD);
-void IOLoop();
+/// @brief Process a key event
+/// @param ker The key event record
+void KeyEventProc(KEY_EVENT_RECORD ker);
 
 #endif // _INC_IOHELPER_KEYBOARD_H

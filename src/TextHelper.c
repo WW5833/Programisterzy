@@ -100,15 +100,15 @@ int GetCharCount(const char* start, const char* end) {
     return count;
 }
 
-static int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText, bool print)
+static int _internal_PrintWrappedLine(const char* text, int width, int secondaryOffset, bool centerText, bool print)
 {
     int byteLineLength, lineLength;
 
     int lineCount = 1;
     int currentWidth = 0;
-    const char* wordStart = line;
-    const char* current = line;
-    const char* lineStart = line;
+    const char* wordStart = text;
+    const char* current = text;
+    const char* lineStart = text;
     int leftSpaces;
 
     while (*current != '\0') {
@@ -166,32 +166,32 @@ static int _internal_PrintWrappedLine(const char* line, int width, int secondary
     return lineCount;
 }
 
-int GetWrappedLineCount(const char* line, int width)
+int GetWrappedLineCount(const char* text, int width)
 {
-    return _internal_PrintWrappedLine(line, width, 0, false, false);
+    return _internal_PrintWrappedLine(text, width, 0, false, false);
 }
 
-int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
+int PrintWrappedLine(const char* text, int width, int secondaryOffset, bool centerText)
 {
-    return _internal_PrintWrappedLine(line, width, secondaryOffset, centerText, true);
+    return _internal_PrintWrappedLine(text, width, secondaryOffset, centerText, true);
 }
 
-int GetMaxWordLength(const char* line)
+int GetMaxWordLength(const char* text)
 {
     int max = 0;
-    const char* lastSpace = line;
-    while (*line != '\0')
+    const char* lastSpace = text;
+    while (*text != '\0')
     {
-        if (*line == ' ')
+        if (*text == ' ')
         {
-            max = MAX(max, GetCharCount(lastSpace, line));
-            lastSpace = line;
+            max = MAX(max, GetCharCount(lastSpace, text));
+            lastSpace = text;
         }
 
-        line++;
+        text++;
     }
 
-    max = MAX(max, GetCharCount(lastSpace, line));
+    max = MAX(max, GetCharCount(lastSpace, text));
 
     return max;
 }

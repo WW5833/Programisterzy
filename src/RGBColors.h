@@ -14,7 +14,11 @@
 #define RGB_ID_GREY     6
 #define RGB_ID_WHITE    7
 
+/// @brief Set console color
+/// @param color Color Id
+/// @param background If true the color will be set for background
 void SetColorRGBPreset(int color, bool background);
+/// @brief Resets console color to defaults
 void SetResetColor();
 
 #endif // _INT_RGBCOLORS_H

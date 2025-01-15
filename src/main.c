@@ -40,7 +40,7 @@ int main() {
         UpdateTerminalSize();
     }
 
-    if(LoadedSettings.TutorialShown == 0) {
+    if(LoadedSettings.WelcomePageShown == 0) {
         PageEnter_Welcome();
     }
 
