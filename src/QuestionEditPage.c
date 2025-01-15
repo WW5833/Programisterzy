@@ -20,6 +20,7 @@ typedef struct {
     int terminalHeight;
 
     bool newQuestion;
+    Question* questionClone;
     Question* question;
     int slotNumber;
 
@@ -31,8 +32,8 @@ typedef struct {
     int textFieldWidth;
 } AddQuestionPageData;
 
-const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
-const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
+static const char ConfirmAddButtonText[] = "Zatwierdź dodawanie pytania (Wybierz tą opcję)";
+static const char ConfirmEditButtonText[] = "Zatwierdź modyfikowanie pytania (Wybierz tą opcję)";
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
 
@@ -262,7 +263,7 @@ static void DrawUI(AddQuestionPageData* data) {
     RestoreCursorPosition();
 }
 
-bool InputLoop(AddQuestionPageData* data) {
+static bool InputLoop(AddQuestionPageData* data) {
     while(true) {
         DrawUI(data);
 
@@ -330,18 +331,6 @@ bool InputLoop(AddQuestionPageData* data) {
     }
 }
 
-void AddQuestion(AddQuestionPageData* data) {
-    OpenFileChecked(file, QUESTIONS_FILE, "a");
-
-    AppendQuestion(file, data->question);
-
-    CloseFileChecked(file);
-
-    QuestionListHeader *list = GetQuestionList();
-
-    ListAdd(list, data->question);
-}
-
 static void CalculateValues(AddQuestionPageData* data);
 
 static void OnResize(void* data) {
@@ -386,6 +375,54 @@ static void CalculateValues(AddQuestionPageData* data) {
     CalculateMaxLines(data);
 }
 
+static bool FinalizeEdit(AddQuestionPageData* data) {
+    char buffer[256];
+    char* message;
+    if(data->newQuestion) {
+        if(!AddQuestion(data->question, &message)) {
+            sprintf(buffer, "Nie udało się dodać pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+        
+        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
+    }
+    else {
+        if(!EditQuestion(data->question, &message)) {
+            sprintf(buffer, "Nie udało się edytować pytania!\n\n%s", message);
+            ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
+            return false;
+        }
+
+        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
+    }
+
+    return true;
+}
+
+void RevertChanges(AddQuestionPageData* data) {
+    Question* original = data->questionClone;
+    Question* question = data->question;
+
+    if(question->Content != NULL) {
+        free(question->Content);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if(question->Answer[i] != NULL) {
+            free(question->Answer[i]);
+        }
+    }
+
+    question->Id = original->Id;
+    question->Content = original->Content;
+    for (int i = 0; i < 4; i++)
+    {
+        question->Answer[i] = original->Answer[i];
+    }
+}
+
 bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
 {
     ClearScreen();
@@ -396,28 +433,29 @@ bool PageEnter_QuestionEdit(Question* question, bool newQuestion)
     data.slotNumber = 0;
 
     data.question = question;
+    data.questionClone = CloneQuestion(question);
     data.newQuestion = newQuestion;
 
     CalculateValues(&data);
 
     SetResizeHandler(OnResize, &data);
 
-    if(!InputLoop(&data)) {
+    while(true) {
+        if(!InputLoop(&data)) {
+            RevertChanges(&data);
+            DestroyQuestion(data.questionClone);
+            UnsetResizeHandler();
+            return false;
+        }
+
+        HideCursor();
         UnsetResizeHandler();
-        return false;
+
+        if(FinalizeEdit(&data)) {
+            DestroyQuestion(data.questionClone);
+            return true;
+        }
+
+        SetResizeHandler(OnResize, &data);
     }
-
-    HideCursor();
-
-    UnsetResizeHandler();
-
-    if(newQuestion) {
-        AddQuestion(&data);
-        ShowAlertPopup("Pytanie dodane pomyślnie.", 31);
-    }
-    else {
-        ShowAlertPopup("Pytanie zmodyfikowane pomyślnie.", 32);
-    }
-
-    return true;
 }

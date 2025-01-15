@@ -10,27 +10,27 @@
 
 Settings LoadedSettings;
 
-void LoadDefaultSettings() {
+static void LoadDefaultSettings() {
     LoadedSettings.CorrectAnswerColor = RGB_ID_GREEN;
     LoadedSettings.WrongAnswerColor = RGB_ID_RED;
     LoadedSettings.SelectedAnswerColor = RGB_ID_YELLOW;
     LoadedSettings.ConfirmedAnswerColor = RGB_ID_CYAN;
     LoadedSettings.SupportColor = RGB_ID_MAGENTA;
     LoadedSettings.FullUTF8Support = 1;
-    LoadedSettings.TutorialShown = 0;
+    LoadedSettings.WelcomePageShown = 0;
     LoadedSettings.ShowCorrectWhenWrong = 1;
     LoadedSettings.EnableMouseSupport = 1;
     LoadedSettings.DarkMode = 1;
 }
 
-void LoadSettings()
+void LoadSettingsFromFile()
 {
     FILE* file = fopen(SETTINGS_FILE, "r");
 
     if(file == NULL) {
         LoadDefaultSettings();
 
-        SaveSettings();
+        SaveSettingsToFile();
 
         return;
     }
@@ -42,7 +42,7 @@ void LoadSettings()
         &LoadedSettings.ConfirmedAnswerColor,
         &LoadedSettings.SupportColor,
         &LoadedSettings.FullUTF8Support,
-        &LoadedSettings.TutorialShown,
+        &LoadedSettings.WelcomePageShown,
         &LoadedSettings.ShowCorrectWhenWrong,
         &LoadedSettings.EnableMouseSupport,
         &LoadedSettings.DarkMode);
@@ -50,7 +50,7 @@ void LoadSettings()
     CloseFileChecked(file);
 }
 
-void SaveSettings()
+void SaveSettingsToFile()
 {
     OpenFileChecked(file, SETTINGS_FILE, "w");
 
@@ -61,7 +61,7 @@ void SaveSettings()
         LoadedSettings.ConfirmedAnswerColor,
         LoadedSettings.SupportColor,
         LoadedSettings.FullUTF8Support,
-        LoadedSettings.TutorialShown,
+        LoadedSettings.WelcomePageShown,
         LoadedSettings.ShowCorrectWhenWrong,
         LoadedSettings.EnableMouseSupport,
         LoadedSettings.DarkMode);

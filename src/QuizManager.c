@@ -7,7 +7,7 @@
 
 #define BUFFER_SIZE 1024
 
-QuestionListHeader* QuestionList;
+static QuestionListHeader* QuestionList;
 
 QuestionListHeader* GetQuestionList() {
     return QuestionList;
@@ -62,6 +62,22 @@ void ListDestroy(QuestionListHeader* list, bool destoryData) {
     ListClear(list, destoryData);
 
     free(list);
+}
+
+bool ListContains(QuestionListHeader *list, Question *question) {
+    if(list == NULL) return false;
+
+    QuestionListItem* current = list->head;
+    while (current != NULL)
+    {
+        if(current->data == question) {
+            return true;
+        }
+
+        current = current->next;
+    }
+
+    return false;
 }
 
 void ListAdd(QuestionListHeader* list, Question* data) {
@@ -124,8 +140,8 @@ Question* ListGetAt(QuestionListHeader* list, int index) {
     return current->data;
 }
 
-void ListRemove(QuestionListHeader* list, Question* question) {
-    if(list == NULL) return;
+bool ListRemove(QuestionListHeader* list, Question* question) {
+    if(list == NULL) return false;
 
     QuestionListItem* current = list->head;
     while (current != NULL)
@@ -147,11 +163,13 @@ void ListRemove(QuestionListHeader* list, Question* question) {
 
             list->count--;
             free(current);
-            return;
+            return true;
         }
 
         current = current->next;
     }
+
+    return false;
 }
 
 QuestionListHeader* GetQuestionListCopy() {
@@ -172,7 +190,7 @@ void EnsureQuestionsFileExists() {
     CloseFileChecked(file);
 }
 
-int LoadQuestions() {
+int LoadQuestionsFromFile() {
     EnsureQuestionsFileExists();
 
     if(QuestionList == NULL) {
@@ -227,19 +245,6 @@ int LoadQuestions() {
     return QuestionList->count;
 }
 
-void SaveQuestions(QuestionListHeader *list)
-{
-    OpenFileChecked(file, QUESTIONS_FILE, "w");
-    QuestionListItem* current = list->head;
-    while (current != NULL)
-    {
-        AppendQuestion(file, current->data);
-        current = current->next;
-    }
-
-    CloseFileChecked(file);
-}
-
 Question* GetRandomQuestion() {
     if(QuestionList->count == 0) return NULL;
 
@@ -263,7 +268,7 @@ int GetMaxQuestionId()
 
 QuestionListHeader* GenerateQuiz() {
     if(QuestionList == NULL) {
-        LoadQuestions();
+        LoadQuestionsFromFile();
 
         if(QuestionList == NULL) {
             ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);

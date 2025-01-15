@@ -16,7 +16,7 @@ int main() {
 
     InitializeIO();
 
-    LoadSettings();
+    LoadSettingsFromFile();
 
     UpdateTerminalSize();
     ClearScreenManual();
@@ -28,7 +28,7 @@ int main() {
 
     SetThisConsoleTitle("Programisterzy");
 
-    LoadQuestions();
+    LoadQuestionsFromFile();
 
     if(GetQuestionList() == NULL) {
         ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_QUESTION_FAILED_TO_LOAD);
@@ -40,7 +40,7 @@ int main() {
         UpdateTerminalSize();
     }
 
-    if(LoadedSettings.TutorialShown == 0) {
+    if(LoadedSettings.WelcomePageShown == 0) {
         PageEnter_Welcome();
     }
 

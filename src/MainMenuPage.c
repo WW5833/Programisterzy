@@ -38,13 +38,13 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static const int LineTable[] = {4, 5, 6, 7, 8, 9, 10};
 
-void PrintBottomInstructions()
+static void DrawUI_BottomInstructions()
 {
     SetCursorPosition(0, LatestTerminalHeight);
     PrintWrappedLine("Użyj: [ ↑ ] / [ ↓ ] do nawigacji, [ Enter ] do wyboru opcji.", LatestTerminalWidth, 0, true);
 }
 
-void PrintMainMenu(MainMenuPageData* data)
+static void DrawUI(MainMenuPageData* data)
 {
     // Set them here so that when exiting other page to here it will auto resize if size changed
     data->terminalWidth = LatestTerminalWidth;
@@ -84,10 +84,10 @@ void PrintMainMenu(MainMenuPageData* data)
     SetCursorPosition(4, LineTable[data->selected]);
     printf("*");
 
-    PrintBottomInstructions();
+    DrawUI_BottomInstructions();
 }
 
-void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
+static void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
     SetCursorPosition(4, LineTable[data->selected]);
     printf(" ");
 
@@ -101,7 +101,7 @@ void OnArrowKeysPressed(MainMenuPageData* data, bool down) {
     printf("*");
 }
 
-void OnEnterPressed(MainMenuPageData* data) {
+static void OnEnterPressed(MainMenuPageData* data) {
     switch (data->selected)
     {
         case 0:
@@ -128,10 +128,10 @@ void OnEnterPressed(MainMenuPageData* data) {
 #endif
     }
 
-    PrintMainMenu(data);
+    DrawUI(data);
 }
 
-void OnMainMenuPageReset(void* data);
+static void OnResize(void* data);
 
 void PageEnter_MainMenu()
 {
@@ -140,9 +140,9 @@ void PageEnter_MainMenu()
     MainMenuPageData data;
     data.selected = 0;
 
-    PrintMainMenu(&data);
+    DrawUI(&data);
 
-    SetResizeHandler(OnMainMenuPageReset, &data);
+    SetResizeHandler(OnResize, &data);
 
     while (true)
     {
@@ -155,16 +155,16 @@ void PageEnter_MainMenu()
 
             OnEnterPressed(&data);
 
-            SetResizeHandler(OnMainMenuPageReset, &data);
+            SetResizeHandler(OnResize, &data);
         }
     }
 
     UnsetResizeHandler();
 }
 
-void OnMainMenuPageReset(void* data) {
+static void OnResize(void* data) {
     MainMenuPageData* mainMenuData = (MainMenuPageData*)data;
     mainMenuData->terminalWidth = LatestTerminalWidth;
     mainMenuData->terminalHeight = LatestTerminalHeight;
-    PrintMainMenu(mainMenuData);
+    DrawUI(mainMenuData);
 }

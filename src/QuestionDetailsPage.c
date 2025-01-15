@@ -19,23 +19,26 @@ typedef struct {
     int contentLines;
 } QuestionDetailsPageData;
 
-bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
+static bool DeleteQuestionPrompt(QuestionDetailsPageData* data) {
     if(!ShowConfirmationPopup("Czy na pewno chcesz usunąc to pytanie?\n\n"
         SET_COLOR_RED "U W A G A !" SET_COLOR_BRIGHT_RED
         "\nTej operacji nie można cofnąc!!", "Tak", "Nie", 48)) {
         return false;
     }
 
-    ListRemove(GetQuestionList(), data->question);
-    DestroyQuestion(data->question);
-    SaveQuestions(GetQuestionList());
-    data->question = NULL;
+    char* message;
+    if(DeleteQuestion(data->question, &message)) {
+        ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
+        return true;
+    }
 
-    ShowAlertPopup("Pytanie usunięte pomyślnie.", 31);
+    char buffer[256];
+    sprintf(buffer, "Nie udało się usunąć pytania!\n\n%s", message);
+    ShowAlertPopupWithTitle(ERRMSG_ERROR_POPUP_TITLE, buffer, 40);
     return true;
 }
 
-void PrintUI(QuestionDetailsPageData* data) {
+static void DrawUI(QuestionDetailsPageData* data) {
     ClearScreen();
 
     printf("Informacje o pytaniu (Id: %d)\n", data->question->Id);
@@ -59,7 +62,14 @@ static void OnResize(void* data) {
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
 
-    PrintUI(pageData);
+    DrawUI(pageData);
+}
+
+static void DrawUI_UpdateOptionSelector(QuestionDetailsPageData* data, int oldSelected) {
+    SetCursorPosition(2, data->contentLines + oldSelected);
+    printf(" ");
+    SetCursorPosition(2, data->contentLines + data->selectedOption);
+    printf("*");
 }
 
 void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
@@ -70,7 +80,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
     data.selectedOption = 0;
     data.question = question;
 
-    PrintUI(&data);
+    DrawUI(&data);
 
     SetResizeHandler(OnResize, &data);
 
@@ -85,29 +95,21 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                 oldSelected = data.selectedOption--;
                 if (data.selectedOption < 0) data.selectedOption = OPTION_COUNT - 1;
 
-                SetCursorPosition(2, data.contentLines + oldSelected);
-                printf(" ");
-                SetCursorPosition(2, data.contentLines + data.selectedOption);
-                printf("*");
+                DrawUI_UpdateOptionSelector(&data, oldSelected);
                 break;
 
             case KEY_ARROW_DOWN:
                 oldSelected = data.selectedOption++;
                 if (data.selectedOption >= OPTION_COUNT) data.selectedOption = 0;
                 
-                SetCursorPosition(2, data.contentLines + oldSelected);
-                printf(" ");
-                SetCursorPosition(2, data.contentLines + data.selectedOption);
-                printf("*");
+                DrawUI_UpdateOptionSelector(&data, oldSelected);
                 break;
 
             case KEY_ENTER: {
                 switch (data.selectedOption) {
                     case 0:
                         // Edit question
-                        if(PageEnter_QuestionEdit(data.question, false)) {
-                            SaveQuestions(GetQuestionList());
-                        }
+                        PageEnter_QuestionEdit(data.question, false);
                         SetResizeHandler(OnResize, &data);
                         break;
                     case 1:
@@ -132,7 +134,7 @@ void PageEnter_QuestionDetails(Question *question, bool* outDeleted)
                         continueLoop = false;
                         break;
                 }
-                PrintUI(&data);
+                DrawUI(&data);
                 break;
             }
 

@@ -30,21 +30,21 @@ typedef struct {
     bool exit;
 } QuestionListPageData;
 
-void EnterPreview(QuestionListPageData* data, bool mainLoop);
-void CalculateStartIndex(QuestionListPageData* data);
+static void EnterPreview(QuestionListPageData* data, bool mainLoop);
+static void CalculateStartIndex(QuestionListPageData* data);
 
-void OnQuestionListPageResize(void* data);
-void OnQuestionListPageScroll(bool down, void* data);
-void OnQuestionListPageMouseClick(int button, void* data);
-void OnQuestionListPageMouseDoubleClick(int button, void* data);
+static void OnResize(void* data);
+static void OnScroll(bool down, void* data);
+static void OnMouseClick(int button, void* data);
+static void OnMouseDoubleClick(int button, void* data);
 
-void DrawVisibleQuestions(QuestionListPageData* data);
-void DrawScrollBar(QuestionListPageData* data, int oldSelected);
+static void DrawUI_VisibleQuestions(QuestionListPageData* data);
+static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected);
 
-void AddScrollBar(QuestionListPageData* data);
-void RemoveScrollBar(QuestionListPageData* data, int oldSelected);
+static void DrawUI_AddScrollBar(QuestionListPageData* data);
+static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected);
 
-void DrawStaticScroll(QuestionListPageData* data) {
+static void DrawUI_Static_ScrollBar(QuestionListPageData* data) {
     if(data->list->count <= data->elementLimit) return;
 
     for (int i = 0; i < data->terminalHeight; i++)
@@ -62,7 +62,7 @@ void DrawStaticScroll(QuestionListPageData* data) {
     }
 }
 
-void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
+static void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
     int length = GetStringCharCount(question->Content);
 
     printf(CSR_MOVE_CURSOR_X(blockWidth));
@@ -97,7 +97,7 @@ void PrintQuestionLine(Question* question, int widthLimit, int blockWidth) {
     }
 }
 
-void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
     int widthLimit = data->blockWidth - 5;
 
     int oldStartIndex = data->drawQuestionStartIndex;
@@ -105,8 +105,8 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
 
     int delta = data->drawQuestionStartIndex - oldStartIndex;
     if(abs(delta) >= data->elementLimit) {
-        DrawVisibleQuestions(data);
-        DrawScrollBar(data, oldSelected);
+        DrawUI_VisibleQuestions(data);
+        DrawUI_ScrollBar(data, oldSelected);
         return;
     }
 
@@ -115,7 +115,7 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
     PrintQuestionLine(ListGetAt(data->list, oldSelected), widthLimit, data->blockWidth);
 
     // Remove scrollBarHandle
-    RemoveScrollBar(data, oldSelected);
+    DrawUI_RemoveScrollBar(data, oldSelected);
 
     if(delta > 0) {
         printf(SCREEN_SCROLL_UP(delta));
@@ -138,7 +138,7 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
     }
 
     // Draw scrollBarHandle
-    AddScrollBar(data);
+    DrawUI_AddScrollBar(data);
 
     // Set new selected
     SetColorRGBPreset(RGB_ID_WHITE, false);
@@ -168,7 +168,7 @@ void UpdateVisibleQuestions(QuestionListPageData* data, int oldSelected) {
     }
 }
 
-void CalculateStartIndex(QuestionListPageData* data) {
+static void CalculateStartIndex(QuestionListPageData* data) {
     data->drawQuestionStartIndex = 0;
     if(data->selected > data->elementLimit / 2) {
         data->drawQuestionStartIndex = data->selected - data->elementLimit / 2;
@@ -183,7 +183,7 @@ void CalculateStartIndex(QuestionListPageData* data) {
     }
 }
 
-void DrawVisibleQuestions(QuestionListPageData* data) {
+static void DrawUI_VisibleQuestions(QuestionListPageData* data) {
     SetCursorPosition(0, 2);
     int i = 0;
 
@@ -222,7 +222,7 @@ void DrawVisibleQuestions(QuestionListPageData* data) {
     }
 }
 
-void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_ScrollBar(QuestionListPageData* data, int oldSelected) {
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -264,7 +264,7 @@ void DrawScrollBar(QuestionListPageData* data, int oldSelected) {
     ResetCursor();
 }
 
-void RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
+static void DrawUI_RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -284,7 +284,7 @@ void RemoveScrollBar(QuestionListPageData* data, int oldSelected) {
     ResetCursor();
 }
 
-void AddScrollBar(QuestionListPageData* data) {
+static void DrawUI_AddScrollBar(QuestionListPageData* data) {
     if(data->list->count <= data->elementLimit) return;
 
     int scrollHeight = data->terminalHeight - 2;
@@ -304,18 +304,18 @@ void AddScrollBar(QuestionListPageData* data) {
     ResetCursor();
 }
 
-void DrawAll(QuestionListPageData* data) {
+static void DrawUI(QuestionListPageData* data) {
     ClearScreen();
 
     printf("Lista pytań\n");
 
-    DrawVisibleQuestions(data);
+    DrawUI_VisibleQuestions(data);
 
-    DrawStaticScroll(data);
-    DrawScrollBar(data, INT_MIN);
+    DrawUI_Static_ScrollBar(data);
+    DrawUI_ScrollBar(data, INT_MIN);
 }
 
-void Scroll(QuestionListPageData* data, bool down) {
+static void Scroll(QuestionListPageData* data, bool down) {
     int oldSelected;
 
     if(down) {
@@ -329,7 +329,7 @@ void Scroll(QuestionListPageData* data, bool down) {
         oldSelected = data->selected--;
     }
 
-    UpdateVisibleQuestions(data, oldSelected);
+    DrawUI_UpdateVisibleQuestions(data, oldSelected);
 }
 
 extern int LatestTerminalWidth, LatestTerminalHeight;
@@ -337,8 +337,8 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 static Question AddQuestionQuestion = {ADD_QUESTION_ID, "", { "", "", "", "" }};
 static Question ReturnQuestion = {RETURN_QUESTION_ID, "", { "", "", "", "" }};
 
-bool delayedEnterQuiz = false;
-void EnterPreview(QuestionListPageData* data, bool mainLoop) {
+static bool delayedEnterQuiz = false;
+static void EnterPreview(QuestionListPageData* data, bool mainLoop) {
     if(!mainLoop) {
         delayedEnterQuiz = true;
         return;
@@ -380,14 +380,14 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
 
     delayedEnterQuiz = false;
 
-    SetResizeHandler(OnQuestionListPageResize, data);
-    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, data);
+    SetResizeHandler(OnResize, data);
+    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, data);
 
     if(data->terminalWidth != LatestTerminalWidth || data->terminalHeight != LatestTerminalHeight) {
-        OnQuestionListPageResize(data);
+        OnResize(data);
     }
     else if(!data->questionListModified) {
-        DrawAll(data);
+        DrawUI(data);
     }
 
     if(data->questionListModified) {
@@ -402,7 +402,7 @@ void EnterPreview(QuestionListPageData* data, bool mainLoop) {
             data->selected = data->list->count - 1;
         }
 
-        DrawAll(data);
+        DrawUI(data);
     }
 }
 
@@ -422,10 +422,10 @@ void PageEnter_QuestionList()
     ListInsert(data.list, 0, &AddQuestionQuestion);
     ListInsert(data.list, 0, &ReturnQuestion);
 
-    OnQuestionListPageResize(&data);
+    OnResize(&data);
 
-    SetResizeHandler(OnQuestionListPageResize, &data);
-    SetMouseHandler(OnQuestionListPageMouseClick, OnQuestionListPageMouseDoubleClick, OnQuestionListPageScroll, NULL, &data);
+    SetResizeHandler(OnResize, &data);
+    SetMouseHandler(OnMouseClick, OnMouseDoubleClick, OnScroll, NULL, &data);
 
     KeyInputType key;
     while(!data.exit) {
@@ -466,7 +466,7 @@ void PageEnter_QuestionList()
     printf(SCREEN_SCROLL_REGION_RESET);
 }
 
-void OnQuestionListPageResize(void* data)
+static void OnResize(void* data)
 {
     QuestionListPageData* pageData = (QuestionListPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
@@ -484,16 +484,16 @@ void OnQuestionListPageResize(void* data)
 
     printf(SCREEN_SCROLL_REGION(2, pageData->terminalHeight - 1)); // Set scrolling region
 
-    DrawAll(pageData);
+    DrawUI(pageData);
 }
 
-void OnQuestionListPageScroll(bool down, void* data) {
+static void OnScroll(bool down, void* data) {
     Scroll((QuestionListPageData*)data, down);
 }
 
 extern int LatestMouseX, LatestMouseY;
 
-void OnQuestionListPageMouseClick(int button, void* data) {
+static void OnMouseClick(int button, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 
@@ -531,10 +531,10 @@ void OnQuestionListPageMouseClick(int button, void* data) {
         }
     }
 
-    UpdateVisibleQuestions(pageData, oldSelected);
+    DrawUI_UpdateVisibleQuestions(pageData, oldSelected);
 }
 
-void OnQuestionListPageMouseDoubleClick(int button, void* data) {
+static void OnMouseDoubleClick(int button, void* data) {
     if((button & MOUSE_LEFT_BUTTON) == 0) return;
     QuestionListPageData* pageData = (QuestionListPageData*)data;
 

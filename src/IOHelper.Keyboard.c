@@ -5,9 +5,9 @@
 #define TEXT_INPUT_BUFFER_SIZE 128
 #define CTRL_C '\03'
 
-int textInputBufferReadPtr = TEXT_INPUT_BUFFER_SIZE;
-int textInputBufferWritePtr = TEXT_INPUT_BUFFER_SIZE;
-char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
+static int textInputBufferReadPtr = TEXT_INPUT_BUFFER_SIZE;
+static int textInputBufferWritePtr = TEXT_INPUT_BUFFER_SIZE;
+static char textInputBuffer[TEXT_INPUT_BUFFER_SIZE];
 
 #define BufferPtrInc(ptr) ptr++; if(ptr >= TEXT_INPUT_BUFFER_SIZE) ptr = 0;
 

@@ -20,7 +20,7 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 
 static void CalculateQuizPageSizeRequirements();
 
-bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result) {
+static bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResult result) {
     if(result == QQR_Correct) {
         if(rewardId == 9) {
             SetColorRGBPreset(LoadedSettings.CorrectAnswerColor, false);
@@ -43,7 +43,7 @@ bool SetRewardColor(int rewardId, int questionNumber, int safe, QuizQuestionResu
     return false;
 }
 
-void DrawpEndGameUIRightSide(int questionNumber, int safe, QuizQuestionResult result, int beginX, int beginY, int partSplit) {
+static void DrawUI_EndGame_RightSide(int questionNumber, int safe, QuizQuestionResult result, int beginX, int beginY, int partSplit) {
     SetCursorPosition(beginX + partSplit, beginY + 1 - 1);
     printf(SINGLE_BREAK_BOTTOM);
     SetCursorPosition(beginX + partSplit + 16, beginY + 1 - 1);
@@ -79,7 +79,7 @@ void DrawpEndGameUIRightSide(int questionNumber, int safe, QuizQuestionResult re
     printf(SINGLE_BREAK_TOP);
 }
 
-void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
+static void DrawUI_EndGame(int questionNumber, int safe, QuizQuestionResult result) {
     const int width = 60;
     const int height = 13;
 
@@ -87,7 +87,7 @@ void DrawEndGameUI(int questionNumber, int safe, QuizQuestionResult result) {
     DrawEmptyPopup(width, height, &beginX, &beginY);
 
     const int partSplit = width - 32;
-    DrawpEndGameUIRightSide(questionNumber, safe, result, beginX, beginY, partSplit);
+    DrawUI_EndGame_RightSide(questionNumber, safe, result, beginX, beginY, partSplit);
 
     char* textPtr = NULL;
     int lines = 0;
@@ -156,7 +156,7 @@ void PageEnter_Quiz()
     else if(i > 2) safe = 2;
     else if(i > 0) safe = 0;
 
-    DrawEndGameUI(i, safe, correct);
+    DrawUI_EndGame(i, safe, correct);
 
     ResetColor();
 
@@ -168,7 +168,7 @@ void PageEnter_Quiz()
 int QuizPageMinimumWidth = -1;
 int QuizPageMinimumHeight = -1;
 
-void CalculateQuizPageSizeRequirements() {
+static void CalculateQuizPageSizeRequirements() {
     const int rewardBoxWidth = 18 + 1;
     const int rewardBoxHeight = 10;
     const int staticWidthContent = 14 + 2;

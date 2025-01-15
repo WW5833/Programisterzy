@@ -64,7 +64,7 @@
 64;Farsa to odmiana:;komedii;dramatu właściwego;dramatu naturalistycznego;tragedii;
 65;O której godzinie wskazówki zegara tworzą kąt rozwarty:;17:00:00;13:00:00;15:00:00;22:00:00;
 66;Bandersnatch to interaktywny odcinek serialu:;Czarne lustro;Ozark;Orange Is the New Black;Peaky Blinders;
-67;Według kodeksu morskiego zze statku ostatni schodzi:;kapitan;majtek;hotelowy;maszynowy;
+67;Według kodeksu morskiego ze statku ostatni schodzi:;kapitan;majtek;hotelowy;maszynowy;
 68;W mitologii greckiej Narcyz zakochał się:;we własnym odbiciu;w żonie Odyseusza;w matce Ateny;w córce Zeusa;
 69;Sriracha to sos pochodzący z kuchni:;tajskiej;meksykańskiej;indyjskiej;francuskiej;
 70;Fikcyjna postać kobieca z serii komiksów o Batmanie to:;Kobieta-Kot;Callisto;Elekta;Czarna Wdowa;
@@ -81,7 +81,7 @@
 81;Ile to jest 1111 razy 1111, jeśli 1 razy 1 to 1, a 11 razy 11 to 121?;1 234 321;111 111 111;123 454 321;12 321;
 82;Kiedy rozpoczęło się drugie tysiąclecie?;1 stycznia 1001 roku;1 stycznia 1000 roku;1 stycznia 2001 roku;1 stycznia 2000 roku;
 83;Do czworonogów, czyli tetrapodów, nie zaliczamy:;Owadów;Gadów;Płazów;Ptaków;
-84;W jakiej cieśninie znajdują się dwie wyspy zwane wczorajszą i jutrzejszą, które dzielą niespełna cztery kilometry, ale aż 21 godzin różnicy czasu?;w Cieśninie Beringa;w Ciśnienie Kaletańskiej;w Cieśninie Magellana;w ciśnienie Bosfor;
+84;TUTAJ BYŁ DUPLIKAT PYTANIA;POPRAWNA;ŹLE;ŹLE;ŹLE;
 85;Budowa układu pokarmowego którego ze zwierząt świadczy o tym, że jest ono drapieżnikiem?;pandy;koali;sarny;lamy;
 86;Skąd pochodzi Conan Barbarzyńca?;z Cimmerii;z Mordoru;z Oz;z Rivii;
 87;Kto jest mistrzem tego samego oręża, w jakim specjalizowała się mitologiczna Artemida?;Legolas;Don Kichot;Zorro;Longinus Podbipięta;
@@ -104,7 +104,7 @@
 104;Które ze świąt dzieli najmniejsza liczba dni od Andrzejek?;Boże Narodzenie;Wielkanoc;Zaduszki;Święto Trzech Króli;
 105;Jak to dalej szło? "Opowiem ci bajkę, jak kot palił fajkę, a kocica papierosa ...";upaliła kawał nosa;w fifce, byle dalej nosa;kocięta zaś skręta;te koty zeszły z drogi cnoty;
 106;Znak BHP, na którym w żółtym trójkątnym polu widnieje symbol podkowy, ostrzega przed:;silnym polem magnetycznym;materiałem radioaktywnym;substancjami łatwopalnymi;skażeniem biologicznym;
-107;Jaką budowlę najbardziej przypomina grafika z flagi UNESCO?;Partenon;wieżę Eiffla;Kreml;Rmpire State Building;
+107;Jaką budowlę najbardziej przypomina grafika z flagi UNESCO?;Partenon;wieżę Eiffla;Kreml;Empire State Building;
 108;Patronem internetu jest święty Izydor. A którzy święci patronują telewizji?;św. Klara i św. Łucja;św. Anna i św. Elżbieta;św. Krzysztof i św. Florian;św. Jan i św. Piotr;
 109;Ile nacięć na bułce ma kajzerka?;pięć;sześć;trzy;cztery;
 110;Ryś polski, łabędź rostowski, saksoński bocian i wywrotek smoleński to...;rasy gołębi;rasy kur;chrząszcze;akrobacje na deskorolce;

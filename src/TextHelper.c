@@ -34,7 +34,7 @@ int GetUTF8CharSize(const char* start) {
     ExitAppWithErrorFormat(EXIT_FAILURE, ERRMSG_UTF8_INVALID(start));
 }
 
-const char* _internal_GetNextChar(const char* c) {
+const char* GetNextChar(const char* c) {
     if(*c == ESC_SEQ_CHAR) {
         return c + GetUTF8CharSize(c);
     }
@@ -48,16 +48,6 @@ const char* _internal_GetNextChar(const char* c) {
     }
 
     return c + GetUTF8CharSize(c);
-}
-
-const char* GetNextChar(const char* c) {
-    const char* value = _internal_GetNextChar(c);
-    if(value == NULL) {
-        ExitAppWithErrorMessage(EXIT_FAILURE, ERRMSG_UTF8_NULL);
-    }
-
-
-    return value;
 }
 
 int GetCurrentCharSize(const char* stringStart, const char* c) {
@@ -110,15 +100,15 @@ int GetCharCount(const char* start, const char* end) {
     return count;
 }
 
-int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText, bool print)
+static int _internal_PrintWrappedLine(const char* text, int width, int secondaryOffset, bool centerText, bool print)
 {
     int byteLineLength, lineLength;
 
     int lineCount = 1;
     int currentWidth = 0;
-    const char* wordStart = line;
-    const char* current = line;
-    const char* lineStart = line;
+    const char* wordStart = text;
+    const char* current = text;
+    const char* lineStart = text;
     int leftSpaces;
 
     while (*current != '\0') {
@@ -176,32 +166,32 @@ int _internal_PrintWrappedLine(const char* line, int width, int secondaryOffset,
     return lineCount;
 }
 
-int GetWrappedLineCount(const char* line, int width)
+int GetWrappedLineCount(const char* text, int width)
 {
-    return _internal_PrintWrappedLine(line, width, 0, false, false);
+    return _internal_PrintWrappedLine(text, width, 0, false, false);
 }
 
-int PrintWrappedLine(const char* line, int width, int secondaryOffset, bool centerText)
+int PrintWrappedLine(const char* text, int width, int secondaryOffset, bool centerText)
 {
-    return _internal_PrintWrappedLine(line, width, secondaryOffset, centerText, true);
+    return _internal_PrintWrappedLine(text, width, secondaryOffset, centerText, true);
 }
 
-int GetMaxWordLength(const char* line)
+int GetMaxWordLength(const char* text)
 {
     int max = 0;
-    const char* lastSpace = line;
-    while (*line != '\0')
+    const char* lastSpace = text;
+    while (*text != '\0')
     {
-        if (*line == ' ')
+        if (*text == ' ')
         {
-            max = MAX(max, GetCharCount(lastSpace, line));
-            lastSpace = line;
+            max = MAX(max, GetCharCount(lastSpace, text));
+            lastSpace = text;
         }
 
-        line++;
+        text++;
     }
 
-    max = MAX(max, GetCharCount(lastSpace, line));
+    max = MAX(max, GetCharCount(lastSpace, text));
 
     return max;
 }

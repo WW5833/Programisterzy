@@ -28,7 +28,7 @@
 
 extern Settings LoadedSettings;
 
-void SetTextColorToComplementBackground(int color) {
+static void SetTextColorToComplementBackground(int color) {
     bool darkText = false;
     bool noSwap = false;
     switch (color)
@@ -68,7 +68,7 @@ void SetTextColorToComplementBackground(int color) {
     }
 }
 
-void internalSetColorRGBPreset(int color, int mode)
+static void internalSetColorRGBPreset(int color, int mode)
 {
     switch (color)
     {
@@ -102,7 +102,7 @@ void internalSetColorRGBPreset(int color, int mode)
     }
 }
 
-void internalSetColorRGBPresetWhiteMode(int color, int mode)
+static void internalSetColorRGBPresetWhiteMode(int color, int mode)
 {
     switch (color)
     {

@@ -44,25 +44,49 @@
 #define SET_RGB_FG_COLOR(r, g, b) ESC_SEQ "38;2;%d;%d;%dm", r, g, b
 #define SET_RGB_BG_COLOR(r, g, b) ESC_SEQ "48;2;%d;%d;%dm", r, g, b
 
+/// @brief Check if ANSI escape sequences are supported by the terminal
+/// @return true if supported, false otherwise
 bool CheckForAnsiSupport();
 
+/// @brief Reset the cursor position to the top left corner of the terminal
 void ResetCursor();
+
+/// @brief Enable the alternative screen buffer
 void EnableAlternativeBuffer();
+
+/// @brief Disable the alternative screen buffer
 void DisableAlternativeBuffer();
+
+/// @brief Clear the screen line by line
 void ClearScreenManual();
+
+/// @brief Get the current cursor position
+/// @param x Return value for the x coordinate
+/// @param y Return value for the y coordinate
 void GetCursorPosition(int* x, int* y);
+
+/// @brief Set the cursor position
+/// @param x The x coordinate
+/// @param y The y coordinate
 void SetCursorPosition(int x, int y);
 
 // This is done to avoid conflicts with Windows API
 #define HideCursor HideConsoleCursor
 #define ShowCursor ShowConsoleCursor
 
+/// @brief Clear the screen
 void ClearScreen();
+/// @brief Clear the line
 void ClearLine();
+/// @brief Reset colors to program defaults
 void ResetColor();
+/// @brief Hides the console cursor
 void HideConsoleCursor();
+/// @brief Shows the console cursor
 void ShowConsoleCursor();
+/// @brief Save the current cursor position
 void SaveCursorPosition();
+/// @brief Restore the saved cursor position
 void RestoreCursorPosition();
 
 #endif // _INC_ANSIHELPER_H

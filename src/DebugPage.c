@@ -6,15 +6,6 @@
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-#define MAIN_MENU_MIN_WIDTH 48
-#define MAIN_MENU_MIN_HEIGHT 13
-
-#define SETTINGS_MIN_WIDTH 48
-#define SETTINGS_MIN_HEIGHT 20
-
-#define QUIZ_MIN_WIDTH 60
-#define QUIZ_MIN_HEIGHT 13
-
 #define MIN_TERMINAL_WIDTH 70
 #define MIN_TERMINAL_HEIGHT 26
 
@@ -96,7 +87,7 @@ static void CalculateQuizPageWidthRequirements() {
     width = MAX(width, MIN_TERMINAL_WIDTH);
     height = MAX(height, MIN_TERMINAL_HEIGHT);
 
-    printf("Terminal size: %d x %d\n", terminalWidth, terminalHeight);
+    printf("Terminal size: %d x %d\n", LatestTerminalWidth, LatestTerminalHeight);
     printf("Required size: %d x %d\n", width, height);
     printf("\n");
     printf("Max content word length: %d [%d]\n", maxLengthWordContent, maxLengthWordContentID);
@@ -107,19 +98,14 @@ static void CalculateQuizPageWidthRequirements() {
     printf("\n");
 }
 
-void PrintSymbols() {
-    printf("\nSymbols");
-    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤▁▂▃▄▅▆▇█▶│─┌┐└┘┤├↑↓←→");
-}
-
-extern int LatestTerminalWidth, LatestTerminalHeight;
-
-void PrintContent() {
+static void DrawUI() {
     ClearScreen();
     printf("Debug page\n");
 
-    CalculateQuizPageWidthRequirements(LatestTerminalWidth, LatestTerminalHeight);
-    PrintSymbols();
+    CalculateQuizPageWidthRequirements();
+
+    printf("\nSymbols");
+    printf("\n║═╔╗╚╝╬╠╣╦╩╧╤▁▂▃▄▅▆▇█▶│─┌┐└┘┤├↑↓←→");
 
     printf("\n\n");
     printf(ESC_SEQ "1m" "TEST" ESC_SEQ "22m" "\n");
@@ -131,19 +117,19 @@ void PrintContent() {
     printf(ESC_SEQ "8m" "TEST" ESC_SEQ "28m" "\n");
     printf(ESC_SEQ "9m" "TEST" ESC_SEQ "29m" "\n");
 
-    printf("\n[Esc] - Wciśnij Escape aby powrócić do głównego Menu.\n");
+    printf("\n[Esc] - Wciśnij aby powrócić do głównego Menu.\n");
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-void OnResize(void* data) {
+static void OnResize(void* data) {
 #pragma GCC diagnostic warning "-Wunused-parameter"
 
-    PrintContent();
+    DrawUI();
 }
 
 void PageEnter_Debug()
 {
-    PrintContent();
+    DrawUI();
     SetResizeHandler(OnResize, NULL);
 
     WaitForKeys(ESC, ENTER);

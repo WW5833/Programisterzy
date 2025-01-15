@@ -5,7 +5,10 @@
 #include "IOHelper.h"
 #include <windows.h>
 
-void MouseEventProc(MOUSE_EVENT_RECORD);
+/// @brief Process a mouse event
+/// @param mer The mouse event record
+void MouseEventProc(MOUSE_EVENT_RECORD mer);
+/// @brief The mouse IO loop
 void Mouse_IOLoop();
 
 #endif // _INC_IOHELPER_MOUSE_H

@@ -38,8 +38,6 @@ typedef enum {
     PMT_WithoutCorrect,
 } PreviewModeType;
 
-extern Settings LoadedSettings;
-
 typedef struct
 {
     Question* question;
@@ -74,18 +72,16 @@ typedef struct
     PreviewModeType previewMode;
 } QuizQuestionPageData;
 
-void ShowAudienceHelp(QuizQuestionPageData* data);
-void Show5050Help(QuizQuestionPageData* data);
-void ShowPhoneHelp(QuizQuestionPageData* data);
-bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
+extern Settings LoadedSettings;
 
-void OnConsoleResize(void* data);
+static void ShowAudienceHelp(QuizQuestionPageData* data);
+static void Show5050Help(QuizQuestionPageData* data);
+static void ShowPhoneHelp(QuizQuestionPageData* data);
+static bool ShowExitConfirmationWindow(QuizQuestionPageData* data);
 
-void SetCursorToRestingPlace(QuizQuestionPageData* data) {
-    SetCursorPosition(0, data->answersEndY + 5);
-}
+static void OnResize(void* data);
 
-void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
+static void DrawUI_PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount, char letter, bool color, int colorFg) {
     if(color) SetColorRGBPreset(colorFg, false);
     SetCursorPosition(beginX, beginY);
 
@@ -123,7 +119,7 @@ void PrintSingleAnswerBlock(int beginX, int beginY, int ansWidth, int lineCount,
     ResetColor();
 }
 
-void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
+static void DrawUI_PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelected, int colorFg) {
     if(selected == oldSelected) return;
 
     bool forceUpdate = oldSelected == INT_MIN;
@@ -133,23 +129,23 @@ void PrintAnswersBlocks(QuizQuestionPageData* data, int selected, int oldSelecte
     int beginXOffset = data->ansWidth + 1;
 
     if(forceUpdate || selected == 0 || oldSelected == 0)
-        PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
+        DrawUI_PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxAB, 'A', selected == 0, colorFg);
     if(forceUpdate || selected == 1 || oldSelected == 1)
-        PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
+        DrawUI_PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxAB, 'B', selected == 1, colorFg);
 
     beginY += data->ansLineCountMaxAB + 4;
 
     if(forceUpdate || selected == 2 || oldSelected == 2)
-        PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
+        DrawUI_PrintSingleAnswerBlock(beginX, beginY, data->ansWidth, data->ansLineCountMaxCD, 'C', selected == 2, colorFg);
     if(forceUpdate || selected == 3 || oldSelected == 3)
-        PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
+        DrawUI_PrintSingleAnswerBlock(beginX + beginXOffset, beginY, data->ansWidth, data->ansLineCountMaxCD, 'D', selected == 3, colorFg);
 }
 
-void PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int colorFg) {
-    PrintAnswersBlocks(data, selected, INT_MIN, colorFg);
+static void DrawUI_PrintAnswersBlocksForce(QuizQuestionPageData* data, int selected, int colorFg) {
+    DrawUI_PrintAnswersBlocks(data, selected, INT_MIN, colorFg);
 }
 
-void PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
+static void DrawUI_Static_PrintAnswerContent(QuizQuestionPageData* data, int startX, int startY, int ansIndex, int height) {
     SetCursorPosition(startX, startY);
     PrintWrappedLine(data->question->Answer[ansIndex], data->ansWidthLimit, startX - 1, true);
     if(data->abilities[ABILITY_5050] == QQAS_Active && data->blockedOptions[ansIndex]) {
@@ -182,7 +178,7 @@ extern int LatestTerminalWidth, LatestTerminalHeight;
 extern int QuizPageMinimumWidth, QuizPageMinimumHeight;
 
 // Calculate the amount of lines needed to wrap the text
-void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTerminalSize) {
+static void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTerminalSize) {
     if(calculateTerminalSize) {
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;
@@ -199,7 +195,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
         data->terminalWidth = LatestTerminalWidth;
         data->terminalHeight = LatestTerminalHeight;
 
-        SetResizeHandler(OnConsoleResize, data);
+        SetResizeHandler(OnResize, data);
     }
 
     if(data->terminalWidth % 2 == 0) data->terminalWidth--;
@@ -220,7 +216,7 @@ void CalculateQuizQuestionPageData(QuizQuestionPageData* data, bool calculateTer
     data->answersEndY = data->questionContentEndY + data->ansLineCountMaxAB + data->ansLineCountMaxCD + 8;
 }
 
-void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, int number, int offset, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
+static void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, int number, int offset, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
     data->question = question;
     data->questionNumer = number;
     data->offset = offset;
@@ -281,7 +277,7 @@ void ini_QuizQuestionPageData(QuizQuestionPageData* data, Question* question, in
     CalculateQuizQuestionPageData(data, true);
 }
 
-void DrawStaticUI_Border_RewardBox(QuizQuestionPageData* data) {
+static void DrawUI_Static_Border_RewardBox(QuizQuestionPageData* data) {
     // Draw reward box
     SetCursorPosition(data->terminalWidth - REWARD_BOX_WIDTH - 2, data->questionContentEndY - 1);
     printf(TJUNCTION_DOWN_SINGLE);
@@ -295,7 +291,7 @@ void DrawStaticUI_Border_RewardBox(QuizQuestionPageData* data) {
     printf(TJUNCTION_UP_SINGLE);
 }
 
-void DrawStaticUI_Border_Main(QuizQuestionPageData* data) {
+static void DrawUI_Static_Border_Main(QuizQuestionPageData* data) {
     ResetCursor();
 
     PRINT_TOP_BORDER(data->terminalWidth);
@@ -307,10 +303,10 @@ void DrawStaticUI_Border_Main(QuizQuestionPageData* data) {
     PRINT_BOTTOM_BORDER(data->terminalWidth);
 }
 
-void DrawStaticUI_Border(QuizQuestionPageData* data) {
+static void DrawUI_Static_Border(QuizQuestionPageData* data) {
     ResetCursor();
 
-    DrawStaticUI_Border_Main(data);
+    DrawUI_Static_Border_Main(data);
 
     // Question Content | Answers splitter
     SetCursorPosition(0, data->questionContentEndY - 1);
@@ -320,7 +316,7 @@ void DrawStaticUI_Border(QuizQuestionPageData* data) {
     SetCursorPosition(0, data->answersEndY);
     PRINT_TJUNCTION_BORDER(data->terminalWidth);
 
-    DrawStaticUI_Border_RewardBox(data);
+    DrawUI_Static_Border_RewardBox(data);
 }
 
 const char* GetRewardText(int rewardId) {
@@ -340,7 +336,7 @@ const char* GetRewardText(int rewardId) {
     }
 }
 
-int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
+static int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
     int questionNum = data->questionNumer - 1;
     if(rewardId == questionNum) {
         return LoadedSettings.SelectedAnswerColor;
@@ -357,7 +353,7 @@ int GetRewardColor(QuizQuestionPageData* data, int rewardId) {
     return 0;
 }
 
-void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
+static void DrawUI_Static_RewardBoxContent(QuizQuestionPageData* data) {
     const int questionCount = 10;
     for (int i = 0; i < questionCount; i++) {
         int rewardId = questionCount - (i + 1);
@@ -379,13 +375,13 @@ void DrawStatusUI_RewardBoxContent(QuizQuestionPageData* data) {
     }
 }
 
-void DrawStaticUI_QuestionContent(QuizQuestionPageData* data) {
+static void DrawUI_Static_QuestionContent(QuizQuestionPageData* data) {
     SetCursorPosition(3, 2);
     printf("Pytanie %2d: ", data->questionNumer);
     PrintWrappedLine(data->question->Content, data->terminalWidth - 16, 14, false);
 }
 
-void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* text, char key) {
+static void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* text, char key) {
     printf("                                                      ");
     printf(CSR_MOVE_LEFT(54));
     int status = data->abilities[abilityId];
@@ -425,7 +421,7 @@ void PrintAbilityText(QuizQuestionPageData* data, int abilityId, const char* tex
     }
 }
 
-void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
+static void DrawUI_Abilities(QuizQuestionPageData* data) {
     SetCursorPosition(3, data->answersEndY + 1);
 
     PrintAbilityText(data, ABILITY_AUDIENCE, "Głos publiczności", '1');
@@ -437,18 +433,16 @@ void DrawStaticUI_Abilities(QuizQuestionPageData* data) {
     PrintAbilityText(data, ABILITY_PHONE, "Telefon do przyjaciela", '3');
 
     ResetColor();
-
-    SetCursorToRestingPlace(data);
 }
 
-void DrawStaticUI_Answers(QuizQuestionPageData* data) {
+static void DrawUI_Static_Answers(QuizQuestionPageData* data) {
     ResetCursor();
 
     if(data->previewMode == PMT_Disabled) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.SelectedAnswerColor);
+        DrawUI_PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.SelectedAnswerColor);
     }
     else if(data->previewMode == PMT_WithoutCorrect) {
-        PrintAnswersBlocksForce(data, -1, LoadedSettings.SelectedAnswerColor);
+        DrawUI_PrintAnswersBlocksForce(data, -1, LoadedSettings.SelectedAnswerColor);
     }
 
     const int ansTextLeftPadding = 5;
@@ -458,57 +452,55 @@ void DrawStaticUI_Answers(QuizQuestionPageData* data) {
     int startXOffset = data->ansWidthLimit + ansTextMiddlePadding;
 
     // Print Answer 1
-    PrintAnswerContent(data, ansTextLeftPadding, startY, (0 + data->offset) % 4, data->ansLineCountMaxAB);
+    DrawUI_Static_PrintAnswerContent(data, ansTextLeftPadding, startY, (0 + data->offset) % 4, data->ansLineCountMaxAB);
     // Print Answer 2
-    PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (1 + data->offset) % 4, data->ansLineCountMaxAB);
+    DrawUI_Static_PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (1 + data->offset) % 4, data->ansLineCountMaxAB);
 
     startY += data->ansLineCountMaxAB + 4;
 
     // Print Answer 3
-    PrintAnswerContent(data, ansTextLeftPadding, startY, (2 + data->offset) % 4, data->ansLineCountMaxCD);
+    DrawUI_Static_PrintAnswerContent(data, ansTextLeftPadding, startY, (2 + data->offset) % 4, data->ansLineCountMaxCD);
     // Print Answer 4
-    PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (3 + data->offset) % 4, data->ansLineCountMaxCD);
+    DrawUI_Static_PrintAnswerContent(data, ansTextLeftPadding + startXOffset, startY, (3 + data->offset) % 4, data->ansLineCountMaxCD);
 
     if(data->previewMode == PMT_WithCorrect) {
-        PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
-        PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
-        PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
-        PrintAnswersBlocks(data, (3 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
+        DrawUI_PrintAnswersBlocks(data, (0 - data->offset + 4) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
+        DrawUI_PrintAnswersBlocks(data, (1 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
+        DrawUI_PrintAnswersBlocks(data, (2 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
+        DrawUI_PrintAnswersBlocks(data, (3 - data->offset + 4) % 4, INT_MAX, LoadedSettings.WrongAnswerColor);
     }
 }
 
-void DrawStaticUI(QuizQuestionPageData* data) {
+static void DrawUI_Static(QuizQuestionPageData* data) {
     ClearScreen();
-    DrawStaticUI_Border(data);
+    DrawUI_Static_Border(data);
 
-    DrawStatusUI_RewardBoxContent(data);
+    DrawUI_Static_RewardBoxContent(data);
 
-    DrawStaticUI_QuestionContent(data);
+    DrawUI_Static_QuestionContent(data);
 
-    DrawStaticUI_Abilities(data);
+    DrawUI_Abilities(data);
 
-    DrawStaticUI_Answers(data);
-
-    SetCursorToRestingPlace(data);
+    DrawUI_Static_Answers(data);
 }
 
-void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
+static void UpdateAnswersBlocks(QuizQuestionPageData* data, int oldSelected) {
     data->confirmed = false;
-    PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings.SelectedAnswerColor);
+    DrawUI_PrintAnswersBlocks(data, data->selectedQuestion, oldSelected, LoadedSettings.SelectedAnswerColor);
 }
 
-void ResetAbilityConfirm(QuizQuestionPageData* data, int selectedAbilityId) {
+static void ResetAbilityConfirm(QuizQuestionPageData* data, int selectedAbilityId) {
     for (int i = 0; i < 3; i++)
     {
         if(selectedAbilityId == i) continue;
         if(data->abilities[i] == QQAS_Selected) {
             data->abilities[i] = QQAS_Avaialable;
-            DrawStaticUI_Abilities(data);
+            DrawUI_Abilities(data);
         }
     }
 }
 
-bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* abilityConfirmId) {
+static bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* abilityConfirmId) {
     // Allow to reopen help window
     if(data->abilities[abilityId] == QQAS_Active) {
         return false;
@@ -521,7 +513,7 @@ bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* ability
     if(data->abilities[abilityId] != QQAS_Selected) {
         *abilityConfirmId = abilityId;
         data->abilities[abilityId] = QQAS_Selected;
-        DrawStaticUI_Abilities(data);
+        DrawUI_Abilities(data);
         return true;
     }
 
@@ -529,13 +521,9 @@ bool HandleAbilityButton(QuizQuestionPageData* data, int abilityId, int* ability
     return false;
 }
 
-void RemoveMouseHandlers() {
-    UnsetMouseHandler();
-}
-
-bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
+static bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     if(!data->confirmed) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.ConfirmedAnswerColor);
+        DrawUI_PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.ConfirmedAnswerColor);
         data->confirmed = true;
         return false;
     }
@@ -555,25 +543,24 @@ bool HandleAnswerConfirmation(QuizQuestionPageData* data, bool eventCalled) {
     }
 
     if(*data->outResult == QQR_Correct) {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.CorrectAnswerColor);
+        DrawUI_PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.CorrectAnswerColor);
     }
     else {
-        PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.WrongAnswerColor);
+        DrawUI_PrintAnswersBlocksForce(data, data->selectedQuestion, LoadedSettings.WrongAnswerColor);
         if(LoadedSettings.ShowCorrectWhenWrong) {
-            PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
+            DrawUI_PrintAnswersBlocks(data, (4 - data->offset) % 4, INT_MAX, LoadedSettings.CorrectAnswerColor);
         }
     }
 
-    RemoveMouseHandlers();
+    UnsetMouseHandler();
     EnableMouseInput(true);
 
-    SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, ESC, ANY_MOUSE_BUTTON);
     EnableMouseInput(false);
     return true;
 }
 
-bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
+static bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
     int oldSel = data->selectedQuestion;
     int abilityConfirmId = -1;
 
@@ -618,7 +605,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
             ShowAudienceHelp(data);
 
             // Redraw UI
-            DrawStaticUI(data);
+            DrawUI_Static(data);
             break;
 
         case KEY_2:
@@ -628,7 +615,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
             Show5050Help(data);
 
             // Redraw UI
-            DrawStaticUI(data);
+            DrawUI_Static(data);
             break;
 
         case KEY_3:
@@ -638,7 +625,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
             ShowPhoneHelp(data);
 
             // Redraw UI
-            DrawStaticUI(data);
+            DrawUI_Static(data);
             break;
 
         case KEY_ESCAPE:
@@ -647,7 +634,7 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
                 return true;
             }
 
-            DrawStaticUI(data);
+            DrawUI_Static(data);
             break;
 
         default:
@@ -659,18 +646,18 @@ bool HandleKeyInput(QuizQuestionPageData* data, KeyInputType key) {
     return false;
 }
 
-void OnConsoleResize(void* data) {
+static void OnResize(void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
     pageData->terminalWidth = LatestTerminalWidth;
     pageData->terminalHeight = LatestTerminalHeight;
 
     CalculateQuizQuestionPageData(pageData, false);
-    DrawStaticUI(pageData);
+    DrawUI_Static(pageData);
 }
 
 extern int LatestMouseX, LatestMouseY;
 
-bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data) {
+static bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data) {
     const int startX = data->questionContentEndY - 1;
     const int endX = data->answersEndY - 2;
     const int centerY = startX + data->ansLineCountMaxAB + 4;
@@ -710,7 +697,7 @@ bool SelectAnswerBasedOnMousePosition(QuizQuestionPageData* data) {
     return true;
 }
 
-bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data) {
+static bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data) {
     bool result = false;
     int oldSelected = data->mouseSelectedAbility;
     data->mouseSelectedAbility = -1;
@@ -737,12 +724,12 @@ bool SelectAbilityBasedOnMousePosition(QuizQuestionPageData* data) {
         return result;
     }
 
-    DrawStaticUI_Abilities(data);
+    DrawUI_Abilities(data);
 
     return result;
 }
 
-void OnQuizQuestionPageMouseMove(void* data) {
+static void OnMouseMove(void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
 
     if(pageData->focusedWindow != CFW_Question) {
@@ -753,7 +740,7 @@ void OnQuizQuestionPageMouseMove(void* data) {
     SelectAbilityBasedOnMousePosition(data);
 }
 
-void HandleMouseClickForAnswer(QuizQuestionPageData* data) {
+static void HandleMouseClickForAnswer(QuizQuestionPageData* data) {
     if(!SelectAnswerBasedOnMousePosition(data)) {
         return;
     }
@@ -761,7 +748,7 @@ void HandleMouseClickForAnswer(QuizQuestionPageData* data) {
     HandleAnswerConfirmation(data, true);
 }
 
-void HandleMouseClickForAbilities(QuizQuestionPageData* data) {
+static void HandleMouseClickForAbilities(QuizQuestionPageData* data) {
     if(!SelectAbilityBasedOnMousePosition(data)) {
         return;
     }
@@ -775,7 +762,7 @@ void HandleMouseClickForAbilities(QuizQuestionPageData* data) {
     data->pendingAction = PMA_AbilityActivation;
 }
 
-void OnQuizQuestionPageMouseClick(int button, void* data) {
+static void OnMouseClick(int button, void* data) {
     QuizQuestionPageData* pageData = (QuizQuestionPageData*)data;
 
     if((button & MOUSE_LEFT_BUTTON) == 0) {
@@ -792,8 +779,8 @@ void OnQuizQuestionPageMouseClick(int button, void* data) {
     }
 }
 
-void OnQuizQuestionPageDoubleMouseClick(int button, void* data) {
-    OnQuizQuestionPageMouseClick(button, data);
+static void OnDoubleMouseClick(int button, void* data) {
+    OnMouseClick(button, data);
 }
 
 void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityStatus* abilities, QuizQuestionResult* outResult) {
@@ -802,10 +789,10 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     QuizQuestionPageData data;
     ini_QuizQuestionPageData(&data, question, number, offset, abilities, outResult);
 
-    DrawStaticUI(&data);
+    DrawUI_Static(&data);
 
-    SetResizeHandler(OnConsoleResize, &data);
-    SetMouseHandler(OnQuizQuestionPageMouseClick, OnQuizQuestionPageDoubleMouseClick, NULL, OnQuizQuestionPageMouseMove, &data);
+    SetResizeHandler(OnResize, &data);
+    SetMouseHandler(OnMouseClick, OnDoubleMouseClick, NULL, OnMouseMove, &data);
 
     while (true)
     {
@@ -830,7 +817,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
                     break;
             }
 
-            DrawStaticUI(&data);
+            DrawUI_Static(&data);
         }
 
         if(HandleKeyInput(&data, key)) {
@@ -839,7 +826,7 @@ void PageEnter_QuizQuestion(Question* question, int number, QuizQuestionAbilityS
     }
 
     UnsetResizeHandler();
-    RemoveMouseHandlers();
+    UnsetMouseHandler();
 }
 
 void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer) {
@@ -852,9 +839,9 @@ void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer) {
     ini_QuizQuestionPageData(&data, question, question->Id, offset, abilities, &result);
     data.previewMode = showCorrectAnswer ? PMT_WithCorrect : PMT_WithoutCorrect;
 
-    DrawStaticUI(&data);
+    DrawUI_Static(&data);
 
-    SetResizeHandler(OnConsoleResize, &data);
+    SetResizeHandler(OnResize, &data);
 
     bool continueLoop = true;
     while(continueLoop) {
@@ -873,7 +860,7 @@ void PageEnter_QuizQuestionPreview(Question* question, bool showCorrectAnswer) {
     UnsetResizeHandler();
 }
 
-void ShowAudienceHelp(QuizQuestionPageData* data) {
+static void ShowAudienceHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Audience;
 
     const int windowWidth = 54;
@@ -954,13 +941,12 @@ void ShowAudienceHelp(QuizQuestionPageData* data) {
         }
     }
 
-    SetCursorToRestingPlace(data);
     WaitForKeys(ENTER, '1', ESC, ANY_MOUSE_BUTTON);
 
     data->focusedWindow = CFW_Question;
 }
 
-void Show5050Help(QuizQuestionPageData* data) {
+static void Show5050Help(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_5050;
 
     ShowAlertPopupKeys("Wykreśliłem dla ciebie 2 niepoprawne odpowiedzi.", 48 + 4, ENTER, '2', ESC, ANY_MOUSE_BUTTON);
@@ -987,7 +973,7 @@ static const char* PhoneHelpWrongMessages[] = {
     "Odpowiedź %c wygląda dosyć fałszywie."
 };
 
-void ShowPhoneHelp(QuizQuestionPageData* data) {
+static void ShowPhoneHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Phone;
     bool ansIsCorrect = true;
     int i;
@@ -1015,7 +1001,7 @@ void ShowPhoneHelp(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Question;
 }
 
-bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
+static bool ShowExitConfirmationWindow(QuizQuestionPageData* data) {
     data->focusedWindow = CFW_Exit;
 
     if(ShowConfirmationPopup(

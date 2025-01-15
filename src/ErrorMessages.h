@@ -10,7 +10,6 @@
 
 // UTF-8 error messages
 #define ERRMSG_UTF8_GENERIC ERRMSG_PREFIX "Niepoprawna sekwencja UTF-8"
-#define ERRMSG_UTF8_NULL ERRMSG_UTF8_GENERIC " (Znaleziono znak NULL w sekwencji UTF-8)"
 #define ERRMSG_UTF8_CONTINUATION ERRMSG_UTF8_GENERIC " (Bajt jest kontynuacją, a nie początkiem)"
 #define ERRMSG_UTF8_INVALID(c) ERRMSG_UTF8_GENERIC " (Niepoprawny bajt UTF-8: %c (%d))", c, c
 
@@ -29,7 +28,7 @@
 #define ERRMSG_QUESTION_INVALID_QUESTION_ID(question) ERRMSG_PREFIX "Niepoprawny identyfikator pytania: \"%s\"\n", question
 #define ERRMSG_QUESTION_INVALID_QUESTION_ID_PERRNO ERRMSG_PREFIX "Niepoprawny identyfikator pytania"
 #define ERRMSG_QUESTION_FAILED_TO_LOAD ERRMSG_PREFIX "Nie udało się załadować pytań"
-#define ERRMSG_QUESTION_FAILED_TO_DESERIALIZE_CONTENT_EMPTY ERRMSG_PREFIX "Treść pytania jest pusta"
+#define ERRMSG_QUESTION_CONTENT_EMPTY ERRMSG_PREFIX "Treść pytania jest pusta"
 
 // General error messages
 #define ERRMSG_INVALID_OPTION_INDEX(index) ERRMSG_PREFIX "Niepoprawny indeks opcji: %d\n", index
@@ -41,5 +40,14 @@
 
 #define ERRMSG_ERROR_POPUP_TITLE "Błąd"
 #define ERRMSG_TOO_SMALL_TERMINAL(x, y) "Terminal jest zbyt mały aby wyświetlić to okno. Minimalne wymagania to: %d x %d", x, y
+
+// Validation failure messages
+#define VLDFAIL_QUESTION_ID_INVALID "Niepoprawny identyfikator pytania, musi być dodatni"
+#define VLDFAIL_QUESTION_CONTENT_EMPTY "Treść pytania jest pusta"
+#define VLDFAIL_QUESTION_ANSWER_EMPTY "Odpowiedź jest pusta"
+#define VLDFAIL_QUESTION_LIST_NULL "Błąd wewnętrzny: Lista pytań jest niezaładowana"
+#define VLDFAIL_QUESTION_DUPLICATE_ID "Duplikat identyfikatora pytania"
+#define VLDFAIL_QUESTION_NOT_FOUND "Nie znaleziono pytania"
+#define VLDFAIL_QUESTION_TOO_LONG "Pytanie jest zbyt długie (Suma wszystkich znaków przekracza limit)"
 
 #endif // _INC_ERRORMESSAGES_H

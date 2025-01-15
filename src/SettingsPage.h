@@ -3,6 +3,7 @@
 
 #include "Settings.h"
 
+/// @brief Enter the settings page
 void PageEnter_Settings();
 
 #endif // _INC_SETTINGSPAGE_H
